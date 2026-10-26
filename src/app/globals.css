@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
@@ -48,17 +48,17 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
+/* -
    PALETA BASE RP-TECH
    Definida en un solo lugar. Para cambiar colores de la app, edita aquí.
-   ─────────────────────────────────────────────────────────────────────────
+   -
    primary  → azul sobrio principal (botones, links activos, highlights)
    text     → color de texto base
    background → fondo general
    border   → bordes de inputs y tarjetas
    error    → color de mensajes de error / destructive
    radius   → redondez de bordes en toda la UI
-   ───────────────────────────────────────────────────────────────────────── */
+   - */
 :root {
   /* Background & text */
   --background: oklch(0.99 0 0);                  /* blanco cálido */

@@ -1,4 +1,4 @@
-// src/lib/datos-simulados/actions.ts
+﻿// src/lib/datos-simulados/actions.ts
 //
 // Acciones simuladas — todas devuelven una Promise con ~300 ms de espera
 // para imitar una llamada real al backend.
@@ -13,7 +13,7 @@ import { equipos, type Equipo } from './equipos';
 import { catalogos } from './catalogos';
 import { casos, type Caso } from './casos';
 
-// ── Utilidad ──────────────────────────────────────────────────────────────
+// ── Utilidad ─────────────────────────────────────────────────────────────
 
 function delay<T>(data: T, ms = 300): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms));

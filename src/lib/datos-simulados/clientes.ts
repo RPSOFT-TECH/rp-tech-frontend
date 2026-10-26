@@ -1,4 +1,4 @@
-// src/lib/datos-simulados/clientes.ts
+﻿// src/lib/datos-simulados/clientes.ts
 
 /**
  * Simulated client entities.
