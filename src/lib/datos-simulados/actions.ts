@@ -1,4 +1,4 @@
-﻿// src/lib/datos-simulados/actions.ts
+// src/lib/datos-simulados/actions.ts
 //
 // Acciones simuladas — todas devuelven una Promise con ~300 ms de espera
 // para imitar una llamada real al backend.
@@ -13,7 +13,7 @@ import { equipos, type Equipo } from './equipos';
 import { catalogos } from './catalogos';
 import { casos, type Caso } from './casos';
 
-// ── Utilidad ─────────────────────────────────────────────────────────────
+// ── Utilidad ──────────────────────────────────────────────────────────────
 
 function delay<T>(data: T, ms = 300): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms));
@@ -44,11 +44,14 @@ export async function login(
   return usuario ?? null;
 }
 
-/** Cierra la sesión eliminando el usuario del localStorage. */
+/** Cierra la sesión: limpia localStorage y expira la cookie. */
 export async function logout(): Promise<void> {
   await delay(null);
   if (typeof window !== 'undefined') {
     localStorage.removeItem('rptech_user');
+    // Expirar la cookie de sesión
+    document.cookie =
+      'rptech_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
   }
 }
 
@@ -64,10 +67,12 @@ export function obtenerUsuarioActual(): Usuario | null {
   }
 }
 
-/** Guarda el usuario en localStorage (llamar tras un login exitoso). */
+/** Guarda el usuario en localStorage y en la cookie de sesión. */
 export function guardarSesion(usuario: Usuario): void {
   if (typeof window !== 'undefined') {
     localStorage.setItem('rptech_user', JSON.stringify(usuario));
+    // Cookie que lee el proxy para proteger rutas
+    document.cookie = `rptech_session=${encodeURIComponent(JSON.stringify(usuario))}; path=/; SameSite=Lax`;
   }
 }
 
@@ -116,7 +121,6 @@ export async function obtenerEquipos(clienteId: number): Promise<Equipo[]> {
 /** Devuelve todos los catálogos activos, ordenados por el campo `orden`. */
 export async function obtenerCatalogos(): Promise<typeof catalogos> {
   await delay(null);
-  // Cada lista ya está en orden; devolvemos solo los activos.
   return {
     tipos_servicio: catalogos.tipos_servicio.filter((x) => x.activo),
     modos_servicio: catalogos.modos_servicio.filter((x) => x.activo),
