@@ -1,13 +1,7 @@
-import { redirect } from 'next/navigation';
-
-// Forzar render dinámico para que el redirect ocurra en runtime,
-// no durante el prerender estático de Next.js.
-export const dynamic = 'force-dynamic';
-
 /**
- * La raíz del sitio redirige siempre a /login.
- * La lógica de sesión y permisos vive en el middleware (Tarea 2).
+ * La raíz del sitio es manejada por src/proxy.ts que redirige a /login.
+ * Este componente nunca debería renderizarse directamente.
  */
 export default function RootPage() {
-  redirect('/login');
+  return null;
 }
