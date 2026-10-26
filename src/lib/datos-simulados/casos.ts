@@ -1,28 +1,330 @@
-// src/lib/datos-simulados/casos.ts
-
-/**
- * Simulated cases.
- * Fields follow the spec (id, numero, creado_por, cliente_id, contacto_id, direccion_id, telefono, equipo_id, incidencia, tipo_servicio, modo_servicio, modalidad, prioridad, estado, tecnico_id, fecha_programada, hora_programada, creado_en).
- */
-export type Caso = {
-  id: number;
-  numero: string; // e.g. OS-2026-0001
-  creado_por: number; // usuario id
-  cliente_id: number;
-  contacto_id: number;
-  direccion_id: number;
-  telefono: string;
-  equipo_id: number;
-  incidencia: string;
-  tipo_servicio: number; // catalog id
-  modo_servicio: number; // catalog id
-  modalidad: number; // catalog id
-  prioridad: number; // catalog id
-  estado: string; // e.g. "por_programar"
-  tecnico_id?: number;
-  fecha_programada?: string; // ISO date
-  hora_programada?: string; // HH:mm
-  creado_en: string; // ISO timestamp
+// Función auxiliar para calcular fechas relativas (días desde hoy)
+const calcularFecha = (dias: number): string => {
+  const fecha = new Date();
+  fecha.setDate(fecha.getDate() + dias);
+  return fecha.toISOString().split('T')[0];
 };
 
-export const casos: Caso[] = [];
+export interface Caso {
+  id: string;
+  numero: string;
+  creado_por: string;
+  cliente_id: string;
+  contacto_id: string;
+  direccion_id: string;
+  telefono: string;
+  equipo_id: string;
+  incidencia: string;
+  tipo_servicio: string;
+  modo_servicio: string;
+  modalidad: string;
+  prioridad: string;
+  estado: 'por_programar' | 'programado' | 'en_atencion' | 'en_espera' | 'atendido' | 'cerrado';
+  tecnico_id: string | null;
+  fecha_programada: string | null;
+  hora_programada: string | null;
+  creado_en: string;
+}
+
+export const casosSimulados: Caso[] = [
+  {
+    id: "c1",
+    numero: "OS-2026-0001",
+    creado_por: "coordinadora@rptech.test",
+    cliente_id: "cli-1", // TEXTILES ANDINOS S.A.C.
+    contacto_id: "cont-1",
+    direccion_id: "dir-1",
+    telefono: "987654321",
+    equipo_id: "eq-1",
+    incidencia: "Impresora de sublimación imprime con líneas blancas constantes.",
+    tipo_servicio: "Mantenimiento general",
+    modo_servicio: "Garantía de la máquina",
+    modalidad: "Presencial",
+    prioridad: "Producción afectada",
+    estado: "programado",
+    tecnico_id: "tecnico1@rptech.test",
+    fecha_programada: calcularFecha(0), // Hoy
+    hora_programada: "10:00",
+    creado_en: calcularFecha(-5),
+  },
+  {
+    id: "c2",
+    numero: "OS-2026-0002",
+    creado_por: "coordinadora@rptech.test",
+    cliente_id: "cli-1", // TEXTILES ANDINOS S.A.C.
+    contacto_id: "cont-1",
+    direccion_id: "dir-1",
+    telefono: "987654321",
+    equipo_id: "eq-2",
+    incidencia: "Falla en el sistema de alimentación de tinta DTF.",
+    tipo_servicio: "Inspección y diagnóstico",
+    modo_servicio: "Facturado",
+    modalidad: "Presencial",
+    prioridad: "Máquina detenida",
+    estado: "por_programar",
+    tecnico_id: null,
+    fecha_programada: null,
+    hora_programada: null,
+    creado_en: calcularFecha(-1),
+  },
+  {
+    id: "c3",
+    numero: "OS-2026-0003",
+    creado_por: "coordinadora@rptech.test",
+    cliente_id: "cli-2",
+    contacto_id: "cont-2",
+    direccion_id: "dir-2",
+    telefono: "912345678",
+    equipo_id: "eq-3",
+    incidencia: "Calibración de temperatura en calandra textil.",
+    tipo_servicio: "Entrenamiento técnico",
+    modo_servicio: "Garantía de soporte técnico",
+    modalidad: "Presencial",
+    prioridad: "Consulta",
+    estado: "programado",
+    tecnico_id: "tecnico1@rptech.test",
+    fecha_programada: calcularFecha(0), // Hoy
+    hora_programada: "14:30",
+    creado_en: calcularFecha(-3),
+  },
+  {
+    id: "c4",
+    numero: "OS-2026-0004",
+    creado_por: "coordinadora@rptech.test",
+    cliente_id: "cli-3",
+    contacto_id: "cont-3",
+    direccion_id: "dir-3",
+    telefono: "923456789",
+    equipo_id: "eq-4",
+    incidencia: "Manchas de tinta en impresión UV cama plana.",
+    tipo_servicio: "Inspección y diagnóstico",
+    modo_servicio: "Facturado",
+    modalidad: "Presencial",
+    prioridad: "Producción afectada",
+    estado: "programado",
+    tecnico_id: "tecnico1@rptech.test",
+    fecha_programada: calcularFecha(0), // Hoy
+    hora_programada: "16:00",
+    creado_en: calcularFecha(-2),
+  },
+  {
+    id: "c5",
+    numero: "OS-2026-0005",
+    creado_por: "coordinadora@rptech.test",
+    cliente_id: "cli-4",
+    contacto_id: "cont-4",
+    direccion_id: "dir-4",
+    telefono: "934567890",
+    equipo_id: "eq-5",
+    incidencia: "Corte láser desalineado en bordes.",
+    tipo_servicio: "Mantenimiento general",
+    modo_servicio: "Garantía de la máquina",
+    modalidad: "Presencial",
+    prioridad: "Máquina detenida",
+    estado: "programado",
+    tecnico_id: "tecnico2@rptech.test",
+    fecha_programada: calcularFecha(1), // Mañana (futuro)
+    hora_programada: "09:00",
+    creado_en: calcularFecha(-4),
+  },
+  {
+    id: "c6",
+    numero: "OS-2026-0006",
+    creado_por: "coordinadora@rptech.test",
+    cliente_id: "cli-5",
+    contacto_id: "cont-5",
+    direccion_id: "dir-5",
+    telefono: "945678901",
+    equipo_id: "eq-6",
+    incidencia: "Perfilación de color para nueva tela sintética.",
+    tipo_servicio: "Perfilación de color",
+    modo_servicio: "Facturado",
+    modalidad: "Presencial",
+    prioridad: "Consulta",
+    estado: "programado",
+    tecnico_id: "tecnico2@rptech.test",
+    fecha_programada: calcularFecha(2), // Futuro
+    hora_programada: "11:00",
+    creado_en: calcularFecha(-6),
+  },
+  {
+    id: "c7",
+    numero: "OS-2026-0007",
+    creado_por: "coordinadora@rptech.test",
+    cliente_id: "cli-2",
+    contacto_id: "cont-2",
+    direccion_id: "dir-2",
+    telefono: "912345678",
+    equipo_id: "eq-7",
+    incidencia: "Error de comunicación en puerto USB de impresora.",
+    tipo_servicio: "Otros",
+    modo_servicio: "Garantía de soporte técnico",
+    modalidad: "Remoto",
+    prioridad: "Máquina detenida",
+    estado: "programado",
+    tecnico_id: "tecnico2@rptech.test",
+    fecha_programada: calcularFecha(3), // Futuro
+    hora_programada: "15:00",
+    creado_en: calcularFecha(-1),
+  },
+  {
+    id: "c8",
+    numero: "OS-2026-0008",
+    creado_por: "coordinadora@rptech.test",
+    cliente_id: "cli-6",
+    contacto_id: "cont-6",
+    direccion_id: "dir-6",
+    telefono: "956789012",
+    equipo_id: "eq-8",
+    incidencia: "Revisión general previa a campaña.",
+    tipo_servicio: "Inspección y diagnóstico",
+    modo_servicio: "Facturado",
+    modalidad: "Presencial",
+    prioridad: "Consulta",
+    estado: "por_programar",
+    tecnico_id: null,
+    fecha_programada: null,
+    hora_programada: null,
+    creado_en: calcularFecha(-8),
+  },
+  {
+    id: "c9",
+    numero: "OS-2026-0009",
+    creado_por: "coordinadora@rptech.test",
+    cliente_id: "cli-7",
+    contacto_id: "cont-7",
+    direccion_id: "dir-7",
+    telefono: "967890123",
+    equipo_id: "eq-9",
+    incidencia: "Atasco recurrente de papel transfer en calandra.",
+    tipo_servicio: "Mantenimiento general",
+    modo_servicio: "Garantía de la máquina",
+    modalidad: "Presencial",
+    prioridad: "Producción afectada",
+    estado: "en_atencion",
+    tecnico_id: "tecnico1@rptech.test",
+    fecha_programada: calcularFecha(0), // Hoy
+    hora_programada: "08:30",
+    creado_en: calcularFecha(-4),
+  },
+  {
+    id: "c10",
+    numero: "OS-2026-0010",
+    creado_por: "coordinadora@rptech.test",
+    cliente_id: "cli-1", // TEXTILES ANDINOS S.A.C.
+    contacto_id: "cont-1",
+    direccion_id: "dir-1",
+    telefono: "987654321",
+    equipo_id: "eq-10",
+    incidencia: "Falta de presión en rodillos principales.",
+    tipo_servicio: "Mantenimiento general",
+    modo_servicio: "Facturado",
+    modalidad: "En taller",
+    prioridad: "Máquina detenida",
+    estado: "en_espera",
+    tecnico_id: "tecnico2@rptech.test",
+    fecha_programada: calcularFecha(-1), // Pasado
+    hora_programada: "10:00",
+    creado_en: calcularFecha(-10),
+  },
+  {
+    id: "c11",
+    numero: "OS-2026-0011",
+    creado_por: "coordinadora@rptech.test",
+    cliente_id: "cli-3",
+    contacto_id: "cont-3",
+    direccion_id: "dir-3",
+    telefono: "923456789",
+    equipo_id: "eq-11",
+    incidencia: "Actualización de software RIP y calibración.",
+    tipo_servicio: "Entrenamiento técnico",
+    modo_servicio: "Garantía de soporte técnico",
+    modalidad: "Remoto",
+    prioridad: "Consulta",
+    estado: "atendido",
+    tecnico_id: "tecnico1@rptech.test",
+    fecha_programada: calcularFecha(-2), // Pasado
+    hora_programada: "16:00",
+    creado_en: calcularFecha(-12),
+  },
+  {
+    id: "c12",
+    numero: "OS-2026-0012",
+    creado_por: "coordinadora@rptech.test",
+    cliente_id: "cli-8",
+    contacto_id: "cont-8",
+    direccion_id: "dir-8",
+    telefono: "978901234",
+    equipo_id: "eq-12",
+    incidencia: "Sustitución de lámpara UV dañada.",
+    tipo_servicio: "Mantenimiento general",
+    modo_servicio: "Facturado",
+    modalidad: "Presencial",
+    prioridad: "Máquina detenida",
+    estado: "cerrado",
+    tecnico_id: "tecnico2@rptech.test",
+    fecha_programada: calcularFecha(-5), // Pasado
+    hora_programada: "09:30",
+    creado_en: calcularFecha(-15),
+  },
+  {
+    id: "c13",
+    numero: "OS-2026-0013",
+    creado_por: "coordinadora@rptech.test",
+    cliente_id: "cli-9",
+    contacto_id: "cont-9",
+    direccion_id: "dir-9",
+    telefono: "989012345",
+    equipo_id: "eq-13",
+    incidencia: "Configuración de nuevos perfiles ICC.",
+    tipo_servicio: "Perfilación de color",
+    modo_servicio: "Facturado",
+    modalidad: "Presencial",
+    prioridad: "Consulta",
+    estado: "por_programar",
+    tecnico_id: null,
+    fecha_programada: null,
+    hora_programada: null,
+    creado_en: calcularFecha(-2),
+  },
+  {
+    id: "c14",
+    numero: "OS-2026-0014",
+    creado_por: "coordinadora@rptech.test",
+    cliente_id: "cli-10",
+    contacto_id: "cont-10",
+    direccion_id: "dir-10",
+    telefono: "990123456",
+    equipo_id: "eq-14",
+    incidencia: "Desviación en el eje X de la mesa de corte láser.",
+    tipo_servicio: "Inspección y diagnóstico",
+    modo_servicio: "Garantía de la máquina",
+    modalidad: "Presencial",
+    prioridad: "Producción afectada",
+    estado: "por_programar",
+    tecnico_id: null,
+    fecha_programada: null,
+    hora_programada: null,
+    creado_en: calcularFecha(-1),
+  },
+  {
+    id: "c15",
+    numero: "OS-2026-0015",
+    creado_por: "coordinadora@rptech.test",
+    cliente_id: "cli-1", // TEXTILES ANDINOS S.A.C.
+    contacto_id: "cont-1",
+    direccion_id: "dir-1",
+    telefono: "987654321",
+    equipo_id: "eq-15",
+    incidencia: "Mantenimiento preventivo trimestral.",
+    tipo_servicio: "Mantenimiento general",
+    modo_servicio: "Garantía de soporte técnico",
+    modalidad: "Presencial",
+    prioridad: "Consulta",
+    estado: "programado",
+    tecnico_id: "tecnico1@rptech.test",
+    fecha_programada: calcularFecha(4), // Futuro
+    hora_programada: "10:00",
+    creado_en: calcularFecha(-6),
+  }
+];

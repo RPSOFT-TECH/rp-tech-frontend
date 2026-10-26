@@ -2,8 +2,6 @@
 //
 // Acciones simuladas — todas devuelven una Promise con ~300 ms de espera
 // para imitar una llamada real al backend.
-// Las pantallas NUNCA leen los archivos de datos directamente;
-// siempre usan estas funciones.
 
 import { usuarios, type Usuario } from './usuarios';
 import { clientes, type Cliente } from './clientes';
@@ -11,7 +9,7 @@ import { contactos, type Contacto } from './contactos';
 import { direcciones, type Direccion } from './direcciones';
 import { equipos, type Equipo } from './equipos';
 import { catalogos } from './catalogos';
-import { casos, type Caso } from './casos';
+import { casosSimulados, type Caso } from './casos';
 
 // ── Utilidad ─────────────────────────────────────────────────────────────
 
@@ -31,9 +29,6 @@ function normalizar(text: string): string {
 
 const CONTRASENA_COMUN = 'rptech123';
 
-/** Inicia sesión con correo y contraseña.
- *  Devuelve el usuario si las credenciales son correctas, o null si no.
- */
 export async function login(
   email: string,
   password: string,
@@ -44,7 +39,6 @@ export async function login(
   return usuario ?? null;
 }
 
-/** Cierra la sesión eliminando el usuario del localStorage. */
 export async function logout(): Promise<void> {
   await delay(null);
   if (typeof window !== 'undefined') {
@@ -52,7 +46,6 @@ export async function logout(): Promise<void> {
   }
 }
 
-/** Retorna el usuario guardado en localStorage, o null si no hay sesión. */
 export function obtenerUsuarioActual(): Usuario | null {
   if (typeof window === 'undefined') return null;
   const raw = localStorage.getItem('rptech_user');
@@ -64,7 +57,6 @@ export function obtenerUsuarioActual(): Usuario | null {
   }
 }
 
-/** Guarda el usuario en localStorage (llamar tras un login exitoso). */
 export function guardarSesion(usuario: Usuario): void {
   if (typeof window !== 'undefined') {
     localStorage.setItem('rptech_user', JSON.stringify(usuario));
@@ -73,10 +65,6 @@ export function guardarSesion(usuario: Usuario): void {
 
 // ── Clientes ──────────────────────────────────────────────────────────────
 
-/**
- * Busca clientes activos por razón social o inicio de RUC.
- * Sin distinguir mayúsculas ni tildes. Devuelve máximo 10 resultados.
- */
 export async function buscarClientes(query: string): Promise<Cliente[]> {
   await delay(null);
   const q = normalizar(query.trim());
@@ -92,12 +80,10 @@ export async function buscarClientes(query: string): Promise<Cliente[]> {
 
 // ── Contactos, direcciones y equipos ─────────────────────────────────────
 
-/** Obtiene los contactos activos de un cliente. */
 export async function obtenerContactos(clienteId: number): Promise<Contacto[]> {
   return delay(contactos.filter((c) => c.cliente_id === clienteId && c.activo));
 }
 
-/** Obtiene las direcciones activas de un cliente. */
 export async function obtenerDirecciones(
   clienteId: number,
 ): Promise<Direccion[]> {
@@ -106,17 +92,14 @@ export async function obtenerDirecciones(
   );
 }
 
-/** Obtiene los equipos activos de un cliente. */
 export async function obtenerEquipos(clienteId: number): Promise<Equipo[]> {
   return delay(equipos.filter((e) => e.cliente_id === clienteId && e.activo));
 }
 
 // ── Catálogos ─────────────────────────────────────────────────────────────
 
-/** Devuelve todos los catálogos activos, ordenados por el campo `orden`. */
 export async function obtenerCatalogos(): Promise<typeof catalogos> {
   await delay(null);
-  // Cada lista ya está en orden; devolvemos solo los activos.
   return {
     tipos_servicio: catalogos.tipos_servicio.filter((x) => x.activo),
     modos_servicio: catalogos.modos_servicio.filter((x) => x.activo),
@@ -129,40 +112,90 @@ export async function obtenerCatalogos(): Promise<typeof catalogos> {
   };
 }
 
-// ── Casos ─────────────────────────────────────────────────────────────────
+// ── Casos ────────────────────────────────────────────────────────────────_
 
-let contadorCasos = 0;
+let contadorCasos = casosSimulados.length;
 
-/**
- * Crea un caso nuevo, lo guarda en memoria y devuelve el caso creado.
- * El número sigue el patrón OS-2026-0001, OS-2026-0002, …
- */
 export async function crearCaso(
   datos: Omit<Caso, 'id' | 'numero' | 'estado' | 'creado_en'>,
 ): Promise<Caso> {
   await delay(null);
 
-  // Simular error de guardado para un cliente especial (cliente_id = 99)
-  if (datos.cliente_id === 99) {
+  if (String(datos.cliente_id) === '99') {
     throw new Error('Error simulado al guardar el caso. Intenta de nuevo.');
   }
 
   contadorCasos += 1;
   const nuevoCaso: Caso = {
     ...datos,
-    id: contadorCasos,
+    id: String(contadorCasos),
     numero: `OS-2026-${String(contadorCasos).padStart(4, '0')}`,
     estado: 'por_programar',
     creado_en: new Date().toISOString(),
   };
-  casos.push(nuevoCaso);
+  casosSimulados.push(nuevoCaso);
   return nuevoCaso;
 }
 
 /**
- * Lista todos los casos en memoria.
- * Luis completará esta función con filtros en su tarea.
+ * Devuelve un caso por su ID.
  */
-export async function listarCasos(): Promise<Caso[]> {
-  return delay([...casos]);
+export async function obtenerCasoPorId(id: string): Promise<Caso | null> {
+  const caso = casosSimulados.find((c) => c.id === id);
+  return delay(caso || null, 200);
+}
+
+// ==========================================
+// ACCIONES PARA LISTA DE CASOS (Frontend 2)
+// ==========================================
+
+export interface FiltrosCasos {
+  estado?: string;
+  tecnico_id?: string;
+  tipo_servicio?: string;
+  fecha_desde?: string;
+  fecha_hasta?: string;
+  q?: string;
+}
+
+export async function obtenerCasos(filtros: FiltrosCasos = {}): Promise<Caso[]> {
+  let resultado = [...casosSimulados];
+
+  if (filtros.estado && filtros.estado !== "todos") {
+    resultado = resultado.filter((c) => c.estado === filtros.estado);
+  }
+
+  if (filtros.tecnico_id && filtros.tecnico_id !== "todos") {
+    resultado = resultado.filter((c) => c.tecnico_id === filtros.tecnico_id);
+  }
+
+  if (filtros.tipo_servicio && filtros.tipo_servicio !== "todos") {
+    resultado = resultado.filter((c) => c.tipo_servicio === filtros.tipo_servicio);
+  }
+
+  if (filtros.fecha_desde) {
+    resultado = resultado.filter((c) => c.creado_en >= filtros.fecha_desde!);
+  }
+
+  if (filtros.fecha_hasta) {
+    resultado = resultado.filter((c) => c.creado_en <= filtros.fecha_hasta!);
+  }
+
+  if (filtros.q && filtros.q.trim() !== "") {
+    const query = normalizar(filtros.q);
+    resultado = resultado.filter(
+      (c) =>
+        normalizar(c.numero).includes(query) ||
+        normalizar(c.incidencia).includes(query)
+    );
+  }
+
+  resultado.sort((a, b) => new Date(b.creado_en).getTime() - new Date(a.creado_en).getTime());
+
+  return delay(resultado, 300);
+}
+
+export async function obtenerTecnicosActivos() {
+  const tecnicosActivos = usuarios.filter((u) => u.rol === "tecnico" && u.activo);
+  return delay(tecnicosActivos, 200);
 }
