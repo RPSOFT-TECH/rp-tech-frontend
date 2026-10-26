@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# rp-tech-frontend
 
-## Getting Started
+## Descripción
+Frontend del sistema **RP‑TECH**, una aplicación de gestión de órdenes de servicio técnico para maquinaria de impresión textil. Usa Next.js (App Router), TypeScript estricto, Tailwind CSS y la UI de **shadcn/ui**.
 
-First, run the development server:
+## Requisitos
+- Git
+- Node.js 20+ (incluye npm)
+- (Opcional) Vercel CLI para despliegues locales
 
+## Instalación
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/goldz9999/rp-tech-frontend.git
+cd rp-tech-frontend
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Levantar el proyecto
+```bash
+npm run dev   # http://localhost:3000
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Estructura de carpetas (principales)
+```
+src/
+  app/                # Rutas de Next.js (App Router)
+  components/
+    ui/               # Componentes shadcn (button, input, …)
+  lib/
+    datos-simulados/  # Datos estáticos de ejemplo y acciones mock
+    permisos/         # Definiciones de roles y acceso a rutas
+    validaciones/     # Schemas Zod para formularios
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Datos simulados
+Todo el frontend usa los archivos bajo `src/lib/datos-simulados/`. No hay conexión a backend aún.
 
-## Learn More
+## Ramas y flujo de trabajo
+- Cada tarea se desarrolla en una rama `feature/<nombre‑tarea>`.
+- Commits con prefijo `feat:`, `fix:`, `chore:` o `docs:`.
+- Pull request contra `main`; **nunca** se push directamente a `main` salvo el primer commit inicial.
 
-To learn more about Next.js, take a look at the following resources:
+## Despliegue en Vercel
+El repositorio está conectado a Vercel. Cada push a `main` genera una preview automática.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Notas
+- La paleta de colores y el tema están definidos en `src/app/globals.css`.
+- El alias `@/*` permite importar con `@/` desde `src/`.
+- Las notificaciones usan **sonner** (`npm i sonner`).
