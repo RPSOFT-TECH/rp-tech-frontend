@@ -1,4 +1,4 @@
-﻿// src/lib/datos-simulados/actions.ts
+// src/lib/datos-simulados/actions.ts
 //
 // Acciones simuladas — todas devuelven una Promise con ~300 ms de espera
 // para imitar una llamada real al backend.
@@ -11,7 +11,7 @@ import { equipos, type Equipo } from './equipos';
 import { catalogos } from './catalogos';
 import { casosSimulados, type Caso } from './casos';
 
-// ── Utilidad ─────────────────────────────────────────────────────────────
+// ── Utilidad ──────────────────────────────────────────────────────────────
 
 function delay<T>(data: T, ms = 300): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms));
@@ -39,10 +39,17 @@ export async function login(
   return usuario ?? null;
 }
 
+ feature/lista-casos
+
+/** Cierra la sesión: limpia localStorage y expira la cookie. */
+main
 export async function logout(): Promise<void> {
   await delay(null);
   if (typeof window !== 'undefined') {
     localStorage.removeItem('rptech_user');
+    // Expirar la cookie de sesión
+    document.cookie =
+      'rptech_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
   }
 }
 
@@ -56,10 +63,15 @@ export function obtenerUsuarioActual(): Usuario | null {
     return null;
   }
 }
+ feature/lista-casos
 
+/** Guarda el usuario en localStorage y en la cookie de sesión. */
+main
 export function guardarSesion(usuario: Usuario): void {
   if (typeof window !== 'undefined') {
     localStorage.setItem('rptech_user', JSON.stringify(usuario));
+    // Cookie que lee el proxy para proteger rutas
+    document.cookie = `rptech_session=${encodeURIComponent(JSON.stringify(usuario))}; path=/; SameSite=Lax`;
   }
 }
 
@@ -140,6 +152,7 @@ export async function crearCaso(
 /**
  * Devuelve un caso por su ID.
  */
+feature/lista-casos
 export async function obtenerCasoPorId(id: string): Promise<Caso | null> {
   const caso = casosSimulados.find((c) => c.id === id);
   return delay(caso || null, 200);
@@ -199,3 +212,8 @@ export async function obtenerTecnicosActivos() {
   const tecnicosActivos = usuarios.filter((u) => u.rol === "tecnico" && u.activo);
   return delay(tecnicosActivos, 200);
 }
+
+export async function listarCasos(): Promise<Caso[]> {
+  return delay([...casos]);
+}
+ main
