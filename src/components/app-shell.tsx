@@ -1,27 +1,25 @@
 'use client';
 
 // src/components/app-shell.tsx
-// Layout privado — sidebar en PC, barra inferior en mobile.
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { obtenerUsuarioActual, logout } from '@/lib/datos-simulados/actions';
-import { menuDeRol } from '@/lib/permisos';
-import type { Usuario } from '@/lib/datos-simulados/usuarios';
+import { obtenerUsuarioActual, logout, SesionUsuario } from '@/lib/datos-simulados/actions';
+import { menuDeRoles } from '@/lib/permisos';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const [sesion, setSesion] = useState<SesionUsuario | null>(null);
 
   useEffect(() => {
-    const u = obtenerUsuarioActual();
-    if (!u || !u.activo) {
+    const s = obtenerUsuarioActual();
+    if (!s || !s.usuario.activo || s.rolesVigentes.length === 0) {
       router.replace('/login');
       return;
     }
-    setUsuario(u);
+    setSesion(s);
   }, [router]);
 
   async function handleLogout() {
@@ -29,10 +27,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     router.push('/login');
   }
 
-  // Mientras no hay usuario no renderizamos nada (el proxy ya protegió la ruta)
-  if (!usuario) return null;
+  if (!sesion) return null;
 
-  const menu = menuDeRol(usuario.rol);
+  const menu = menuDeRoles(sesion.rolesVigentes);
 
   function esActivo(href: string) {
     return pathname === href || pathname.startsWith(href + '/');
@@ -41,16 +38,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex overflow-x-hidden">
       {/* ── Sidebar — solo PC ──────────────────────────────────────── */}
-      <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 w-56 bg-sidebar border-r border-sidebar-border z-40">
-        {/* Logo */}
-        <div className="px-5 py-4">
-          <span className="text-xl font-bold text-sidebar-primary tracking-tight">
+      <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 w-60 bg-sidebar border-r border-sidebar-border z-40">
+        {/* Encabezado: RP-TECH + Empresa */}
+        <div className="px-5 py-4 border-b border-sidebar-border/60">
+          <span className="text-xl font-bold text-sidebar-primary tracking-tight block">
             RP-TECH
+          </span>
+          <span className="text-xs font-medium text-muted-foreground truncate block mt-0.5">
+            {sesion.empresa.nombre}
           </span>
         </div>
 
-        {/* Menú */}
-        <nav className="flex-1 px-3 space-y-0.5">
+        {/* Menú según la suma de roles vigentes */}
+        <nav className="flex-1 px-3 py-4 space-y-0.5">
           {menu.map((item) => (
             <Link
               key={item.href}
@@ -66,14 +66,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
 
-        {/* Usuario y logout */}
+        {/* Usuario, roles y logout */}
         <div className="px-4 py-4 border-t border-sidebar-border">
-          <p className="text-sm text-sidebar-foreground truncate mb-2">
-            {usuario.nombre_completo}
+          <p className="text-sm font-medium text-sidebar-foreground truncate">
+            {sesion.usuario.nombre_completo}
+          </p>
+          <p className="text-xs text-muted-foreground truncate capitalize mb-2">
+            {sesion.rolesVigentes.join(', ')}
           </p>
           <button
             onClick={handleLogout}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="text-xs text-destructive hover:underline transition-colors font-medium"
           >
             Cerrar sesión
           </button>
@@ -81,7 +84,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* ── Contenido principal ───────────────────────────────────── */}
-      <main className="flex-1 lg:ml-56 pb-14 lg:pb-0 min-w-0 overflow-x-hidden">
+      <main className="flex-1 lg:ml-60 pb-14 lg:pb-0 min-w-0 overflow-x-hidden">
         {children}
       </main>
 
@@ -93,7 +96,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             href={item.href}
             className={`flex-1 flex flex-col items-center justify-center text-xs font-medium transition-colors ${
               esActivo(item.href)
-                ? 'text-primary'
+                ? 'text-primary font-semibold'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >

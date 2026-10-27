@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Suspense, useEffect, useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -33,8 +33,8 @@ function ListaCasosContenido() {
   const [busqueda, setBusqueda] = useState(busquedaFiltro);
 
   // Usuario actual verificado tras el montaje del cliente
-  const usuario = mounted ? obtenerUsuarioActual() : null;
-  const puedeCrear = usuario?.rol === 'coordinadora' || usuario?.rol === 'administrador';
+  const sesion = mounted ? obtenerUsuarioActual() : null;
+  const puedeCrear = sesion?.rolesVigentes.some((r) => r === 'coordinador' || r === 'superadmin');
 
   // Cargar técnicos y casos al cambiar los filtros de la URL
   useEffect(() => {
@@ -244,7 +244,7 @@ function ListaCasosContenido() {
                     </td>
                     <td className="p-4 text-gray-900 truncate max-w-xs">Cliente ID: {caso.cliente_id}</td>
                     <td className="p-4 text-gray-700">{caso.tipo_servicio}</td>
-                    <td className="p-4 text-gray-700">{caso.prioridad}</td>
+                    
                     <td className="p-4 text-gray-600">
                       {caso.tecnico_id ? caso.tecnico_id.split('@')[0] : 'Sin asignar'}
                     </td>
@@ -276,7 +276,7 @@ function ListaCasosContenido() {
                 <div className="text-sm text-gray-900 font-medium mb-1">Cliente: {caso.cliente_id}</div>
                 <div className="text-xs text-gray-500 mb-2">Tipo: {caso.tipo_servicio}</div>
                 <div className="flex justify-between text-xs text-gray-600 border-t pt-2 mt-2">
-                  <span>Prioridad: {caso.prioridad}</span>
+                  <span>Canal: {caso.canal}</span>
                   <span>Técnico: {caso.tecnico_id ? caso.tecnico_id.split('@')[0] : 'Sin asignar'}</span>
                 </div>
               </Link>

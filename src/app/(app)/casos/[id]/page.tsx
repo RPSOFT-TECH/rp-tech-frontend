@@ -1,5 +1,4 @@
-feature/lista-casos
-'use client';
+﻿'use client';
 
 import { Suspense, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
@@ -64,7 +63,7 @@ function DetalleCasoContenido() {
             <li><strong className="text-gray-900">Tipo de Servicio:</strong> {caso.tipo_servicio}</li>
             <li><strong className="text-gray-900">Modo de Servicio:</strong> {caso.modo_servicio}</li>
             <li><strong className="text-gray-900">Modalidad:</strong> {caso.modalidad}</li>
-            <li><strong className="text-gray-900">Prioridad:</strong> {caso.prioridad}</li>
+            
           </ul>
         </div>
 
@@ -94,10 +93,6 @@ function DetalleCasoContenido() {
       </div>
     </div>
   );
-
-export default function CasoDetallePage() {
-  return <h1 className="text-2xl font-semibold p-6">Caso</h1>;
-main
 }
 
 export default function DetalleCasoPage() {

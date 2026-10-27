@@ -1,190 +1,210 @@
 // src/lib/datos-simulados/equipos.ts
 
-/**
- * Simulated equipment per client.
- * Fields: id, cliente_id, linea, modelo, numero_serie, cabezal_modelo, cabezal_cantidad, fecha_inicio_garantia, activo.
- */
-export type Equipo = {
+export interface Equipo {
   id: number;
   cliente_id: number;
+  sede_id: number;
   linea: string;
   modelo: string;
   numero_serie: string;
   cabezal_modelo: string;
   cabezal_cantidad: number;
-  fecha_inicio_garantia: string; // ISO date string
+  fecha_instalacion: string; // YYYY-MM-DD
   activo: boolean;
+}
+
+// Fechas relativas
+const calcularFechaInstalacion = (mesesAtras: number): string => {
+  const d = new Date();
+  d.setMonth(d.getMonth() - mesesAtras);
+  return d.toISOString().split('T')[0];
 };
 
 export const equipos: Equipo[] = [
-  // Equipos para TEXTILES ANDINOS (cliente 1)
+  // Equipos Cliente 1: TEXTILES ANDINOS (Planta Principal Ate = sede 1)
   {
     id: 1,
     cliente_id: 1,
+    sede_id: 1,
     linea: 'Sublimación',
-    modelo: 'Epson i3200',
-    numero_serie: 'SN-AND-001',
+    modelo: 'Texart RT-640',
+    numero_serie: 'SN-TEX-SUB-01',
     cabezal_modelo: 'Epson i3200',
     cabezal_cantidad: 4,
-    fecha_inicio_garantia: '2025-01-01',
+    fecha_instalacion: calcularFechaInstalacion(8), // Instalado hace 8 meses (En garantía)
     activo: true,
   },
   {
     id: 2,
     cliente_id: 1,
+    sede_id: 2, // Sede 2: La Victoria
     linea: 'Sublimación',
-    modelo: 'Epson i3200',
-    numero_serie: 'SN-AND-002',
+    modelo: 'Texart XT-640',
+    numero_serie: 'SN-TEX-SUB-02',
     cabezal_modelo: 'Epson i3200',
     cabezal_cantidad: 4,
-    fecha_inicio_garantia: '2025-02-01',
+    fecha_instalacion: calcularFechaInstalacion(16), // Instalado hace 16 meses (> 1 año)
     activo: true,
   },
-  // Equipos para ESTAMPADOS PERÚ (cliente 2)
+
+  // Equipos Cliente 2: ESTAMPADOS PERÚ (Sede 3: SJL)
   {
     id: 3,
     cliente_id: 2,
+    sede_id: 3,
     linea: 'DTF',
-    modelo: 'Epson i1600',
-    numero_serie: 'SN-EST-001',
+    modelo: 'DTF Pro 60',
+    numero_serie: 'SN-EST-DTF-01',
     cabezal_modelo: 'Epson i1600',
     cabezal_cantidad: 2,
-    fecha_inicio_garantia: '2025-03-15',
+    fecha_instalacion: calcularFechaInstalacion(5), // 5 meses (En garantía)
     activo: true,
   },
-  // Add more equipment to reach 15 total (simplified)
   {
     id: 4,
-    cliente_id: 3,
-    linea: 'Calandra',
-    modelo: 'Modelo A',
-    numero_serie: 'SN-C3-001',
-    cabezal_modelo: 'Modelo A',
-    cabezal_cantidad: 1,
-    fecha_inicio_garantia: '2025-04-01',
+    cliente_id: 2,
+    sede_id: 4, // Sede 4: Breña
+    linea: 'DTF UV',
+    modelo: 'UV DTF Roll 30',
+    numero_serie: 'SN-EST-DTFUV-01',
+    cabezal_modelo: 'Epson XP600',
+    cabezal_cantidad: 3,
+    fecha_instalacion: calcularFechaInstalacion(14), // > 1 año
     activo: true,
   },
+
+  // Equipos Clientes 3 a 10 (Cubriendo las 8 líneas)
   {
     id: 5,
-    cliente_id: 4,
-    linea: 'UV cama plana',
-    modelo: 'Modelo B',
-    numero_serie: 'SN-C4-001',
-    cabezal_modelo: 'Modelo B',
-    cabezal_cantidad: 2,
-    fecha_inicio_garantia: '2025-05-01',
+    cliente_id: 3,
+    sede_id: 5,
+    linea: 'Calandra',
+    modelo: 'Calandra Roll 1700',
+    numero_serie: 'SN-CLI3-CAL-01',
+    cabezal_modelo: 'Otros',
+    cabezal_cantidad: 1,
+    fecha_instalacion: calcularFechaInstalacion(7),
     activo: true,
   },
   {
     id: 6,
-    cliente_id: 5,
-    linea: 'Láser',
-    modelo: 'Modelo C',
-    numero_serie: 'SN-C5-001',
-    cabezal_modelo: 'Modelo C',
-    cabezal_cantidad: 3,
-    fecha_inicio_garantia: '2025-06-01',
+    cliente_id: 4,
+    sede_id: 6,
+    linea: 'UV cama plana',
+    modelo: 'Apex UV Flatbed 2513',
+    numero_serie: 'SN-CLI4-UV-01',
+    cabezal_modelo: 'Epson i3200',
+    cabezal_cantidad: 4,
+    fecha_instalacion: calcularFechaInstalacion(4),
     activo: true,
   },
-  // Fill up to 15 entries (dummy data)
   {
     id: 7,
-    cliente_id: 6,
-    linea: 'Sublimación',
-    modelo: 'Modelo D',
-    numero_serie: 'SN-C6-001',
-    cabezal_modelo: 'Modelo D',
-    cabezal_cantidad: 1,
-    fecha_inicio_garantia: '2025-07-01',
+    cliente_id: 5,
+    sede_id: 7,
+    linea: 'Ecosolvente',
+    modelo: 'EcoPrint 180',
+    numero_serie: 'SN-CLI5-ECO-01',
+    cabezal_modelo: 'Epson DX5',
+    cabezal_cantidad: 2,
+    fecha_instalacion: calcularFechaInstalacion(15),
     activo: true,
   },
   {
     id: 8,
-    cliente_id: 7,
-    linea: 'DTF',
-    modelo: 'Modelo E',
-    numero_serie: 'SN-C7-001',
-    cabezal_modelo: 'Modelo E',
-    cabezal_cantidad: 2,
-    fecha_inicio_garantia: '2025-08-01',
+    cliente_id: 6,
+    sede_id: 8,
+    linea: 'Láser',
+    modelo: 'Laser Cut 1390',
+    numero_serie: 'SN-CLI6-LAS-01',
+    cabezal_modelo: 'Otros',
+    cabezal_cantidad: 1,
+    fecha_instalacion: calcularFechaInstalacion(2),
     activo: true,
   },
   {
     id: 9,
-    cliente_id: 8,
-    linea: 'Calandra',
-    modelo: 'Modelo F',
-    numero_serie: 'SN-C8-001',
-    cabezal_modelo: 'Modelo F',
+    cliente_id: 7,
+    sede_id: 9,
+    linea: 'Láser textil',
+    modelo: 'Laser Tex Ultra 1610',
+    numero_serie: 'SN-CLI7-LTX-01',
+    cabezal_modelo: 'Otros',
     cabezal_cantidad: 1,
-    fecha_inicio_garantia: '2025-09-01',
+    fecha_instalacion: calcularFechaInstalacion(18),
     activo: true,
   },
   {
     id: 10,
-    cliente_id: 9,
-    linea: 'UV cama plana',
-    modelo: 'Modelo G',
-    numero_serie: 'SN-C9-001',
-    cabezal_modelo: 'Modelo G',
-    cabezal_cantidad: 2,
-    fecha_inicio_garantia: '2025-10-01',
+    cliente_id: 8,
+    sede_id: 10,
+    linea: 'Sublimación',
+    modelo: 'SpeedSub 1900',
+    numero_serie: 'SN-CLI8-SUB-01',
+    cabezal_modelo: 'Epson i3200',
+    cabezal_cantidad: 8,
+    fecha_instalacion: calcularFechaInstalacion(6),
     activo: true,
   },
   {
     id: 11,
-    cliente_id: 10,
-    linea: 'Láser',
-    modelo: 'Modelo H',
-    numero_serie: 'SN-C10-001',
-    cabezal_modelo: 'Modelo H',
-    cabezal_cantidad: 3,
-    fecha_inicio_garantia: '2025-11-01',
+    cliente_id: 9,
+    sede_id: 11,
+    linea: 'DTF',
+    modelo: 'DTF Max 600',
+    numero_serie: 'SN-CLI9-DTF-01',
+    cabezal_modelo: 'Epson 4720',
+    cabezal_cantidad: 2,
+    fecha_instalacion: calcularFechaInstalacion(11),
     activo: true,
   },
-  // Additional dummy rows to reach 15
   {
     id: 12,
-    cliente_id: 1,
-    linea: 'Sublimación',
-    modelo: 'Epson i3200',
-    numero_serie: 'SN-AND-003',
-    cabezal_modelo: 'Epson i3200',
-    cabezal_cantidad: 4,
-    fecha_inicio_garantia: '2025-12-01',
+    cliente_id: 10,
+    sede_id: 12,
+    linea: 'UV cama plana',
+    modelo: 'UV LED 6090',
+    numero_serie: 'SN-CLI10-UV-01',
+    cabezal_modelo: 'Epson TX800',
+    cabezal_cantidad: 3,
+    fecha_instalacion: calcularFechaInstalacion(3),
     activo: true,
   },
   {
     id: 13,
-    cliente_id: 2,
-    linea: 'DTF',
-    modelo: 'Epson i1600',
-    numero_serie: 'SN-EST-002',
-    cabezal_modelo: 'Epson i1600',
-    cabezal_cantidad: 2,
-    fecha_inicio_garantia: '2025-12-15',
+    cliente_id: 1,
+    sede_id: 1,
+    linea: 'Calandra',
+    modelo: 'Calandra Compact 1200',
+    numero_serie: 'SN-TEX-CAL-01',
+    cabezal_modelo: 'Otros',
+    cabezal_cantidad: 1,
+    fecha_instalacion: calcularFechaInstalacion(20),
     activo: true,
   },
+  // Equipos para Empresa 2 (Clientes 11 y 12)
   {
     id: 14,
-    cliente_id: 3,
-    linea: 'Calandra',
-    modelo: 'Modelo A',
-    numero_serie: 'SN-C3-002',
-    cabezal_modelo: 'Modelo A',
-    cabezal_cantidad: 1,
-    fecha_inicio_garantia: '2025-12-20',
+    cliente_id: 11,
+    sede_id: 13,
+    linea: 'Sublimación',
+    modelo: 'Roland Tex 640',
+    numero_serie: 'SN-OTR-SUB-01',
+    cabezal_modelo: 'Epson i3200',
+    cabezal_cantidad: 4,
+    fecha_instalacion: calcularFechaInstalacion(5),
     activo: true,
   },
   {
     id: 15,
-    cliente_id: 4,
-    linea: 'UV cama plana',
-    modelo: 'Modelo B',
-    numero_serie: 'SN-C4-002',
-    cabezal_modelo: 'Modelo B',
+    cliente_id: 12,
+    sede_id: 14,
+    linea: 'DTF',
+    modelo: 'DTF Mini 30',
+    numero_serie: 'SN-OTR-DTF-01',
+    cabezal_modelo: 'Epson i1600',
     cabezal_cantidad: 2,
-    fecha_inicio_garantia: '2025-12-25',
+    fecha_instalacion: calcularFechaInstalacion(13),
     activo: true,
   },
 ];
