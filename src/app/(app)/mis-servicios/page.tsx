@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -10,9 +10,9 @@ export default function MisServiciosPage() {
   const [casosProximos, setCasosProximos] = useState<Caso[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const usuario = obtenerUsuarioActual();
+  const sesion = obtenerUsuarioActual();
   // Si no hay sesión, simulamos 'tecnico1@rptech.test' para pruebas en desarrollo
-  const tecnicoId = usuario?.email || 'tecnico1@rptech.test';
+  const tecnicoId = sesion?.usuario.email || 'tecnico1@rptech.test';
 
   useEffect(() => {
     async function cargarMisServicios() {
@@ -25,7 +25,7 @@ export default function MisServiciosPage() {
       const hoy: Caso[] = [];
       const proximos: Caso[] = [];
 
-      todosLosCasos.forEach((caso) => {
+      todosLosCasos.forEach((caso: Caso) => {
         if (!caso.fecha_programada) return;
         if (caso.fecha_programada === hoyStr) {
           hoy.push(caso);

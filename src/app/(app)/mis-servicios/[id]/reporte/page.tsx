@@ -1,13 +1,12 @@
-feature/lista-casos
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { obtenerCasoPorId } from '@/lib/datos-simulados/actions';
 import { Caso } from '@/lib/datos-simulados/casos';
 
-export default function ReporteServicioPage() {
+function ReporteServicioContenido() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
@@ -99,7 +98,11 @@ export default function ReporteServicioPage() {
     </div>
   );
 }
+
 export default function ReportePage() {
-  return <h1 className="text-2xl font-semibold p-6">Reporte</h1>;
+  return (
+    <Suspense fallback={<div className="text-center py-12 text-gray-500">Cargando reporte...</div>}>
+      <ReporteServicioContenido />
+    </Suspense>
+  );
 }
-main
