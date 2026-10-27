@@ -1,3 +1,4 @@
+feature/lista-casos
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -436,3 +437,10 @@ export default function ReporteServicioPage() {
     </div>
   );
 }
+feature/lista-casos
+
+export default function ReportePage() {
+  return <h1 className="text-2xl font-semibold p-6">Reporte</h1>;
+}
+main
+ main

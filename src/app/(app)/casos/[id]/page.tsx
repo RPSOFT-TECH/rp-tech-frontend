@@ -1,3 +1,4 @@
+feature/lista-casos
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
@@ -165,6 +166,10 @@ function DetalleCasoContenido() {
       {/* TODO(especificación v1): Se agregarán aquí las secciones de reportes cerrados y notas adicionales */}
     </div>
   );
+
+export default function CasoDetallePage() {
+  return <h1 className="text-2xl font-semibold p-6">Caso</h1>;
+main
 }
 
 export default function DetalleCasoPage() {
