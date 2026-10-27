@@ -3,9 +3,10 @@
 import { Suspense, useEffect, useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { obtenerCasos, obtenerTecnicosActivos, FiltrosCasos } from '@/lib/datos-simulados/actions';
+import { obtenerCasos, obtenerTecnicosActivos, FiltrosCasos, obtenerUsuarioActual } from '@/lib/datos-simulados/actions';
 import { Caso } from '@/lib/datos-simulados/casos';
-import { obtenerUsuarioActual } from '@/lib/datos-simulados/actions';
+import { clientes } from '@/lib/datos-simulados/clientes';
+import { equipos } from '@/lib/datos-simulados/equipos';
 
 function ListaCasosContenido() {
   const router = useRouter();
@@ -17,12 +18,10 @@ function ListaCasosContenido() {
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
-  // Evitar desajustes de hidratación con localStorage
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Leer filtros iniciales de la URL
   const estadoFiltro = searchParams.get('estado') || 'todos';
   const tecnicoFiltro = searchParams.get('tecnico_id') || 'todos';
   const tipoFiltro = searchParams.get('tipo_servicio') || 'todos';
@@ -32,11 +31,14 @@ function ListaCasosContenido() {
 
   const [busqueda, setBusqueda] = useState(busquedaFiltro);
 
-  // Usuario actual verificado tras el montaje del cliente
   const usuario = mounted ? obtenerUsuarioActual() : null;
-  const puedeCrear = usuario?.rol === 'coordinadora' || usuario?.rol === 'administrador';
+  const puedeCrear = 
+    (usuario?.rol as any) === 'coordinador' || 
+    (usuario?.rol as any) === 'superadmin' || 
+    (usuario?.rol as any) === 'gerente' || 
+    (usuario?.rol as any) === 'coordinadora' || 
+    (usuario?.rol as any) === 'administrador';
 
-  // Cargar técnicos y casos al cambiar los filtros de la URL
   useEffect(() => {
     async function cargarDatos() {
       setLoading(true);
@@ -59,7 +61,6 @@ function ListaCasosContenido() {
     cargarDatos();
   }, [searchParams]);
 
-  // Manejador para actualizar los parámetros en la URL
   const actualizarFiltro = (nombre: string, valor: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (valor && valor !== 'todos') {
@@ -72,7 +73,6 @@ function ListaCasosContenido() {
     });
   };
 
-  // Búsqueda con ligero retraso
   useEffect(() => {
     const timer = setTimeout(() => {
       if (busqueda !== busquedaFiltro) {
@@ -95,6 +95,27 @@ function ListaCasosContenido() {
     router.push('/casos');
   };
 
+  const casosConDetalles = casos.map((caso: Caso) => {
+    const cliente = clientes.find((c: { id: number }) => c.id === caso.cliente_id);
+    const equipo = equipos.find((e: { id: number }) => e.id === caso.equipo_id);
+    return {
+      ...caso,
+      razon_social: cliente ? (cliente as any).razon_social : `Cliente #${caso.cliente_id}`,
+      numero_serie: equipo ? (equipo as any).numero_serie : `S/N #${caso.equipo_id}`,
+    };
+  });
+
+  const casosFiltrados = casosConDetalles.filter((caso) => {
+    if (!busquedaFiltro) return true;
+    const q = busquedaFiltro.toLowerCase();
+    return (
+      caso.numero.toLowerCase().includes(q) ||
+      caso.incidencia.toLowerCase().includes(q) ||
+      caso.razon_social.toLowerCase().includes(q) ||
+      caso.numero_serie.toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto">
       {/* Encabezado */}
@@ -114,7 +135,7 @@ function ListaCasosContenido() {
       <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-wrap gap-4 items-end">
         {/* Buscador */}
         <div className="flex-1 min-w-[220px]">
-          <label className="block text-xs font-medium text-gray-700 mb-1">Buscar (N° caso / serie / texto)</label>
+          <label className="block text-xs font-medium text-gray-700 mb-1">Buscar (N° caso / cliente / serie)</label>
           <input
             type="text"
             value={busqueda}
@@ -211,7 +232,7 @@ function ListaCasosContenido() {
       {/* Contenido / Tabla (PC) y Tarjetas (Celular) */}
       {loading ? (
         <div className="text-center py-12 text-gray-500">Cargando casos...</div>
-      ) : casos.length === 0 ? (
+      ) : casosFiltrados.length === 0 ? (
         <div className="bg-white border border-gray-200 rounded-xl p-12 text-center text-gray-500">
           No hay casos con estos filtros.
         </div>
@@ -225,14 +246,14 @@ function ListaCasosContenido() {
                   <th className="p-4">N° de caso</th>
                   <th className="p-4">Registro</th>
                   <th className="p-4">Cliente</th>
+                  <th className="p-4">Equipo (Serie)</th>
                   <th className="p-4">Tipo</th>
-                  <th className="p-4">Prioridad</th>
-                  <th className="p-4">Técnico</th>
+                  <th className="p-4">Modo</th>
                   <th className="p-4">Estado</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 text-sm">
-                {casos.map((caso) => (
+                {casosFiltrados.map((caso) => (
                   <tr key={caso.id} className="hover:bg-gray-50 transition-colors">
                     <td className="p-4 font-medium text-blue-600">
                       <Link href={`/casos/${caso.id}`} className="hover:underline">
@@ -242,12 +263,10 @@ function ListaCasosContenido() {
                     <td className="p-4 text-gray-500">
                       {new Date(caso.creado_en).toLocaleDateString('es-PE')}
                     </td>
-                    <td className="p-4 text-gray-900 truncate max-w-xs">Cliente ID: {caso.cliente_id}</td>
+                    <td className="p-4 text-gray-900 font-medium truncate max-w-xs">{caso.razon_social}</td>
+                    <td className="p-4 text-gray-600 font-mono text-xs">{caso.numero_serie}</td>
                     <td className="p-4 text-gray-700">{caso.tipo_servicio}</td>
-                    <td className="p-4 text-gray-700">{caso.prioridad}</td>
-                    <td className="p-4 text-gray-600">
-                      {caso.tecnico_id ? caso.tecnico_id.split('@')[0] : 'Sin asignar'}
-                    </td>
+                    <td className="p-4 text-gray-700">{caso.modo_servicio}</td>
                     <td className="p-4">
                       <span className="inline-block px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
                         {caso.estado}
@@ -261,7 +280,7 @@ function ListaCasosContenido() {
 
           {/* Vista Celular: Tarjetas */}
           <div className="md:hidden grid grid-cols-1 gap-4">
-            {casos.map((caso) => (
+            {casosFiltrados.map((caso) => (
               <Link
                 key={caso.id}
                 href={`/casos/${caso.id}`}
@@ -273,11 +292,12 @@ function ListaCasosContenido() {
                     {caso.estado}
                   </span>
                 </div>
-                <div className="text-sm text-gray-900 font-medium mb-1">Cliente: {caso.cliente_id}</div>
+                <div className="text-sm text-gray-900 font-semibold mb-1">{caso.razon_social}</div>
+                <div className="text-xs text-gray-500 mb-1 font-mono">Serie: {caso.numero_serie}</div>
                 <div className="text-xs text-gray-500 mb-2">Tipo: {caso.tipo_servicio}</div>
                 <div className="flex justify-between text-xs text-gray-600 border-t pt-2 mt-2">
-                  <span>Prioridad: {caso.prioridad}</span>
-                  <span>Técnico: {caso.tecnico_id ? caso.tecnico_id.split('@')[0] : 'Sin asignar'}</span>
+                  <span>Modo: {caso.modo_servicio}</span>
+                  <span>Canal: {caso.canal}</span>
                 </div>
               </Link>
             ))}
