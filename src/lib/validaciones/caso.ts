@@ -24,7 +24,6 @@ export const nuevoCasoSchema = z
   })
   .refine(
     (data) => {
-      // Si el modo elegido es diferente al sugerido, el motivo es obligatorio
       if (data.modo_sugerido && data.modo_servicio !== data.modo_sugerido) {
         return !!data.motivo_cambio_modo && data.motivo_cambio_modo.trim().length > 0;
       }

@@ -1,5 +1,3 @@
-// src/lib/datos-simulados/empresas.ts
-
 export interface Empresa {
   id: number;
   nombre: string;

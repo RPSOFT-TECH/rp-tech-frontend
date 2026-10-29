@@ -33,18 +33,18 @@ export function BloqueSolicitud({ form }: BloqueSolicitudProps) {
                 : 'border-input bg-background hover:bg-muted text-foreground'
             }`}
           >
-            📞 Llamada
+            Llamada
           </button>
           <button
             type="button"
             onClick={() => setValue('canal', 'WhatsApp', { shouldValidate: true })}
             className={`h-11 rounded-lg border text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
               canalActual === 'WhatsApp'
-                ? 'border-green-600 bg-green-50 text-green-700 font-semibold ring-1 ring-green-600'
+                ? 'border-primary bg-primary/10 text-primary font-semibold ring-1 ring-primary'
                 : 'border-input bg-background hover:bg-muted text-foreground'
             }`}
           >
-            💬 WhatsApp
+            WhatsApp
           </button>
         </div>
         {errors.canal && (

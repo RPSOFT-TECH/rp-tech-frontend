@@ -37,8 +37,8 @@ export function BloqueEquipo({
             variant={sugerencia.enGarantia ? 'default' : 'secondary'}
             className={
               sugerencia.enGarantia
-                ? 'bg-blue-600 hover:bg-blue-700'
-                : 'bg-amber-100 text-amber-800 border-amber-200'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-accent text-accent-foreground border border-border'
             }
           >
             {sugerencia.enGarantia ? 'En garantía' : 'Fuera de garantía'}
@@ -46,7 +46,6 @@ export function BloqueEquipo({
         )}
       </CardHeader>
       <CardContent className="space-y-4 pt-4">
-        {/* Selección de Equipo */}
         <div className="space-y-1.5">
           <Label htmlFor="equipo">Equipo</Label>
           <select
@@ -68,7 +67,6 @@ export function BloqueEquipo({
           )}
         </div>
 
-        {/* Cabezal, Cantidad e Instalación */}
         <div className="grid grid-cols-3 gap-3">
           <div className="space-y-1.5">
             <Label className="text-xs">Cabezal</Label>
@@ -89,8 +87,6 @@ export function BloqueEquipo({
             </div>
           </div>
         </div>
-
-        {/* TODO(especificación v1): Cálculo de garantía definitivo según fecha_instalacion */}
       </CardContent>
     </Card>
   );

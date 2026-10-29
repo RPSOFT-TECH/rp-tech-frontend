@@ -1,5 +1,3 @@
-// src/lib/datos-simulados/clientes.ts
-
 export interface Cliente {
   id: number;
   empresa_id: number;
@@ -12,7 +10,6 @@ export interface Cliente {
 }
 
 export const clientes: Cliente[] = [
-  // Clientes de Empresa 1: RP Tech Demo
   {
     id: 1,
     empresa_id: 1,
@@ -113,8 +110,6 @@ export const clientes: Cliente[] = [
     soporte_vigente: false,
     activo: true,
   },
-
-  // Clientes de Empresa 2: Otra Empresa Demo
   {
     id: 11,
     empresa_id: 2,

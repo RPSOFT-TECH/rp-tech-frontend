@@ -1,5 +1,3 @@
-// src/lib/datos-simulados/actions.ts
-
 import { empresas, type Empresa } from './empresas';
 import { usuarios, asignacionesRoles, type Usuario, type Rol } from './usuarios';
 import { clientes, type Cliente } from './clientes';
@@ -7,7 +5,7 @@ import { contactos, type Contacto } from './contactos';
 import { sedes, type Sede } from './sedes';
 import { equipos, type Equipo } from './equipos';
 import { catalogos } from './catalogos';
-import { casosSimulados, type Caso } from './casos';
+import { casosSimulados, visitasSimuladas, type Caso, type Visita } from './casos';
 
 function delay<T>(data: T, ms = 300): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms));
@@ -28,24 +26,19 @@ export interface SesionUsuario {
   rolesVigentes: Rol[];
 }
 
-/**
- * Obtiene los roles vigentes hoy para un usuario.
- * Ignora vencidos, futuros y el rol 'ventas' (inactivo).
- */
 export function obtenerRolesVigentes(usuarioId: number): Rol[] {
   const hoyStr = new Date().toISOString().split('T')[0];
   return asignacionesRoles
     .filter((asig) => {
       if (asig.usuario_id !== usuarioId) return false;
-      if (asig.rol === 'ventas') return false; // Rol ventas inactivo
-      if (asig.desde > hoyStr) return false; // Futuro
-      if (asig.hasta && asig.hasta < hoyStr) return false; // Vencido
+      if (asig.rol === 'ventas') return false;
+      if (asig.desde > hoyStr) return false;
+      if (asig.hasta && asig.hasta < hoyStr) return false;
       return true;
     })
     .map((asig) => asig.rol);
 }
 
-/** Inicia sesión validando credenciales y extrayendo roles vigentes */
 export async function login(
   email: string,
   password: string,
@@ -95,8 +88,6 @@ export function guardarSesion(sesion: SesionUsuario): void {
   }
 }
 
-// ── Clientes (filtrados por empresa) ──────────────────────────────────────
-
 export async function buscarClientes(query: string): Promise<Cliente[]> {
   await delay(null);
   const sesion = obtenerUsuarioActual();
@@ -123,7 +114,6 @@ export async function obtenerSedes(clienteId: number): Promise<Sede[]> {
   return delay(sedes.filter((s) => s.cliente_id === clienteId && s.activo));
 }
 
-// Compatibilidad con direcciones
 export const obtenerDirecciones = obtenerSedes;
 
 export async function obtenerEquipos(clienteId: number): Promise<Equipo[]> {
@@ -134,8 +124,6 @@ export async function obtenerCatalogos(): Promise<typeof catalogos> {
   await delay(null);
   return catalogos;
 }
-
-// ── Sugerencia de modo de servicio ─────────────────────────────────────────
 
 export interface SugerenciaModo {
   modo: string;
@@ -148,7 +136,6 @@ export function sugerirModoServicio(equipo: Equipo, cliente: Cliente): Sugerenci
   const instalacion = new Date(equipo.fecha_instalacion);
   const hoy = new Date();
 
-  // Calcular diferencia en meses
   let meses = (hoy.getFullYear() - instalacion.getFullYear()) * 12 + (hoy.getMonth() - instalacion.getMonth());
   if (meses < 0) meses = 0;
 
@@ -181,8 +168,6 @@ export function sugerirModoServicio(equipo: Equipo, cliente: Cliente): Sugerenci
   };
 }
 
-// ── Casos ─────────────────────────────────────────────────────────────────
-
 export async function crearCaso(
   datos: Omit<Caso, 'id' | 'empresa_id' | 'numero' | 'estado' | 'creado_en'>,
 ): Promise<Caso> {
@@ -210,9 +195,11 @@ export async function crearCaso(
   return nuevoCaso;
 }
 
-export async function obtenerCasoPorId(id: string): Promise<Caso | null> {
+export async function obtenerCasoPorId(id: string): Promise<(Caso & { visitas?: Visita[] }) | null> {
   const caso = casosSimulados.find((c) => c.id === id);
-  return delay(caso || null, 200);
+  if (!caso) return delay(null, 200);
+  const visitas = visitasSimuladas.filter((v) => v.caso_id === id);
+  return delay({ ...caso, visitas }, 200);
 }
 
 export async function listarCasos(): Promise<Caso[]> {
@@ -226,11 +213,6 @@ export async function listarCasos(): Promise<Caso[]> {
 
   return delay([...filtrados]);
 }
-
-
-// ==========================================
-// FILTROS Y ACCIONES PARA VISTAS DE CASOS
-// ==========================================
 
 export interface FiltrosCasos {
   estado?: string;
@@ -255,7 +237,11 @@ export async function obtenerCasos(filtros: FiltrosCasos = {}): Promise<Caso[]> 
   }
 
   if (filtros.tecnico_id && filtros.tecnico_id !== 'todos') {
-    resultado = resultado.filter((c) => c.tecnico_id === filtros.tecnico_id);
+    resultado = resultado.filter((c) => {
+      if (c.tecnico_id === filtros.tecnico_id) return true;
+      const v = visitasSimuladas.find((vis) => vis.caso_id === c.id);
+      return v?.tecnico_id === filtros.tecnico_id;
+    });
   }
 
   if (filtros.tipo_servicio && filtros.tipo_servicio !== 'todos') {

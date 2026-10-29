@@ -55,7 +55,6 @@ export function BloqueCliente({
         )}
       </CardHeader>
       <CardContent className="space-y-4 pt-4">
-        {/* Campo Empresa */}
         <div className="space-y-1.5 relative">
           <Label htmlFor="empresa">Empresa</Label>
           <div className="flex gap-2">
@@ -81,7 +80,6 @@ export function BloqueCliente({
             </p>
           )}
 
-          {/* Lista de autocompletado */}
           {!clienteSeleccionado && clientesResultados.length > 0 && (
             <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-popover border border-border rounded-md shadow-lg max-h-60 overflow-y-auto">
               {clientesResultados.map((c) => (
@@ -112,7 +110,6 @@ export function BloqueCliente({
           )}
         </div>
 
-        {/* Lista Sede */}
         <div className="space-y-1.5">
           <Label htmlFor="sede">Sede</Label>
           <select
@@ -134,7 +131,6 @@ export function BloqueCliente({
           )}
         </div>
 
-        {/* Lista Contacto */}
         <div className="space-y-1.5">
           <Label htmlFor="contacto">Contacto</Label>
           <select
@@ -156,7 +152,6 @@ export function BloqueCliente({
           )}
         </div>
 
-        {/* Campo Teléfono */}
         <div className="space-y-1.5">
           <Label htmlFor="telefono">Teléfono</Label>
           <Input

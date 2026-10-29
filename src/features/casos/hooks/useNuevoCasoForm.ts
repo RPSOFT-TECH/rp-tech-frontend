@@ -53,7 +53,6 @@ export function useNuevoCasoForm(setValue: UseFormSetValue<NuevoCasoFormValues>)
     cargarCat();
   }, []);
 
-  // Debounce autocompletado cliente
   useEffect(() => {
     if (clienteSeleccionado) return;
 
@@ -81,7 +80,6 @@ export function useNuevoCasoForm(setValue: UseFormSetValue<NuevoCasoFormValues>)
     return () => clearTimeout(timer);
   }, [queryCliente, clienteSeleccionado]);
 
-  // Selección de cliente
   const handleSeleccionarCliente = async (cliente: Cliente) => {
     setClienteSeleccionado(cliente);
     setQueryCliente(cliente.razon_social);
@@ -99,7 +97,6 @@ export function useNuevoCasoForm(setValue: UseFormSetValue<NuevoCasoFormValues>)
     setSedes(seds);
     setEquipos(eqs);
 
-    // Preseleccionar contacto y teléfono
     if (conts.length > 0) {
       const primerContacto = conts[0];
       setValue('contacto_id', String(primerContacto.id), { shouldValidate: true });
@@ -111,7 +108,6 @@ export function useNuevoCasoForm(setValue: UseFormSetValue<NuevoCasoFormValues>)
       setValue('telefono', cliente.telefono || '');
     }
 
-    // Preseleccionar sede principal
     if (seds.length > 0) {
       const principal = seds.find((s) => s.principal) || seds[0];
       setValue('sede_id', String(principal.id), { shouldValidate: true });
@@ -119,7 +115,6 @@ export function useNuevoCasoForm(setValue: UseFormSetValue<NuevoCasoFormValues>)
       setValue('sede_id', '');
     }
 
-    // Preseleccionar equipo si tiene uno solo
     if (eqs.length === 1) {
       const unico = eqs[0];
       aplicarEquipo(unico, cliente);
@@ -134,12 +129,10 @@ export function useNuevoCasoForm(setValue: UseFormSetValue<NuevoCasoFormValues>)
     setEquipoSeleccionado(eq);
     setValue('equipo_id', String(eq.id), { shouldValidate: true });
 
-    // La sede se ajusta automáticamente a la sede del equipo
     if (eq.sede_id) {
       setValue('sede_id', String(eq.sede_id), { shouldValidate: true });
     }
 
-    // Sugerir modo de servicio
     const sug = sugerirModoServicio(eq, cli);
     setSugerencia(sug);
     setValue('modo_sugerido', sug.modo);
