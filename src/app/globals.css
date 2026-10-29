@@ -176,3 +176,48 @@
     @apply font-sans;
   }
 }
+
+@keyframes bubble-float {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-110vh) scale(1.15);
+    opacity: 0;
+  }
+}
+
+@keyframes bubble-sway {
+  0%,
+  100% {
+    margin-left: 0px;
+  }
+  50% {
+    margin-left: 30px;
+  }
+}
+
+.bubble {
+  position: absolute;
+  bottom: -150px;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle at 35% 35%,
+    color-mix(in oklch, var(--primary) 35%, transparent) 0%,
+    color-mix(in oklch, var(--primary) 12%, transparent) 50%,
+    color-mix(in oklch, var(--primary) 2%, transparent) 100%
+  );
+  border: 1px solid color-mix(in oklch, var(--primary) 25%, transparent);
+  box-shadow: 0 0 35px color-mix(in oklch, var(--primary) 12%, transparent);
+  backdrop-filter: blur(1.5px);
+  animation: bubble-float var(--duration, 15s) var(--delay, 0s) linear infinite,
+    bubble-sway calc(var(--duration, 15s) * 0.45) var(--delay, 0s) ease-in-out infinite;
+}
+
