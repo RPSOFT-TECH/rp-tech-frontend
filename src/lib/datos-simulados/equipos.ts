@@ -1,5 +1,3 @@
-// src/lib/datos-simulados/equipos.ts
-
 export interface Equipo {
   id: number;
   cliente_id: number;
@@ -9,11 +7,10 @@ export interface Equipo {
   numero_serie: string;
   cabezal_modelo: string;
   cabezal_cantidad: number;
-  fecha_instalacion: string; // YYYY-MM-DD
+  fecha_instalacion: string;
   activo: boolean;
 }
 
-// Fechas relativas
 const calcularFechaInstalacion = (mesesAtras: number): string => {
   const d = new Date();
   d.setMonth(d.getMonth() - mesesAtras);
@@ -21,7 +18,6 @@ const calcularFechaInstalacion = (mesesAtras: number): string => {
 };
 
 export const equipos: Equipo[] = [
-  // Equipos Cliente 1: TEXTILES ANDINOS (Planta Principal Ate = sede 1)
   {
     id: 1,
     cliente_id: 1,
@@ -31,23 +27,21 @@ export const equipos: Equipo[] = [
     numero_serie: 'SN-TEX-SUB-01',
     cabezal_modelo: 'Epson i3200',
     cabezal_cantidad: 4,
-    fecha_instalacion: calcularFechaInstalacion(8), // Instalado hace 8 meses (En garantía)
+    fecha_instalacion: calcularFechaInstalacion(8),
     activo: true,
   },
   {
     id: 2,
     cliente_id: 1,
-    sede_id: 2, // Sede 2: La Victoria
+    sede_id: 2,
     linea: 'Sublimación',
     modelo: 'Texart XT-640',
     numero_serie: 'SN-TEX-SUB-02',
     cabezal_modelo: 'Epson i3200',
     cabezal_cantidad: 4,
-    fecha_instalacion: calcularFechaInstalacion(16), // Instalado hace 16 meses (> 1 año)
+    fecha_instalacion: calcularFechaInstalacion(16),
     activo: true,
   },
-
-  // Equipos Cliente 2: ESTAMPADOS PERÚ (Sede 3: SJL)
   {
     id: 3,
     cliente_id: 2,
@@ -57,23 +51,21 @@ export const equipos: Equipo[] = [
     numero_serie: 'SN-EST-DTF-01',
     cabezal_modelo: 'Epson i1600',
     cabezal_cantidad: 2,
-    fecha_instalacion: calcularFechaInstalacion(5), // 5 meses (En garantía)
+    fecha_instalacion: calcularFechaInstalacion(5),
     activo: true,
   },
   {
     id: 4,
     cliente_id: 2,
-    sede_id: 4, // Sede 4: Breña
+    sede_id: 4,
     linea: 'DTF UV',
     modelo: 'UV DTF Roll 30',
     numero_serie: 'SN-EST-DTFUV-01',
     cabezal_modelo: 'Epson XP600',
     cabezal_cantidad: 3,
-    fecha_instalacion: calcularFechaInstalacion(14), // > 1 año
+    fecha_instalacion: calcularFechaInstalacion(14),
     activo: true,
   },
-
-  // Equipos Clientes 3 a 10 (Cubriendo las 8 líneas)
   {
     id: 5,
     cliente_id: 3,
@@ -182,7 +174,6 @@ export const equipos: Equipo[] = [
     fecha_instalacion: calcularFechaInstalacion(20),
     activo: true,
   },
-  // Equipos para Empresa 2 (Clientes 11 y 12)
   {
     id: 14,
     cliente_id: 11,

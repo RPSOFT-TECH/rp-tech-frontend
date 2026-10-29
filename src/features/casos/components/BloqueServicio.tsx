@@ -38,7 +38,6 @@ export function BloqueServicio({ form, catalogos, sugerencia }: BloqueServicioPr
       </CardHeader>
       <CardContent className="space-y-4 pt-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {/* Tipo de servicio */}
           <div className="space-y-1.5">
             <Label htmlFor="tipo_servicio">Tipo de servicio</Label>
             <select
@@ -58,7 +57,6 @@ export function BloqueServicio({ form, catalogos, sugerencia }: BloqueServicioPr
             )}
           </div>
 
-          {/* Modalidad */}
           <div className="space-y-1.5">
             <Label htmlFor="modalidad">Modalidad</Label>
             <select
@@ -78,7 +76,6 @@ export function BloqueServicio({ form, catalogos, sugerencia }: BloqueServicioPr
             )}
           </div>
 
-          {/* Modo de servicio */}
           <div className="space-y-1.5">
             <Label htmlFor="modo_servicio">Modo de servicio</Label>
             <select
@@ -97,17 +94,16 @@ export function BloqueServicio({ form, catalogos, sugerencia }: BloqueServicioPr
               <p className="text-xs text-destructive">{errors.modo_servicio.message}</p>
             )}
             {sugerencia && (
-              <p className="text-xs text-blue-700 bg-blue-50/80 p-1.5 rounded border border-blue-200 mt-1">
+              <p className="text-xs text-primary bg-primary/10 p-1.5 rounded border border-border mt-1">
                 {sugerencia.motivo}
               </p>
             )}
           </div>
         </div>
 
-        {/* Motivo de cambio de modo (solo si difiere del sugerido) */}
         {requiereMotivo && (
-          <div className="space-y-1.5 bg-amber-50/70 p-3 rounded-lg border border-amber-200">
-            <Label htmlFor="motivo_cambio_modo" className="text-amber-900 font-medium">
+          <div className="space-y-1.5 bg-accent/60 p-3 rounded-lg border border-border">
+            <Label htmlFor="motivo_cambio_modo" className="text-accent-foreground font-medium">
               Motivo del cambio de modo <span className="text-destructive">*</span>
             </Label>
             <Textarea
@@ -115,7 +111,7 @@ export function BloqueServicio({ form, catalogos, sugerencia }: BloqueServicioPr
               placeholder="Explica por qué cambias el modo de servicio respecto al sugerido..."
               rows={2}
               {...register('motivo_cambio_modo')}
-              className={`bg-white ${errors.motivo_cambio_modo ? 'border-destructive' : 'border-amber-300'}`}
+              className={`bg-background ${errors.motivo_cambio_modo ? 'border-destructive' : 'border-border'}`}
             />
             {errors.motivo_cambio_modo && (
               <p className="text-xs text-destructive">{errors.motivo_cambio_modo.message}</p>
@@ -123,7 +119,6 @@ export function BloqueServicio({ form, catalogos, sugerencia }: BloqueServicioPr
           </div>
         )}
 
-        {/* Incidencia */}
         <div className="space-y-1.5">
           <Label htmlFor="incidencia">Incidencia</Label>
           <Textarea

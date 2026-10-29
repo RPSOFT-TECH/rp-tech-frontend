@@ -1,5 +1,3 @@
-// src/proxy.ts
-
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -43,7 +41,6 @@ function esRutaPrivada(pathname: string): boolean {
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Raíz → login
   if (pathname === '/') {
     return NextResponse.redirect(new URL('/login', request.url));
   }
@@ -58,12 +55,10 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  // Redireccionar si ya tiene sesión con roles vigentes
   if (pathname === '/login' && sesion && sesion.rolesVigentes.length > 0) {
     return NextResponse.redirect(new URL(pantallaInicio(sesion.rolesVigentes), request.url));
   }
 
-  // Protección de rutas privadas
   if (esRutaPrivada(pathname)) {
     if (!sesion || !sesion.usuario.activo || sesion.rolesVigentes.length === 0) {
       return NextResponse.redirect(new URL('/login', request.url));

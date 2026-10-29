@@ -1,5 +1,3 @@
-// src/lib/datos-simulados/sedes.ts
-
 export interface Sede {
   id: number;
   cliente_id: number;
@@ -12,7 +10,6 @@ export interface Sede {
 }
 
 export const sedes: Sede[] = [
-  // Sedes de Cliente 1: TEXTILES ANDINOS
   {
     id: 1,
     cliente_id: 1,
@@ -33,8 +30,6 @@ export const sedes: Sede[] = [
     principal: false,
     activo: true,
   },
-
-  // Sedes de Cliente 2: ESTAMPADOS PERÚ
   {
     id: 3,
     cliente_id: 2,
@@ -53,8 +48,6 @@ export const sedes: Sede[] = [
     principal: false,
     activo: true,
   },
-
-  // Sedes de Clientes 3 al 10 (RP Tech Demo)
   { id: 5, cliente_id: 3, nombre: 'Planta Surco', direccion: 'Av. Santiago de Surco 301', distrito: 'Surco', principal: true, activo: true },
   { id: 6, cliente_id: 4, nombre: 'Sede Central Lima', direccion: 'Calle 5 de Mayo 202', distrito: 'Lima', principal: true, activo: true },
   { id: 7, cliente_id: 5, nombre: 'Taller Callao', direccion: 'Jr. La Marina 303', distrito: 'Callao', principal: true, activo: true },
@@ -63,8 +56,6 @@ export const sedes: Sede[] = [
   { id: 10, cliente_id: 8, nombre: 'Sede San Borja', direccion: 'Av. El Sol 606', distrito: 'San Borja', principal: true, activo: true },
   { id: 11, cliente_id: 9, nombre: 'Taller San Miguel', direccion: 'Calle Los Pinos 707', distrito: 'San Miguel', principal: true, activo: true },
   { id: 12, cliente_id: 10, nombre: 'Planta Los Olivos', direccion: 'Av. Carlos Izaguirre 110', distrito: 'Los Olivos', principal: true, activo: true },
-
-  // Sedes de Clientes 11 y 12 (Otra Empresa Demo)
   { id: 13, cliente_id: 11, nombre: 'Almacén Huancayo', direccion: 'Av. Ferrocarril 890', distrito: 'Huancayo', principal: true, activo: true },
   { id: 14, cliente_id: 12, nombre: 'Sede Tarma', direccion: 'Jr. Lima 234', distrito: 'Tarma', principal: true, activo: true },
 ];

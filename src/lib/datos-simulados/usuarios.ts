@@ -1,13 +1,11 @@
-// src/lib/datos-simulados/usuarios.ts
-
 export type Rol = 'superadmin' | 'gerente' | 'coordinador' | 'tecnico' | 'consulta' | 'ventas';
 
 export interface AsignacionRol {
   id: number;
   usuario_id: number;
   rol: Rol;
-  desde: string; // YYYY-MM-DD
-  hasta?: string; // YYYY-MM-DD (opcional)
+  desde: string;
+  hasta?: string;
 }
 
 export interface Usuario {
@@ -18,7 +16,6 @@ export interface Usuario {
   activo: boolean;
 }
 
-// Fechas relativas a hoy para pruebas dinámicas
 const hoy = new Date();
 const formatFecha = (d: Date) => d.toISOString().split('T')[0];
 
@@ -43,11 +40,11 @@ export const usuarios: Usuario[] = [
 export const asignacionesRoles: AsignacionRol[] = [
   { id: 1, usuario_id: 1, rol: 'superadmin', desde: '2025-01-01' },
   { id: 2, usuario_id: 2, rol: 'gerente', desde: '2025-01-01' },
-  { id: 3, usuario_id: 3, rol: 'coordinador', desde: formatFecha(fechaInicioMes) }, // Vigente este mes
-  { id: 4, usuario_id: 4, rol: 'coordinador', desde: formatFecha(fechaHaceUnMes), hasta: formatFecha(fechaAyer) }, // Vencido ayer
+  { id: 3, usuario_id: 3, rol: 'coordinador', desde: formatFecha(fechaInicioMes) },
+  { id: 4, usuario_id: 4, rol: 'coordinador', desde: formatFecha(fechaHaceUnMes), hasta: formatFecha(fechaAyer) },
   { id: 5, usuario_id: 5, rol: 'tecnico', desde: '2025-01-01' },
   { id: 6, usuario_id: 6, rol: 'tecnico', desde: '2025-01-01' },
   { id: 7, usuario_id: 7, rol: 'consulta', desde: '2025-01-01' },
-  { id: 8, usuario_id: 8, rol: 'ventas', desde: '2025-01-01' }, // Ventas
-  { id: 9, usuario_id: 9, rol: 'coordinador', desde: '2025-01-01' }, // Empresa 2
+  { id: 8, usuario_id: 8, rol: 'ventas', desde: '2025-01-01' },
+  { id: 9, usuario_id: 9, rol: 'coordinador', desde: '2025-01-01' },
 ];

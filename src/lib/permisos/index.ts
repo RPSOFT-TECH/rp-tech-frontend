@@ -1,5 +1,3 @@
-// src/lib/permisos/index.ts
-
 import type { Rol } from '@/lib/datos-simulados/usuarios';
 
 export interface MenuItem {
@@ -14,9 +12,6 @@ const PERMISOS: { prefijo: string; roles: Rol[] }[] = [
   { prefijo: '/administracion', roles: ['superadmin', 'gerente'] },
 ];
 
-/**
- * Retorna true si al menos uno de los roles vigentes del usuario puede entrar a la ruta.
- */
 export function puedeAcceder(rolesVigentes: Rol[], pathname: string): boolean {
   for (const { prefijo, roles } of PERMISOS) {
     if (pathname === prefijo || pathname.startsWith(prefijo + '/')) {
@@ -26,9 +21,6 @@ export function puedeAcceder(rolesVigentes: Rol[], pathname: string): boolean {
   return false;
 }
 
-/**
- * Pantalla de inicio: si solo tiene rol técnico → Mis servicios; en otro caso → Casos.
- */
 export function pantallaInicio(rolesVigentes: Rol[]): string {
   if (rolesVigentes.length === 1 && rolesVigentes[0] === 'tecnico') {
     return '/mis-servicios';
@@ -36,9 +28,6 @@ export function pantallaInicio(rolesVigentes: Rol[]): string {
   return '/casos';
 }
 
-/**
- * Menú: la suma de las opciones de todos sus roles vigentes (sin duplicados).
- */
 export function menuDeRoles(rolesVigentes: Rol[]): MenuItem[] {
   const itemsMap = new Map<string, MenuItem>();
 
@@ -67,10 +56,4 @@ export function menuDeRoles(rolesVigentes: Rol[]): MenuItem[] {
   });
 
   return Array.from(itemsMap.values());
-}
-
-const RUTAS_PRIVADAS = ['/casos', '/mis-servicios', '/administracion'];
-
-export function esRutaPrivada(pathname: string): boolean {
-  return RUTAS_PRIVADAS.some((r) => pathname === r || pathname.startsWith(r + '/'));
 }
