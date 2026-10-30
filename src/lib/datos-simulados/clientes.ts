@@ -1,97 +1,133 @@
-﻿// src/lib/datos-simulados/clientes.ts
-
-/**
- * Simulated client entities.
- * Fields follow the spec (id, razon_social, ruc, telefono, email, activo).
- */
-export type Cliente = {
+export interface Cliente {
   id: number;
+  empresa_id: number;
   razon_social: string;
   ruc: string;
   telefono: string;
   email: string;
+  soporte_vigente: boolean;
   activo: boolean;
-};
+}
 
 export const clientes: Cliente[] = [
   {
     id: 1,
+    empresa_id: 1,
     razon_social: 'TEXTILES ANDINOS S.A.C.',
     ruc: '20123456789',
     telefono: '987654321',
     email: 'contacto@andinos.com',
+    soporte_vigente: true,
     activo: true,
   },
   {
     id: 2,
+    empresa_id: 1,
     razon_social: 'ESTAMPADOS PERÚ S.R.L.',
     ruc: '20123456790',
     telefono: '987654322',
     email: 'info@estampadosperu.com',
+    soporte_vigente: true,
     activo: true,
   },
   {
     id: 3,
-    razon_social: 'Cliente 3 S.A.',
+    empresa_id: 1,
+    razon_social: 'CONFECCIONES DEL SUR S.A.C.',
     ruc: '20123456791',
     telefono: '987654323',
     email: 'c3@example.com',
+    soporte_vigente: false,
     activo: true,
   },
   {
     id: 4,
-    razon_social: 'Cliente 4 S.A.',
+    empresa_id: 1,
+    razon_social: 'GRAFICA Y MODA E.I.R.L.',
     ruc: '20123456792',
     telefono: '987654324',
     email: 'c4@example.com',
+    soporte_vigente: false,
     activo: true,
   },
   {
     id: 5,
-    razon_social: 'Cliente 5 S.A.',
+    empresa_id: 1,
+    razon_social: 'ESTAMPADOS INDUSTRIALES S.A.',
     ruc: '20123456793',
     telefono: '987654325',
     email: 'c5@example.com',
+    soporte_vigente: false,
     activo: true,
   },
   {
     id: 6,
-    razon_social: 'Cliente 6 S.A.',
+    empresa_id: 1,
+    razon_social: 'CREACIONES LIMA S.A.C.',
     ruc: '20123456794',
     telefono: '987654326',
     email: 'c6@example.com',
+    soporte_vigente: false,
     activo: true,
   },
   {
     id: 7,
-    razon_social: 'Cliente 7 S.A.',
+    empresa_id: 1,
+    razon_social: 'CORPORACION TEXTIL NORTE S.R.L.',
     ruc: '20123456795',
     telefono: '987654327',
     email: 'c7@example.com',
+    soporte_vigente: false,
     activo: true,
   },
   {
     id: 8,
-    razon_social: 'Cliente 8 S.A.',
+    empresa_id: 1,
+    razon_social: 'SUBLIMADOS PERUANOS S.A.C.',
     ruc: '20123456796',
     telefono: '987654328',
     email: 'c8@example.com',
+    soporte_vigente: false,
     activo: true,
   },
   {
     id: 9,
-    razon_social: 'Cliente 9 S.A.',
+    empresa_id: 1,
+    razon_social: 'BORDADOS Y ESTAMPADOS S.A.C.',
     ruc: '20123456797',
     telefono: '987654329',
     email: 'c9@example.com',
+    soporte_vigente: false,
     activo: true,
   },
   {
     id: 10,
-    razon_social: 'Cliente 10 S.A.',
+    empresa_id: 1,
+    razon_social: 'PUBLICIDAD Y MODA TEXTIL S.A.C.',
     ruc: '20123456798',
     telefono: '987654330',
     email: 'c10@example.com',
+    soporte_vigente: false,
+    activo: true,
+  },
+  {
+    id: 11,
+    empresa_id: 2,
+    razon_social: 'DISTRIBUIDORA TEXTIL DEL CENTRO S.A.',
+    ruc: '20999888771',
+    telefono: '999888771',
+    email: 'contacto@distribuidoracentro.com',
+    soporte_vigente: true,
+    activo: true,
+  },
+  {
+    id: 12,
+    empresa_id: 2,
+    razon_social: 'IMPRESIONES Y ACABADOS S.A.C.',
+    ruc: '20999888772',
+    telefono: '999888772',
+    email: 'ventas@acabados.com',
+    soporte_vigente: false,
     activo: true,
   },
 ];

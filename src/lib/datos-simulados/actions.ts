@@ -1,23 +1,16 @@
-// src/lib/datos-simulados/actions.ts
-//
-// Acciones simuladas — todas devuelven una Promise con ~300 ms de espera
-// para imitar una llamada real al backend.
-
-import { usuarios, type Usuario } from './usuarios';
+import { empresas, type Empresa } from './empresas';
+import { usuarios, asignacionesRoles, type Usuario, type Rol } from './usuarios';
 import { clientes, type Cliente } from './clientes';
 import { contactos, type Contacto } from './contactos';
-import { direcciones, type Direccion } from './direcciones';
+import { sedes, type Sede } from './sedes';
 import { equipos, type Equipo } from './equipos';
 import { catalogos } from './catalogos';
-import { casosSimulados, type Caso } from './casos';
-
-// ── Utilidad ──────────────────────────────────────────────────────────────
+import { casosSimulados, visitasSimuladas, type Caso, type Visita } from './casos';
 
 function delay<T>(data: T, ms = 300): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms));
 }
 
-/** Normaliza texto: minúsculas, sin tildes ni diacríticos. */
 function normalizar(text: string): string {
   return text
     .toLowerCase()
@@ -25,142 +18,201 @@ function normalizar(text: string): string {
     .replace(/[\u0300-\u036f]/g, '');
 }
 
-// ── Autenticación ─────────────────────────────────────────────────────────
-
 const CONTRASENA_COMUN = 'rptech123';
+
+export interface SesionUsuario {
+  usuario: Usuario;
+  empresa: Empresa;
+  rolesVigentes: Rol[];
+}
+
+export function obtenerRolesVigentes(usuarioId: number): Rol[] {
+  const hoyStr = new Date().toISOString().split('T')[0];
+  return asignacionesRoles
+    .filter((asig) => {
+      if (asig.usuario_id !== usuarioId) return false;
+      if (asig.rol === 'ventas') return false;
+      if (asig.desde > hoyStr) return false;
+      if (asig.hasta && asig.hasta < hoyStr) return false;
+      return true;
+    })
+    .map((asig) => asig.rol);
+}
 
 export async function login(
   email: string,
   password: string,
-): Promise<Usuario | null> {
+): Promise<SesionUsuario | null> {
   await delay(null);
   if (password !== CONTRASENA_COMUN) return null;
+
   const usuario = usuarios.find((u) => u.email === email.toLowerCase().trim());
-  return usuario ?? null;
+  if (!usuario || !usuario.activo) return null;
+
+  const empresa = empresas.find((e) => e.id === usuario.empresa_id) || empresas[0];
+  const rolesVigentes = obtenerRolesVigentes(usuario.id);
+
+  return {
+    usuario,
+    empresa,
+    rolesVigentes,
+  };
 }
 
- feature/lista-casos
-
-/** Cierra la sesión: limpia localStorage y expira la cookie. */
-main
 export async function logout(): Promise<void> {
   await delay(null);
   if (typeof window !== 'undefined') {
-    localStorage.removeItem('rptech_user');
-    // Expirar la cookie de sesión
+    localStorage.removeItem('rptech_session_user');
     document.cookie =
       'rptech_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
   }
 }
 
-export function obtenerUsuarioActual(): Usuario | null {
+export function obtenerUsuarioActual(): SesionUsuario | null {
   if (typeof window === 'undefined') return null;
-  const raw = localStorage.getItem('rptech_user');
+  const raw = localStorage.getItem('rptech_session_user');
   if (!raw) return null;
   try {
-    return JSON.parse(raw) as Usuario;
+    return JSON.parse(raw) as SesionUsuario;
   } catch {
     return null;
   }
 }
- feature/lista-casos
 
-/** Guarda el usuario en localStorage y en la cookie de sesión. */
-main
-export function guardarSesion(usuario: Usuario): void {
+export function guardarSesion(sesion: SesionUsuario): void {
   if (typeof window !== 'undefined') {
-    localStorage.setItem('rptech_user', JSON.stringify(usuario));
-    // Cookie que lee el proxy para proteger rutas
-    document.cookie = `rptech_session=${encodeURIComponent(JSON.stringify(usuario))}; path=/; SameSite=Lax`;
+    localStorage.setItem('rptech_session_user', JSON.stringify(sesion));
+    document.cookie = `rptech_session=${encodeURIComponent(
+      JSON.stringify(sesion)
+    )}; path=/; SameSite=Lax`;
   }
 }
 
-// ── Clientes ──────────────────────────────────────────────────────────────
-
 export async function buscarClientes(query: string): Promise<Cliente[]> {
   await delay(null);
+  const sesion = obtenerUsuarioActual();
+  const empresaId = sesion?.empresa.id || 1;
+  const esSuperadmin = sesion?.rolesVigentes.includes('superadmin');
+
   const q = normalizar(query.trim());
   if (q.length < 2) return [];
+
   return clientes
-    .filter(
-      (c) =>
-        c.activo &&
-        (normalizar(c.razon_social).includes(q) || c.ruc.startsWith(q)),
-    )
+    .filter((c) => {
+      if (!c.activo) return false;
+      if (!esSuperadmin && c.empresa_id !== empresaId) return false;
+      return normalizar(c.razon_social).includes(q) || c.ruc.startsWith(q);
+    })
     .slice(0, 10);
 }
-
-// ── Contactos, direcciones y equipos ─────────────────────────────────────
 
 export async function obtenerContactos(clienteId: number): Promise<Contacto[]> {
   return delay(contactos.filter((c) => c.cliente_id === clienteId && c.activo));
 }
 
-export async function obtenerDirecciones(
-  clienteId: number,
-): Promise<Direccion[]> {
-  return delay(
-    direcciones.filter((d) => d.cliente_id === clienteId && d.activo),
-  );
+export async function obtenerSedes(clienteId: number): Promise<Sede[]> {
+  return delay(sedes.filter((s) => s.cliente_id === clienteId && s.activo));
 }
+
+export const obtenerDirecciones = obtenerSedes;
 
 export async function obtenerEquipos(clienteId: number): Promise<Equipo[]> {
   return delay(equipos.filter((e) => e.cliente_id === clienteId && e.activo));
 }
 
-// ── Catálogos ─────────────────────────────────────────────────────────────
-
 export async function obtenerCatalogos(): Promise<typeof catalogos> {
   await delay(null);
+  return catalogos;
+}
+
+export interface SugerenciaModo {
+  modo: string;
+  motivo: string;
+  enGarantia: boolean;
+  antiguedadTexto: string;
+}
+
+export function sugerirModoServicio(equipo: Equipo, cliente: Cliente): SugerenciaModo {
+  const instalacion = new Date(equipo.fecha_instalacion);
+  const hoy = new Date();
+
+  let meses = (hoy.getFullYear() - instalacion.getFullYear()) * 12 + (hoy.getMonth() - instalacion.getMonth());
+  if (meses < 0) meses = 0;
+
+  const antiguedadTexto = meses === 1 ? '1 mes de uso' : `${meses} meses de uso`;
+  const enGarantia = meses < 12;
+
+  if (enGarantia) {
+    return {
+      modo: 'Garantía del equipo',
+      motivo: `Sugerido: Garantía del equipo (instalado hace ${antiguedadTexto})`,
+      enGarantia: true,
+      antiguedadTexto,
+    };
+  }
+
+  if (cliente.soporte_vigente) {
+    return {
+      modo: 'Garantía de soporte técnico',
+      motivo: 'Sugerido: Garantía de soporte técnico (cliente con soporte vigente)',
+      enGarantia: false,
+      antiguedadTexto,
+    };
+  }
+
   return {
-    tipos_servicio: catalogos.tipos_servicio.filter((x) => x.activo),
-    modos_servicio: catalogos.modos_servicio.filter((x) => x.activo),
-    lineas_maquina: catalogos.lineas_maquina.filter((x) => x.activo),
-    modelos_cabezal: catalogos.modelos_cabezal.filter((x) => x.activo),
-    modalidades: catalogos.modalidades.filter((x) => x.activo),
-    prioridades: catalogos.prioridades.filter((x) => x.activo),
-    motivos_espera: catalogos.motivos_espera.filter((x) => x.activo),
-    cantidad_cabezal: catalogos.cantidad_cabezal.filter((x) => x.activo),
+    modo: 'Facturado',
+    motivo: 'Sugerido: Facturado (instalación > 12 meses y sin soporte vigente)',
+    enGarantia: false,
+    antiguedadTexto,
   };
 }
 
-// ── Casos ────────────────────────────────────────────────────────────────_
-
-let contadorCasos = casosSimulados.length;
-
 export async function crearCaso(
-  datos: Omit<Caso, 'id' | 'numero' | 'estado' | 'creado_en'>,
+  datos: Omit<Caso, 'id' | 'empresa_id' | 'numero' | 'estado' | 'creado_en'>,
 ): Promise<Caso> {
   await delay(null);
+  const sesion = obtenerUsuarioActual();
+  const empresaId = sesion?.empresa.id || 1;
 
   if (String(datos.cliente_id) === '99') {
     throw new Error('Error simulado al guardar el caso. Intenta de nuevo.');
   }
 
-  contadorCasos += 1;
+  const casosEmpresa = casosSimulados.filter((c) => c.empresa_id === empresaId);
+  const correlativo = casosEmpresa.length + 1;
+
   const nuevoCaso: Caso = {
     ...datos,
-    id: String(contadorCasos),
-    numero: `OS-2026-${String(contadorCasos).padStart(4, '0')}`,
+    id: `c-${Date.now()}`,
+    empresa_id: empresaId,
+    numero: `OS-2026-${String(correlativo).padStart(4, '0')}`,
     estado: 'por_programar',
     creado_en: new Date().toISOString(),
   };
+
   casosSimulados.push(nuevoCaso);
   return nuevoCaso;
 }
 
-/**
- * Devuelve un caso por su ID.
- */
-feature/lista-casos
-export async function obtenerCasoPorId(id: string): Promise<Caso | null> {
+export async function obtenerCasoPorId(id: string): Promise<(Caso & { visitas?: Visita[] }) | null> {
   const caso = casosSimulados.find((c) => c.id === id);
-  return delay(caso || null, 200);
+  if (!caso) return delay(null, 200);
+  const visitas = visitasSimuladas.filter((v) => v.caso_id === id);
+  return delay({ ...caso, visitas }, 200);
 }
 
-// ==========================================
-// ACCIONES PARA LISTA DE CASOS (Frontend 2)
-// ==========================================
+export async function listarCasos(): Promise<Caso[]> {
+  const sesion = obtenerUsuarioActual();
+  const empresaId = sesion?.empresa.id || 1;
+  const esSuper = sesion?.rolesVigentes.includes('superadmin');
+
+  const filtrados = esSuper
+    ? casosSimulados
+    : casosSimulados.filter((c) => c.empresa_id === empresaId);
+
+  return delay([...filtrados]);
+}
 
 export interface FiltrosCasos {
   estado?: string;
@@ -172,17 +224,27 @@ export interface FiltrosCasos {
 }
 
 export async function obtenerCasos(filtros: FiltrosCasos = {}): Promise<Caso[]> {
-  let resultado = [...casosSimulados];
+  const sesion = obtenerUsuarioActual();
+  const empresaId = sesion?.empresa.id || 1;
+  const esSuper = sesion?.rolesVigentes.includes('superadmin');
 
-  if (filtros.estado && filtros.estado !== "todos") {
+  let resultado = esSuper
+    ? [...casosSimulados]
+    : casosSimulados.filter((c) => c.empresa_id === empresaId);
+
+  if (filtros.estado && filtros.estado !== 'todos') {
     resultado = resultado.filter((c) => c.estado === filtros.estado);
   }
 
-  if (filtros.tecnico_id && filtros.tecnico_id !== "todos") {
-    resultado = resultado.filter((c) => c.tecnico_id === filtros.tecnico_id);
+  if (filtros.tecnico_id && filtros.tecnico_id !== 'todos') {
+    resultado = resultado.filter((c) => {
+      if (c.tecnico_id === filtros.tecnico_id) return true;
+      const v = visitasSimuladas.find((vis) => vis.caso_id === c.id);
+      return v?.tecnico_id === filtros.tecnico_id;
+    });
   }
 
-  if (filtros.tipo_servicio && filtros.tipo_servicio !== "todos") {
+  if (filtros.tipo_servicio && filtros.tipo_servicio !== 'todos') {
     resultado = resultado.filter((c) => c.tipo_servicio === filtros.tipo_servicio);
   }
 
@@ -194,7 +256,7 @@ export async function obtenerCasos(filtros: FiltrosCasos = {}): Promise<Caso[]> 
     resultado = resultado.filter((c) => c.creado_en <= filtros.fecha_hasta!);
   }
 
-  if (filtros.q && filtros.q.trim() !== "") {
+  if (filtros.q && filtros.q.trim() !== '') {
     const query = normalizar(filtros.q);
     resultado = resultado.filter(
       (c) =>
@@ -209,11 +271,16 @@ export async function obtenerCasos(filtros: FiltrosCasos = {}): Promise<Caso[]> 
 }
 
 export async function obtenerTecnicosActivos() {
-  const tecnicosActivos = usuarios.filter((u) => u.rol === "tecnico" && u.activo);
-  return delay(tecnicosActivos, 200);
-}
+  const sesion = obtenerUsuarioActual();
+  const empresaId = sesion?.empresa.id || 1;
+  const esSuper = sesion?.rolesVigentes.includes('superadmin');
 
-export async function listarCasos(): Promise<Caso[]> {
-  return delay([...casos]);
+  const tecnicos = usuarios.filter((u) => {
+    if (!u.activo) return false;
+    if (!esSuper && u.empresa_id !== empresaId) return false;
+    const roles = obtenerRolesVigentes(u.id);
+    return roles.includes('tecnico');
+  });
+
+  return delay(tecnicos, 200);
 }
- main
