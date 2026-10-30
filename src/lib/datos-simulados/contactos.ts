@@ -1,9 +1,3 @@
-// src/lib/datos-simulados/contactos.ts
-
-/**
- * Simulated contacts per client.
- * Fields: id, cliente_id, nombre, cargo, telefono, email, activo.
- */
 export type Contacto = {
   id: number;
   cliente_id: number;
@@ -15,13 +9,10 @@ export type Contacto = {
 };
 
 export const contactos: Contacto[] = [
-  // Cliente 1 contacts
   { id: 1, cliente_id: 1, nombre: 'Juan Pérez', cargo: 'Gerente', telefono: '987111111', email: 'juan.perez@andinos.com', activo: true },
   { id: 2, cliente_id: 1, nombre: 'María Gómez', cargo: 'Compras', telefono: '987222222', email: 'maria.gomez@andinos.com', activo: true },
-  // Cliente 2 contacts
   { id: 3, cliente_id: 2, nombre: 'Luis Torres', cargo: 'Propietario', telefono: '987333333', email: 'luis.torres@estampadosperu.com', activo: true },
   { id: 4, cliente_id: 2, nombre: 'Ana Ruiz', cargo: 'Ventas', telefono: undefined, email: undefined, activo: true },
-  // Add a few contacts for other clients (one each)
   { id: 5, cliente_id: 3, nombre: 'Contacto 3', cargo: 'Director', telefono: '987555555', email: 'c3@client3.com', activo: true },
   { id: 6, cliente_id: 4, nombre: 'Contacto 4', cargo: 'Jefe', telefono: '987555556', email: 'c4@client4.com', activo: true },
   { id: 7, cliente_id: 5, nombre: 'Contacto 5', cargo: 'Gerente', telefono: '987555557', email: 'c5@client5.com', activo: true },
