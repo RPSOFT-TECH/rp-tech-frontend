@@ -9,6 +9,39 @@ import { clientes } from '@/lib/datos-simulados/clientes';
 import { contactos } from '@/lib/datos-simulados/contactos';
 import { sedes } from '@/lib/datos-simulados/sedes';
 import { equipos } from '@/lib/datos-simulados/equipos';
+import { usuarios } from '@/lib/datos-simulados/usuarios';
+
+const ESTADO_ETIQUETA: Record<string, string> = {
+  por_programar: 'Por programar',
+  programado: 'Programado',
+  en_atencion: 'En atención',
+  en_espera: 'En espera',
+  atendido: 'Atendido',
+  cerrado: 'Cerrado',
+};
+
+function valor(v: string | null | undefined): string {
+  if (v === null || v === undefined || v === '') return '—';
+  return v;
+}
+
+function resolverTecnico(tecnicoId: string | null | undefined): string {
+  if (!tecnicoId) return 'Sin asignar';
+  const u = usuarios.find((user) => user.email === tecnicoId);
+  return u ? u.nombre_completo : 'Sin asignar';
+}
+
+function fechaHoraLima(iso: string | null | undefined): string {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString('es-PE', {
+    timeZone: 'America/Lima',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
 
 function DetalleCasoContenido() {
   const params = useParams();
@@ -16,7 +49,6 @@ function DetalleCasoContenido() {
   const id = params.id as string;
 
   const [caso, setCaso] = useState<Caso | null>(null);
-  const [visitas, setVisitas] = useState<Visita[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,7 +58,6 @@ function DetalleCasoContenido() {
       const data = await obtenerCasoPorId(id);
       if (data) {
         setCaso(data);
-        setVisitas((data as any).visitas || []);
       }
       setLoading(false);
     }
@@ -48,10 +79,10 @@ function DetalleCasoContenido() {
     );
   }
 
-  const clienteData = clientes.find((c: any) => c.id === caso.cliente_id);
-  const contactoData = contactos.find((c: any) => c.id === caso.contacto_id);
-  const direccionData = sedes.find((d: any) => d.id === (caso as any).sede_id || d.id === (caso as any).direccion_id);
-  const equipoData = equipos.find((e: any) => e.id === caso.equipo_id);
+  const clienteData = clientes.find((c) => c.id === caso.cliente_id);
+  const contactoData = contactos.find((c) => c.id === caso.contacto_id);
+  const direccionData = sedes.find((d) => d.id === (caso as any).sede_id || d.id === (caso as any).direccion_id);
+  const equipoData = equipos.find((e) => e.id === caso.equipo_id);
 
   const volverAListaUrl = `/casos?${searchParams.toString()}`;
 
@@ -63,94 +94,125 @@ function DetalleCasoContenido() {
         </Link>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
           <h1 className="text-2xl font-bold text-foreground">Detalle del Caso: {caso.numero}</h1>
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 text-xs font-medium rounded-md bg-muted text-muted-foreground">
-              Canal: {caso.canal}
-            </span>
-            <span className="px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary uppercase">
-              {caso.estado.replace('_', ' ')}
-            </span>
-          </div>
+          <span className="px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary uppercase">
+            {ESTADO_ETIQUETA[caso.estado] || caso.estado}
+          </span>
         </div>
         <div className="text-xs text-muted-foreground mt-1">
-          Registrado el: {new Date(caso.creado_en).toLocaleString('es-PE')}
+          Registrado el: {fechaHoraLima(caso.creado_en)}
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div className="bg-card p-6 rounded-xl shadow-sm border border-border">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Cliente</h3>
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            Cliente
+          </h3>
           <ul className="space-y-2 text-sm text-card-foreground">
-            <li><strong className="text-foreground">Empresa:</strong> {clienteData?.razon_social || ' — '}</li>
-            <li><strong className="text-foreground">RUC:</strong> {clienteData?.ruc || ' — '}</li>
-            <li><strong className="text-foreground">Soporte vigente:</strong> {clienteData?.soporte_vigente ? 'Sí' : 'No'}</li>
-            <li><strong className="text-foreground">Contacto:</strong> {contactoData ? `${contactoData.nombre} (${contactoData.cargo})` : ' — '}</li>
-            <li><strong className="text-foreground">Teléfono:</strong> {caso.telefono || ' — '}</li>
+            <li>
+              <strong className="text-foreground">Empresa:</strong>{' '}
+              {valor(clienteData?.razon_social)}
+            </li>
+            <li>
+              <strong className="text-foreground">RUC:</strong>{' '}
+              {valor(clienteData?.ruc)}
+            </li>
+            <li>
+              <strong className="text-foreground">Contacto:</strong>{' '}
+              {contactoData
+                ? `${contactoData.nombre} (${contactoData.cargo})`
+                : '—'}
+            </li>
+            <li>
+              <strong className="text-foreground">Teléfono del caso:</strong>{' '}
+              {valor(caso.telefono)}
+            </li>
+            <li>
+              <strong className="text-foreground">Dirección:</strong>{' '}
+              {valor(direccionData?.direccion)}
+            </li>
+            <li>
+              <strong className="text-foreground">Distrito:</strong>{' '}
+              {valor(direccionData?.distrito)}
+            </li>
+            <li>
+              <strong className="text-foreground">Referencia:</strong>{' '}
+              {valor(direccionData?.referencia)}
+            </li>
           </ul>
         </div>
 
         <div className="bg-card p-6 rounded-xl shadow-sm border border-border">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Sede / Dirección</h3>
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            Equipo
+          </h3>
           <ul className="space-y-2 text-sm text-card-foreground">
-            <li><strong className="text-foreground">Dirección:</strong> {direccionData?.direccion || ' — '}</li>
-            <li><strong className="text-foreground">Distrito:</strong> {direccionData?.distrito || ' — '}</li>
-            <li><strong className="text-foreground">Referencia:</strong> {direccionData?.referencia || ' — '}</li>
+            <li>
+              <strong className="text-foreground">Número de serie:</strong>{' '}
+              <span className="font-mono">{valor(equipoData?.numero_serie)}</span>
+            </li>
+            <li>
+              <strong className="text-foreground">Línea y modelo:</strong>{' '}
+              {equipoData ? `${valor((equipoData as any).linea)} - ${equipoData.modelo}` : '—'}
+            </li>
+            <li>
+              <strong className="text-foreground">Cabezal:</strong>{' '}
+              {valor((equipoData as any)?.cabezal_modelo)}
+            </li>
+            <li>
+              <strong className="text-foreground">Cant. cabezales:</strong>{' '}
+              {valor(equipoData?.cabezal_cantidad?.toString())}
+            </li>
           </ul>
         </div>
 
         <div className="bg-card p-6 rounded-xl shadow-sm border border-border">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Equipo</h3>
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            Servicio
+          </h3>
           <ul className="space-y-2 text-sm text-card-foreground">
-            <li><strong className="text-foreground">Número de serie:</strong> <span className="font-mono">{equipoData?.numero_serie || ' — '}</span></li>
-            <li><strong className="text-foreground">Línea y modelo:</strong> {equipoData ? `${(equipoData as any).linea || ''} - ${equipoData.modelo}` : ' — '}</li>
-            <li><strong className="text-foreground">Cabezal:</strong> {(equipoData as any)?.cabezal_modelo || ' — '}</li>
-            <li><strong className="text-foreground">Cant. cabezales:</strong> {equipoData?.cabezal_cantidad || ' — '}</li>
-            <li><strong className="text-foreground">Fecha de instalación:</strong> {(equipoData as any)?.fecha_instalacion || ' — '}</li>
+            <li>
+              <strong className="text-foreground">Tipo:</strong>{' '}
+              {valor(caso.tipo_servicio)}
+            </li>
+            <li>
+              <strong className="text-foreground">Modo:</strong>{' '}
+              {valor(caso.modo_servicio)}
+            </li>
+            <li>
+              <strong className="text-foreground">Modalidad:</strong>{' '}
+              {valor(caso.modalidad)}
+            </li>
+            <li>
+              <strong className="text-foreground">Prioridad:</strong>{' '}
+              {valor(caso.prioridad)}
+            </li>
+            <li>
+              <strong className="text-foreground">Técnico:</strong>{' '}
+              {resolverTecnico(caso.tecnico_id)}
+            </li>
+            <li>
+              <strong className="text-foreground">Fecha programada:</strong>{' '}
+              {valor(caso.fecha_programada)}
+            </li>
+            <li>
+              <strong className="text-foreground">Hora programada:</strong>{' '}
+              {valor(caso.hora_programada)}
+            </li>
           </ul>
         </div>
 
         <div className="bg-card p-6 rounded-xl shadow-sm border border-border">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Servicio</h3>
-          <ul className="space-y-2 text-sm text-card-foreground">
-            <li><strong className="text-foreground">Tipo de servicio:</strong> {caso.tipo_servicio || ' — '}</li>
-            <li><strong className="text-foreground">Modalidad:</strong> {caso.modalidad || ' — '}</li>
-            <li><strong className="text-foreground">Modo sugerido:</strong> {caso.modo_sugerido || ' — '}</li>
-            <li><strong className="text-foreground">Modo elegido:</strong> {caso.modo_servicio || ' — '}</li>
-            {caso.modo_servicio !== caso.modo_sugerido && (
-              <li><strong className="text-foreground">Motivo de cambio:</strong> {caso.motivo_cambio_modo || ' — '}</li>
-            )}
-          </ul>
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            Incidencia
+          </h3>
+          <p className="text-sm text-card-foreground bg-muted p-4 rounded-lg border border-border whitespace-pre-line">
+            {caso.incidencia || '—'}
+          </p>
         </div>
       </div>
 
-      <div className="bg-card p-6 rounded-xl shadow-sm border border-border mb-6">
-        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Incidencia Reportada</h3>
-        <p className="text-sm text-card-foreground bg-muted p-4 rounded-lg border border-border whitespace-pre-line">
-          {caso.incidencia || ' — '}
-        </p>
-      </div>
-
-      <div className="bg-card p-6 rounded-xl shadow-sm border border-border mb-6">
-        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Visitas Programadas</h3>
-        {visitas.length === 0 ? (
-          <p className="text-sm text-muted-foreground italic">Sin visitas programadas</p>
-        ) : (
-          <div className="space-y-3">
-            {visitas.map((v) => (
-              <div key={v.id} className="border border-border rounded-lg p-3 text-sm flex justify-between items-center bg-muted/40">
-                <div>
-                  <span className="font-bold text-primary mr-2">Visita #{v.numero_visita}</span>
-                  <span className="text-card-foreground">{v.fecha_programada || 'Sin fecha'} ({v.hora_programada || '—'})</span>
-                  <div className="text-xs text-muted-foreground mt-0.5">Técnico: {v.tecnico_id ? v.tecnico_id.split('@')[0] : 'Sin asignar'}</div>
-                </div>
-                <span className="px-2.5 py-1 text-xs font-medium rounded bg-primary/10 text-primary uppercase">
-                  {v.resultado || 'Pendiente'}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* TODO(especificación v1): aquí irán las visitas y reportes del caso. */}
     </div>
   );
 }
