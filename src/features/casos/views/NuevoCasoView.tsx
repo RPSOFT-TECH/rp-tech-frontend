@@ -83,6 +83,7 @@ export function NuevoCasoView() {
         modo_sugerido: values.modo_sugerido || values.modo_servicio,
         modo_servicio: values.modo_servicio,
         motivo_cambio_modo: values.motivo_cambio_modo,
+        prioridad: 'Consulta',
         tecnico_id: null,
         fecha_programada: null,
         hora_programada: null,

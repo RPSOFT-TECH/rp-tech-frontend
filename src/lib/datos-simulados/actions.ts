@@ -284,3 +284,27 @@ export async function obtenerTecnicosActivos() {
 
   return delay(tecnicos, 200);
 }
+
+export function hoyLima(): string {
+  return new Date().toLocaleString('en-CA', {
+    timeZone: 'America/Lima',
+  }).split(',')[0];
+}
+
+export async function obtenerCasosTecnico(tecnicoId: string): Promise<Caso[]> {
+  const hoy = hoyLima();
+  const resultado = casosSimulados
+    .filter(
+      (c) =>
+        c.tecnico_id === tecnicoId &&
+        c.fecha_programada &&
+        c.fecha_programada >= hoy
+    )
+    .sort((a, b) => {
+      const fa = (a.fecha_programada || '') + (a.hora_programada || '');
+      const fb = (b.fecha_programada || '') + (b.hora_programada || '');
+      return fa.localeCompare(fb);
+    });
+
+  return delay(resultado, 300);
+}

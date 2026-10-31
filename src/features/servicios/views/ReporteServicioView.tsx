@@ -87,6 +87,7 @@ function ReporteServicioContenido() {
 
   return (
     <div className="p-4 max-w-md mx-auto md:max-w-2xl pb-28">
+      {/* TODO(especificación v1): falta la lógica de guardado, firmas y adjuntos del reporte. */}
       <div className="mb-6">
         <Link href="/mis-servicios" className="text-sm text-primary hover:underline mb-2 inline-block">
           ← Volver a Mis Servicios
@@ -122,7 +123,7 @@ function ReporteServicioContenido() {
               onClick={registrarIngreso}
               className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-4 py-2.5 rounded-lg text-sm transition-colors shadow-sm min-h-11"
             >
-              Marcar ingreso ahora
+              Registrar ingreso ahora
             </button>
           )}
         </div>
@@ -144,7 +145,7 @@ function ReporteServicioContenido() {
             value={revisionInicial}
             onChange={(e) => setRevisionInicial(e.target.value)}
             placeholder="Describa el estado en el que encontró la máquina..."
-            className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground"
+            className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground min-h-11"
           />
         </div>
 
@@ -155,7 +156,7 @@ function ReporteServicioContenido() {
             value={procedimiento}
             onChange={(e) => setProcedimiento(e.target.value)}
             placeholder="Describa las acciones técnicas realizadas paso a paso..."
-            className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground"
+            className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground min-h-11"
           />
         </div>
 
@@ -167,7 +168,7 @@ function ReporteServicioContenido() {
               value={conclusion}
               onChange={(e) => setConclusion(e.target.value)}
               placeholder="Conclusiones finales..."
-              className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground min-h-11"
             />
           </div>
           <div>
@@ -177,7 +178,7 @@ function ReporteServicioContenido() {
               value={recomendaciones}
               onChange={(e) => setRecomendaciones(e.target.value)}
               placeholder="Recomendaciones operativas o de mantenimiento..."
-              className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground min-h-11"
             />
           </div>
         </div>
@@ -293,7 +294,7 @@ function ReporteServicioContenido() {
               disabled={guardando}
               className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3 rounded-lg text-sm transition-colors shadow-sm min-h-11"
             >
-              {guardando ? 'Guardando...' : 'Cerrar reporte'}
+              {guardando ? 'Guardando...' : 'Firmar y entregar'}
             </button>
           </div>
         </div>

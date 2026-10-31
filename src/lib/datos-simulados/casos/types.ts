@@ -12,6 +12,7 @@ export interface Caso {
   incidencia: string;
   tipo_servicio: string;
   modalidad: string;
+  prioridad: string;
   modo_sugerido: string;
   modo_servicio: string;
   motivo_cambio_modo?: string | null;
