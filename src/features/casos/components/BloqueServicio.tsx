@@ -43,7 +43,7 @@ export function BloqueServicio({ form, catalogos, sugerencia }: BloqueServicioPr
             <select
               id="tipo_servicio_id"
               {...register('tipo_servicio_id')}
-              className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="w-full min-h-11 rounded-lg border border-input bg-background px-3 text-sm text-foreground"
             >
               <option value="">Selecciona tipo...</option>
               {catalogos.tipos_servicio.map((item) => (
@@ -62,7 +62,7 @@ export function BloqueServicio({ form, catalogos, sugerencia }: BloqueServicioPr
             <select
               id="modalidad_id"
               {...register('modalidad_id')}
-              className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="w-full min-h-11 rounded-lg border border-input bg-background px-3 text-sm text-foreground"
             >
               <option value="">Selecciona modalidad...</option>
               {catalogos.modalidades.map((item) => (
@@ -81,12 +81,13 @@ export function BloqueServicio({ form, catalogos, sugerencia }: BloqueServicioPr
             <select
               id="modo_servicio_id"
               {...register('modo_servicio_id')}
-              className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="w-full min-h-11 rounded-lg border border-input bg-background px-3 text-sm text-foreground"
             >
               <option value="">Selecciona modo...</option>
               {catalogos.modos_servicio.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.nombre}
+                  {sugerencia?.modo_id === item.id ? ' · Sugerido' : ''}
                 </option>
               ))}
             </select>

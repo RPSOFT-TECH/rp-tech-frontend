@@ -112,7 +112,7 @@ export function LoginForm({ isLoading, error, onSubmit }: LoginFormProps) {
 
       <div className="rounded-xl bg-muted/40 border border-border/50 p-3 text-[11px] text-muted-foreground space-y-1">
         <p className="font-semibold text-foreground/80">Credenciales de prueba:</p>
-        <p>Password común: <code className="bg-background/80 px-1.5 py-0.5 rounded font-mono text-primary font-bold">rptech123</code></p>
+        <p>Password común: <code className="bg-background/80 px-1.5 py-0.5 rounded font-mono text-primary font-bold">Rptech2026!</code></p>
         <p>Coordinador: <span className="font-mono text-foreground/90">coordinador@rptech.test</span></p>
         <p>Técnico: <span className="font-mono text-foreground/90">tecnico1@rptech.test</span></p>
       </div>

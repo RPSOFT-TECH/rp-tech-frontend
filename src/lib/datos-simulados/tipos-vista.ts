@@ -64,6 +64,15 @@ export interface MiServicio {
   cerrado: boolean;
 }
 
+export interface VisitaAgenda {
+  id: string;
+  caso_id: string;
+  numero_caso: string;
+  cliente_razon_social: string;
+  hora_programada: string | null;
+  como: 'tecnico' | 'adjunto';
+}
+
 export interface TecnicoLista {
   id: string;
   nombre_completo: string;

@@ -1,6 +1,6 @@
 import { db, nuevoId } from '../store';
-import type { Reporte, Resultado } from '../types';
-import { exigirRol, fallo, ok, registrarHistorial } from './comun';
+import type { Reporte, Resultado, VisitaAgenda } from '../types';
+import { delay, exigirRol, fallo, ok, registrarHistorial } from './comun';
 import { obtenerUsuarioActual, rolesVigentesDe } from './sesion';
 import { validarCasoEditable } from './guardar-caso';
 
@@ -69,6 +69,35 @@ export async function reprogramar_visita(
     registrarHistorial(caso.id, anterior, 'programado', null);
   }
   return ok(reporte);
+}
+
+export async function agenda_tecnico(p_tecnico: string, p_fecha: string): Promise<VisitaAgenda[]> {
+  const sesion = obtenerUsuarioActual();
+  if (!sesion || !p_tecnico || !p_fecha) return delay([]);
+  if (!sesion.rolesVigentes.some((rol) => rol === 'superadmin' || rol === 'coordinador')) return delay([]);
+  const visitas = db.reportes
+    .filter((reporte) => {
+      if (reporte.fecha_programada !== p_fecha) return false;
+      if (reporte.tecnico_id !== p_tecnico && reporte.tecnico_adjunto_id !== p_tecnico) return false;
+      const caso = db.casos.find((item) => item.id === reporte.caso_id);
+      if (!caso) return false;
+      if (!sesion.rolesVigentes.includes('superadmin') && caso.empresa_id !== sesion.empresa.id) return false;
+      return true;
+    })
+    .map((reporte): VisitaAgenda => {
+      const caso = db.casos.find((item) => item.id === reporte.caso_id);
+      const cliente = db.clientes.find((item) => item.id === caso?.cliente_id);
+      return {
+        id: reporte.id,
+        caso_id: reporte.caso_id,
+        numero_caso: caso?.numero ?? '',
+        cliente_razon_social: cliente?.razon_social ?? '',
+        hora_programada: reporte.hora_programada,
+        como: reporte.tecnico_id === p_tecnico ? 'tecnico' : 'adjunto',
+      };
+    })
+    .sort((a, b) => (a.hora_programada ?? '').localeCompare(b.hora_programada ?? ''));
+  return delay(visitas);
 }
 
 async function validarTecnico(perfilId: string, empresaId: string): Promise<Resultado<true>> {
