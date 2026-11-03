@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Wrench,
+  Calendar,
   ClipboardList,
   PlusCircle,
   ShieldCheck,
@@ -28,6 +29,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   '/casos/nuevo': PlusCircle,
   '/mis-servicios': Wrench,
   '/administracion': ShieldCheck,
+  '/agenda': Calendar,
 };
 
 function resolveIcon(href: string): LucideIcon {

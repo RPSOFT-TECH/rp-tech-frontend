@@ -3,21 +3,18 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { obtenerCasoPorId } from '@/lib/datos-simulados/actions';
-import { Caso } from '@/lib/datos-simulados/casos';
-import { clientes } from '@/lib/datos-simulados/clientes';
-import { sedes } from '@/lib/datos-simulados/sedes';
-import { equipos } from '@/lib/datos-simulados/equipos';
+import { mis_servicios, type MiServicio } from '@/lib/datos-simulados/actions';
 import { RepuestoItem } from '../types';
 import { RepuestosList } from '../components/RepuestosList';
 import { FirmasDigitales } from '../components/FirmasDigitales';
+import { FotosReporte } from '../components/FotosReporte';
 
 function ReporteServicioContenido() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
 
-  const [caso, setCaso] = useState<Caso | null>(null);
+  const [caso, setCaso] = useState<MiServicio | null>(null);
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
 
@@ -41,10 +38,9 @@ function ReporteServicioContenido() {
   useEffect(() => {
     async function cargar() {
       if (!id) return;
-      const data = await obtenerCasoPorId(id);
-      if (data) {
-        setCaso(data);
-      }
+      const data = await mis_servicios();
+      const encontrado = data.find((item) => item.caso_id === id);
+      if (encontrado) setCaso(encontrado);
       setLoading(false);
     }
     cargar();
@@ -81,32 +77,27 @@ function ReporteServicioContenido() {
     return <div className="p-8 text-center text-destructive">Caso no encontrado.</div>;
   }
 
-  const clienteData = clientes.find((c: any) => c.id === caso.cliente_id);
-  const direccionData = sedes.find((d: any) => d.id === (caso as any).sede_id || d.id === (caso as any).direccion_id);
-  const equipoData = equipos.find((e: any) => e.id === caso.equipo_id);
-
   return (
     <div className="p-4 max-w-md mx-auto md:max-w-2xl pb-28">
-      {/* TODO(especificación v1): falta la lógica de guardado, firmas y adjuntos del reporte. */}
       <div className="mb-6">
         <Link href="/mis-servicios" className="text-sm text-primary hover:underline mb-2 inline-block">
-          ← Volver a Mis Servicios
+          Volver a Mis Servicios
         </Link>
         <h1 className="text-2xl font-bold text-foreground">Reporte de Servicio</h1>
-        <p className="text-xs text-muted-foreground">Caso: {caso.numero}</p>
+        <p className="text-xs text-muted-foreground">Caso: {caso.numero_caso}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="bg-card p-4 rounded-xl shadow-sm border border-border space-y-2">
           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cliente y Equipo</h3>
-          <div className="text-sm font-bold text-card-foreground">{clienteData?.razon_social || '—'}</div>
+          <div className="text-sm font-bold text-card-foreground">{caso.cliente_razon_social || '—'}</div>
           <div className="text-xs text-muted-foreground">
-            {direccionData?.nombre} ({direccionData?.direccion})
+            {caso.sede_nombre} ({caso.sede_direccion})
           </div>
           <div className="flex gap-2 text-xs text-muted-foreground border-t border-border pt-2 mt-2">
-            <span className="font-mono bg-muted px-2 py-0.5 rounded">Serie: {equipoData?.numero_serie}</span>
-            <span className="bg-muted px-2 py-0.5 rounded">{caso.tipo_servicio}</span>
-            <span className="bg-primary/10 text-primary px-2 py-0.5 rounded font-medium">{caso.modo_servicio}</span>
+            <span className="font-mono bg-muted px-2 py-0.5 rounded">Serie: {caso.numero_serie}</span>
+            <span className="bg-muted px-2 py-0.5 rounded">{caso.tipo_servicio_nombre}</span>
+            <span className="bg-primary/10 text-primary px-2 py-0.5 rounded font-medium">{caso.modo_servicio_nombre}</span>
           </div>
         </div>
 
@@ -190,47 +181,7 @@ function ReporteServicioContenido() {
           quitarRepuesto={quitarRepuesto}
         />
 
-        <div className="bg-card p-4 rounded-xl shadow-sm border border-border space-y-3">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Fotos de Ingreso</h3>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              className="border-2 border-dashed border-border hover:border-primary text-card-foreground rounded-lg py-3 px-4 text-sm font-medium flex items-center justify-center gap-2 bg-muted/50 transition-colors min-h-11"
-            >
-              Tomar foto
-            </button>
-            <button
-              type="button"
-              className="border border-border hover:bg-muted text-card-foreground rounded-lg py-3 px-4 text-sm font-medium flex items-center justify-center gap-2 bg-card transition-colors min-h-11"
-            >
-              Subir foto
-            </button>
-          </div>
-          <div className="grid grid-cols-3 gap-2 pt-2">
-            <div className="h-20 bg-muted rounded-lg border border-border flex items-center justify-center text-xs text-muted-foreground">Miniatura 1</div>
-          </div>
-        </div>
-
-        <div className="bg-card p-4 rounded-xl shadow-sm border border-border space-y-3">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Fotos de Salida</h3>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              className="border-2 border-dashed border-border hover:border-primary text-card-foreground rounded-lg py-3 px-4 text-sm font-medium flex items-center justify-center gap-2 bg-muted/50 transition-colors min-h-11"
-            >
-              Tomar foto
-            </button>
-            <button
-              type="button"
-              className="border border-border hover:bg-muted text-card-foreground rounded-lg py-3 px-4 text-sm font-medium flex items-center justify-center gap-2 bg-card transition-colors min-h-11"
-            >
-              Subir foto
-            </button>
-          </div>
-          <div className="grid grid-cols-3 gap-2 pt-2">
-            <div className="h-20 bg-muted rounded-lg border border-border flex items-center justify-center text-xs text-muted-foreground">Miniatura 1</div>
-          </div>
-        </div>
+        <FotosReporte />
 
         <div className="bg-card p-4 rounded-xl shadow-sm border border-border space-y-3">
           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Resultado del Servicio</h3>

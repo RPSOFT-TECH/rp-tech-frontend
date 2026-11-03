@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 interface CatalogoSimple {
-  id: number;
+  id: string;
   nombre: string;
 }
 
@@ -27,8 +27,8 @@ export function BloqueServicio({ form, catalogos, sugerencia }: BloqueServicioPr
     formState: { errors },
   } = form;
 
-  const modoElegido = watch('modo_servicio');
-  const modoSugerido = watch('modo_sugerido');
+  const modoElegido = watch('modo_servicio_id');
+  const modoSugerido = watch('modo_sugerido_id');
   const requiereMotivo = !!modoSugerido && modoElegido !== modoSugerido;
 
   return (
@@ -39,59 +39,59 @@ export function BloqueServicio({ form, catalogos, sugerencia }: BloqueServicioPr
       <CardContent className="space-y-4 pt-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="space-y-1.5">
-            <Label htmlFor="tipo_servicio">Tipo de servicio</Label>
+            <Label htmlFor="tipo_servicio_id">Tipo de servicio</Label>
             <select
-              id="tipo_servicio"
-              {...register('tipo_servicio')}
+              id="tipo_servicio_id"
+              {...register('tipo_servicio_id')}
               className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               <option value="">Selecciona tipo...</option>
               {catalogos.tipos_servicio.map((item) => (
-                <option key={item.id} value={item.nombre}>
+                <option key={item.id} value={item.id}>
                   {item.nombre}
                 </option>
               ))}
             </select>
-            {errors.tipo_servicio && (
-              <p className="text-xs text-destructive">{errors.tipo_servicio.message}</p>
+            {errors.tipo_servicio_id && (
+              <p className="text-xs text-destructive">{errors.tipo_servicio_id.message}</p>
             )}
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="modalidad">Modalidad</Label>
+            <Label htmlFor="modalidad_id">Modalidad</Label>
             <select
-              id="modalidad"
-              {...register('modalidad')}
+              id="modalidad_id"
+              {...register('modalidad_id')}
               className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               <option value="">Selecciona modalidad...</option>
               {catalogos.modalidades.map((item) => (
-                <option key={item.id} value={item.nombre}>
+                <option key={item.id} value={item.id}>
                   {item.nombre}
                 </option>
               ))}
             </select>
-            {errors.modalidad && (
-              <p className="text-xs text-destructive">{errors.modalidad.message}</p>
+            {errors.modalidad_id && (
+              <p className="text-xs text-destructive">{errors.modalidad_id.message}</p>
             )}
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="modo_servicio">Modo de servicio</Label>
+            <Label htmlFor="modo_servicio_id">Modo de servicio</Label>
             <select
-              id="modo_servicio"
-              {...register('modo_servicio')}
+              id="modo_servicio_id"
+              {...register('modo_servicio_id')}
               className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               <option value="">Selecciona modo...</option>
               {catalogos.modos_servicio.map((item) => (
-                <option key={item.id} value={item.nombre}>
+                <option key={item.id} value={item.id}>
                   {item.nombre}
                 </option>
               ))}
             </select>
-            {errors.modo_servicio && (
-              <p className="text-xs text-destructive">{errors.modo_servicio.message}</p>
+            {errors.modo_servicio_id && (
+              <p className="text-xs text-destructive">{errors.modo_servicio_id.message}</p>
             )}
             {sugerencia && (
               <p className="text-xs text-primary bg-primary/10 p-1.5 rounded border border-border mt-1">
