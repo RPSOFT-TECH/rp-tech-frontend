@@ -64,13 +64,14 @@ export { empresas_permisos, parametros_actuales } from './acciones/admin';
 export type { EmpresaPermisos } from './acciones/admin';
 export {
   clientes_admin,
+  clientes_lista,
   ficha_cliente,
   guardar_cliente,
   guardar_contacto,
   guardar_equipo,
   guardar_sede,
 } from './acciones/admin-clientes';
-export type { ClienteAdmin, FichaCliente } from './acciones/admin-clientes';
+export type { ClienteAdmin, ClienteLista, FichaCliente } from './acciones/admin-clientes';
 export { asignar_rol, quitar_rol, roles_asignables, usuarios_admin } from './acciones/admin-usuarios';
 export type { EstadoRol, RolUsuario, UsuarioAdmin } from './acciones/admin-usuarios';
 export {
