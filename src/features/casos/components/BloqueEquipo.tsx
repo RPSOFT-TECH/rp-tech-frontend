@@ -1,27 +1,53 @@
+'use client';
+
+import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { EquipoVista, SugerenciaModo } from '@/lib/datos-simulados/actions';
+import { EquipoVista, Sede } from '@/lib/datos-simulados/actions';
 import { NuevoCasoFormValues } from '@/lib/validaciones/caso';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ModalEquipo } from './altas/ModalEquipo';
+
+interface Opcion {
+  id: string;
+  nombre: string;
+}
 
 interface BloqueEquipoProps {
   form: UseFormReturn<NuevoCasoFormValues>;
-  clienteSeleccionado: boolean;
+  clienteId: string | null;
   equipos: EquipoVista[];
   equipoSeleccionado: EquipoVista | null;
-  sugerencia: SugerenciaModo | null;
+  sedes: Sede[];
+  lineas: Opcion[];
+  cabezales: Opcion[];
   onEquipoChange: (idStr: string) => void;
+  onEquipoCreado: (equipo: EquipoVista) => void;
+}
+
+const claseSelect =
+  'w-full min-h-11 rounded-lg border border-input bg-background px-3 text-sm text-foreground disabled:cursor-not-allowed disabled:opacity-50';
+
+function fechaCorta(iso: string | undefined): string {
+  if (!iso) return '—';
+  const [anio, mes, dia] = iso.slice(0, 10).split('-');
+  if (!anio || !mes || !dia) return iso;
+  return `${dia}/${mes}/${anio}`;
 }
 
 export function BloqueEquipo({
   form,
-  clienteSeleccionado,
+  clienteId,
   equipos,
   equipoSeleccionado,
-  sugerencia,
+  sedes,
+  lineas,
+  cabezales,
   onEquipoChange,
+  onEquipoCreado,
 }: BloqueEquipoProps) {
+  const [alta, setAlta] = useState(false);
   const {
     watch,
     formState: { errors },
@@ -31,28 +57,19 @@ export function BloqueEquipo({
     <Card className="h-fit shadow-sm">
       <CardHeader className="pb-3 border-b border-border/50 flex flex-row items-center justify-between">
         <CardTitle className="text-base font-semibold">Equipo</CardTitle>
-        {sugerencia && (
-          <Badge
-            variant={sugerencia.en_garantia ? 'default' : 'secondary'}
-            className={
-              sugerencia.en_garantia
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-accent text-accent-foreground border border-border'
-            }
-          >
-            {sugerencia.en_garantia ? 'En garantía' : 'Fuera de garantía'}
-          </Badge>
-        )}
+        <Button type="button" variant="ghost" className="min-h-11 text-primary" disabled={!clienteId} onClick={() => setAlta(true)}>
+          + Crear
+        </Button>
       </CardHeader>
       <CardContent className="space-y-4 pt-4">
         <div className="space-y-1.5">
           <Label htmlFor="equipo">Equipo</Label>
           <select
             id="equipo"
-            disabled={!clienteSeleccionado}
+            disabled={!clienteId}
             value={watch('equipo_id')}
             onChange={(e) => onEquipoChange(e.target.value)}
-            className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            className={claseSelect}
           >
             <option value="">Selecciona un equipo...</option>
             {equipos.map((eq) => (
@@ -61,32 +78,39 @@ export function BloqueEquipo({
               </option>
             ))}
           </select>
-          {errors.equipo_id && (
-            <p className="text-xs text-destructive">{errors.equipo_id.message}</p>
-          )}
+          {errors.equipo_id && <p className="text-xs text-destructive">{errors.equipo_id.message}</p>}
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
-          <div className="space-y-1.5">
-            <Label className="text-xs">Cabezal</Label>
-            <div className="h-9 px-2.5 py-2 rounded-md bg-muted text-xs text-foreground flex items-center border border-border truncate">
-              {equipoSeleccionado?.cabezal_nombre || '—'}
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">Cantidad</Label>
-            <div className="h-9 px-2.5 py-2 rounded-md bg-muted text-xs text-foreground flex items-center border border-border">
-              {equipoSeleccionado?.cabezal_cantidad ?? '—'}
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">Instalación</Label>
-            <div className="h-9 px-2.5 py-2 rounded-md bg-muted text-xs text-foreground flex items-center border border-border truncate">
-              {sugerencia?.antiguedad_texto || '—'}
-            </div>
-          </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Dato label="Línea" valor={equipoSeleccionado?.linea_nombre} />
+          <Dato label="Modelo" valor={equipoSeleccionado?.modelo} />
+          <Dato label="Cabezal" valor={equipoSeleccionado?.cabezal_nombre} />
+          <Dato label="N° de cabezales" valor={equipoSeleccionado ? String(equipoSeleccionado.cabezal_cantidad) : undefined} />
+          <Dato label="Instalación" valor={equipoSeleccionado ? fechaCorta(equipoSeleccionado.fecha_instalacion) : undefined} />
         </div>
       </CardContent>
+      {clienteId && (
+        <ModalEquipo
+          abierto={alta}
+          clienteId={clienteId}
+          sedes={sedes}
+          lineas={lineas}
+          cabezales={cabezales}
+          onCerrar={() => setAlta(false)}
+          onCreado={onEquipoCreado}
+        />
+      )}
     </Card>
+  );
+}
+
+function Dato({ label, valor }: { label: string; valor: string | undefined }) {
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-xs">{label}</Label>
+      <div className="min-h-11 px-2.5 py-2 rounded-md bg-muted text-xs text-foreground flex items-center border border-border">
+        {valor || '—'}
+      </div>
+    </div>
   );
 }
