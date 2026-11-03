@@ -3,6 +3,7 @@ interface FirmasDigitalesProps {
   setNombreOperador: (val: string) => void;
   nombreCliente: string;
   setNombreCliente: (val: string) => void;
+  textoConformidad?: string;
 }
 
 export function FirmasDigitales({
@@ -10,12 +11,16 @@ export function FirmasDigitales({
   setNombreOperador,
   nombreCliente,
   setNombreCliente,
+  textoConformidad,
 }: FirmasDigitalesProps) {
   return (
     <div className="bg-card p-4 rounded-xl shadow-sm border border-border space-y-4">
       <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
         Firmas Digitales
       </h3>
+      {textoConformidad ? (
+        <p className="text-sm text-card-foreground bg-muted/40 rounded-lg p-3">{textoConformidad}</p>
+      ) : null}
 
       <div className="space-y-2 border-b border-border pb-4">
         <label className="block text-xs font-medium text-card-foreground">Firma del Operador</label>

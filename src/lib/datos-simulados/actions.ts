@@ -60,6 +60,28 @@ export {
   usuarios,
 } from './acciones/admin';
 export type { AltaUsuario } from './acciones/admin';
+export { empresas_permisos, parametros_actuales } from './acciones/admin';
+export type { EmpresaPermisos } from './acciones/admin';
+export {
+  clientes_admin,
+  ficha_cliente,
+  guardar_cliente,
+  guardar_contacto,
+  guardar_equipo,
+  guardar_sede,
+} from './acciones/admin-clientes';
+export type { ClienteAdmin, FichaCliente } from './acciones/admin-clientes';
+export { asignar_rol, quitar_rol, roles_asignables, usuarios_admin } from './acciones/admin-usuarios';
+export type { EstadoRol, RolUsuario, UsuarioAdmin } from './acciones/admin-usuarios';
+export {
+  cambiar_activo_catalogo,
+  CODIGOS_CATALOGO,
+  crear_valor_catalogo,
+  listar_catalogo,
+  mover_catalogo,
+  renombrar_catalogo,
+} from './acciones/admin-catalogos';
+export type { CodigoCatalogo, ItemCatalogo } from './acciones/admin-catalogos';
 
 import { reportePdf } from './acciones/reportes';
 import { usuarios } from './acciones/admin';

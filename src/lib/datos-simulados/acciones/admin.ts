@@ -1,5 +1,5 @@
 import { db, claves, nuevoId } from '../store';
-import type { ParametrosEmpresa, Perfil, PermisosConsulta, Resultado, RolCodigo } from '../types';
+import type { Empresa, ParametrosEmpresa, Perfil, PermisosConsulta, Resultado, RolCodigo } from '../types';
 import { exigirRol, fallo, ok } from './comun';
 import { obtenerUsuarioActual } from './sesion';
 
@@ -77,6 +77,29 @@ export async function actualizar_parametros(
   };
   if (sesion.empresa.id === empresa.id) sesion.empresa.parametros = empresa.parametros;
   return ok(empresa.parametros);
+}
+
+export async function parametros_actuales(): Promise<ParametrosEmpresa | null> {
+  const sesion = obtenerUsuarioActual();
+  if (!sesion) return null;
+  const empresa = db.empresas.find((item) => item.id === sesion.empresa.id);
+  if (!empresa) return null;
+  return { ...empresa.parametros, pdf: { ...empresa.parametros.pdf, telefonos: [...empresa.parametros.pdf.telefonos], correos: [...empresa.parametros.pdf.correos], redes: [...empresa.parametros.pdf.redes] } };
+}
+
+export interface EmpresaPermisos {
+  id: string;
+  nombre: string;
+  permisos_consulta: PermisosConsulta;
+}
+
+export async function empresas_permisos(): Promise<EmpresaPermisos[]> {
+  if (!obtenerUsuarioActual()?.rolesVigentes.includes('superadmin')) return [];
+  return db.empresas.map((empresa: Empresa) => ({
+    id: empresa.id,
+    nombre: empresa.nombre,
+    permisos_consulta: { ...empresa.permisos_consulta },
+  }));
 }
 
 export async function definir_permisos_consulta(
