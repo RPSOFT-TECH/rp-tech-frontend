@@ -20,6 +20,13 @@ interface DataTableProps<T> {
   className?: string;
 }
 
+function textoCelda<T>(fila: T, clave: string): ReactNode {
+  if (typeof fila !== 'object' || fila === null || !(clave in fila)) return '';
+  const valor = (fila as Record<string, unknown>)[clave];
+  if (typeof valor === 'string' || typeof valor === 'number') return valor;
+  return '';
+}
+
 export function DataTable<T>({
   columnas,
   datos,
@@ -70,7 +77,7 @@ export function DataTable<T>({
                 >
                   {columnas.map((col) => (
                     <td key={col.clave} className={`p-4 ${col.className || ''}`}>
-                      {col.render ? col.render(fila) : (fila as any)[col.clave]}
+                      {col.render ? col.render(fila) : textoCelda(fila, col.clave)}
                     </td>
                   ))}
                 </tr>

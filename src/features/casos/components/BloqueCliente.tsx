@@ -1,7 +1,5 @@
 import { UseFormReturn } from 'react-hook-form';
-import { Cliente } from '@/lib/datos-simulados/clientes';
-import { Contacto } from '@/lib/datos-simulados/contactos';
-import { Sede } from '@/lib/datos-simulados/sedes';
+import { Cliente, Contacto, Sede } from '@/lib/datos-simulados/actions';
 import { NuevoCasoFormValues } from '@/lib/validaciones/caso';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -49,9 +47,7 @@ export function BloqueCliente({
       <CardHeader className="pb-3 border-b border-border/50 flex flex-row items-center justify-between">
         <CardTitle className="text-base font-semibold">Cliente</CardTitle>
         {clienteSeleccionado?.soporte_vigente && (
-          <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 border-emerald-200">
-            Soporte vigente
-          </Badge>
+          <Badge variant="secondary">Soporte vigente</Badge>
         )}
       </CardHeader>
       <CardContent className="space-y-4 pt-4">
@@ -92,12 +88,12 @@ export function BloqueCliente({
                   <div className="font-medium text-foreground flex items-center justify-between">
                     <span>{c.razon_social}</span>
                     {c.soporte_vigente && (
-                      <span className="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-200">
+                      <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded border border-border">
                         Soporte
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-muted-foreground">RUC: {c.ruc}</div>
+                  <div className="text-xs text-muted-foreground">{c.ruc ? `RUC: ${c.ruc}` : 'Sin RUC'}</div>
                 </button>
               ))}
             </div>
