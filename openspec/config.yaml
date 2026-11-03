@@ -1,0 +1,86 @@
+schema: spec-driven
+
+context: |
+  Project: RP-TECH Frontend (Sistema de Gestión y Órdenes de Servicio Técnico)
+  Stack: Next.js 16 (App Router, Turbopack), React 19, TypeScript, Tailwind CSS v4, shadcn/ui
+  Repo: rp-tech-frontend — rama feature/nuevo-caso
+  Reference project: SOFI-WEB (SOFI-APM frontend)
+  
+  Architecture target: Feature-based modular frontend (espejo arquitectónico SOFI-WEB)
+    - src/app/ = thin routes only (páginas delgadas de 5-15 líneas que solo montan vistas)
+    - src/features/<domain>/ = components, hooks, views, types.ts, index.ts (barrel público)
+    - src/components/shell/ = AppShell, navegación lateral y barra inferior móvil
+    - src/components/ui/ = componentes base de UI compartidos token-aware
+    - src/lib/datos-simulados/ = infraestructura y datos mock modularizados por carpetas lógicas
+    - src/lib/permisos/ + validaciones/ = lógica de autorización y esquemas Zod
+    - src/app/globals.css = fuente única de verdad para tokens de diseño (OKLCH)
+
+  Backend / Domain alignment map:
+    - Casos y atenciones técnicas → src/features/casos
+    - Servicios técnicos y reportes de campo → src/features/servicios
+    - Autenticación y control de acceso → src/features/auth (login, sin-acceso)
+    - Shell de aplicación → src/components/shell (AppShell)
+
+  Design System Tokens & Palette (Tailwind CSS v4 inline theme):
+    - Primary: oklch(0.6723 0.1606 244.9955) [Azul técnico corporativo]
+    - Secondary: oklch(0.1884 0.0128 248.5103)
+    - Background: oklch(1.0000 0 0) [Dark: oklch(0 0 0)]
+    - Foreground: oklch(0.1884 0.0128 248.5103) [Dark: oklch(0.9328 0.0025 228.7857)]
+    - Card: oklch(0.9784 0.0011 197.1387) [Dark: oklch(0.2097 0.0080 274.5332)]
+    - Border / Input: oklch(0.9317 0.0118 231.6594) / oklch(0.9809 0.0025 228.7836)
+    - Accent: oklch(0.9392 0.0166 250.8453)
+    - Destructive: oklch(0.6188 0.2376 25.7658)
+    - Radius: 1.3rem (bordes suaves y modernos)
+    - Shadows: Sistema de elevación suave con tinte azulado rgba(29, 161, 242, 0.15)
+  
+  Typography:
+    - Sans: "Be Vietnam Pro", ui-sans-serif, sans-serif, system-ui
+    - Serif: Georgia, serif
+    - Mono: Menlo, monospace
+
+  Strict Code Rules (Mandatory for all developers):
+    - ZERO comments in code: No headers, no inline explanations, no JSX comments.
+    - Max 350 lines per file: Files exceeding 300 lines must be split into logical folders.
+    - Modularization in logical folders: No loose clutter files; only cohesive, necessary files per folder.
+    - Zero hardcoded styles: No raw hex codes (#1da1f2), no inline style={{ ... }}; use tokens and min-h-11.
+    - Global UI Components Policy: Mandatory use of shared DataTable, Modal, Toast, Tooltip, SearchInput, Button across the system. Local components are only permitted when strictly exclusive to a module's specialized UX (frontend decision).
+    - Dead code audit: Continuous detection and deletion of unused imports, exports and files.
+    - Preservar siempre la lógica de negocio, compatibilidad multiempresa y contratos de datos.
+
+rules:
+  proposal:
+    - Keep proposals under 500 words when possible
+    - Always include "Non-goals" (what we will NOT change)
+    - Call out architecture impact (features, routes, services) when structure-related
+    - Ensure zero regression on existing multiempresa, roles validity and simulation data
+  design:
+    - Require CSS variables and Tailwind semantic tokens; strictly prohibit raw hex or style={{ ... }}
+    - Document folder contract, dependency rules and migration phases
+    - Enforce the 350-line file limit and logical folder structure
+    - Enforce zero comments in source code
+  tasks:
+    - Order: contract/docs then one feature at a time then hygiene
+    - Keep tasks small and reviewable (max 2h each)
+    - Always include dead code audit and deletion task
+    - Verify with npx tsc --noEmit and npm run build after each phase
+
+operations:
+  apply:
+    guidance:
+      - Do not change business logic or API contracts unless the task requires it
+      - Prefer move and thin page reexport over rewrite
+      - After each feature migration run tsc --noEmit and next build
+      - Keep shared shell and tokens outside features
+      - Ensure compliance with zero comments, max 350 lines, and zero hardcode
+  archive:
+    guidance:
+      - Summarize which features were migrated and remaining legacy paths
+      - Document dead code audited and removed
+      - Verify bundle size and build times
+
+strict_tdd: false
+testing:
+  strict_tdd: false
+  runner: null
+  command: "npx tsc --noEmit && npm run build"
+  framework: null
