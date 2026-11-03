@@ -1,30 +1,30 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  obtenerUsuarioActual,
+  leerSesionEstable,
   logout,
-  SesionUsuario,
 } from '@/lib/datos-simulados/actions';
 import { menuDeRoles } from '@/lib/permisos';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 
+function suscribirSesion() {
+  return () => {};
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [sesion, setSesion] = useState<SesionUsuario | null>(null);
+  const sesion = useSyncExternalStore(suscribirSesion, leerSesionEstable, () => null);
   const [expanded, setExpanded] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const s = obtenerUsuarioActual();
-    if (!s || !s.usuario.activo || s.rolesVigentes.length === 0) {
+    if (!sesion || !sesion.usuario.activo || sesion.rolesVigentes.length === 0) {
       router.replace('/login');
-      return;
     }
-    setSesion(s);
-  }, [router]);
+  }, [sesion, router]);
 
   async function handleLogout() {
     await logout();
@@ -41,7 +41,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   if (!sesion) return null;
 
-  const menu = menuDeRoles(sesion.rolesVigentes);
+  const menu = menuDeRoles(sesion.rolesVigentes, sesion.empresa.permisos_consulta);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">

@@ -1,6 +1,5 @@
 import { UseFormReturn } from 'react-hook-form';
-import { Equipo } from '@/lib/datos-simulados/equipos';
-import { SugerenciaModo } from '@/lib/datos-simulados/actions';
+import { EquipoVista, SugerenciaModo } from '@/lib/datos-simulados/actions';
 import { NuevoCasoFormValues } from '@/lib/validaciones/caso';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -9,8 +8,8 @@ import { Badge } from '@/components/ui/badge';
 interface BloqueEquipoProps {
   form: UseFormReturn<NuevoCasoFormValues>;
   clienteSeleccionado: boolean;
-  equipos: Equipo[];
-  equipoSeleccionado: Equipo | null;
+  equipos: EquipoVista[];
+  equipoSeleccionado: EquipoVista | null;
   sugerencia: SugerenciaModo | null;
   onEquipoChange: (idStr: string) => void;
 }
@@ -34,14 +33,14 @@ export function BloqueEquipo({
         <CardTitle className="text-base font-semibold">Equipo</CardTitle>
         {sugerencia && (
           <Badge
-            variant={sugerencia.enGarantia ? 'default' : 'secondary'}
+            variant={sugerencia.en_garantia ? 'default' : 'secondary'}
             className={
-              sugerencia.enGarantia
+              sugerencia.en_garantia
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-accent text-accent-foreground border border-border'
             }
           >
-            {sugerencia.enGarantia ? 'En garantía' : 'Fuera de garantía'}
+            {sugerencia.en_garantia ? 'En garantía' : 'Fuera de garantía'}
           </Badge>
         )}
       </CardHeader>
@@ -58,7 +57,7 @@ export function BloqueEquipo({
             <option value="">Selecciona un equipo...</option>
             {equipos.map((eq) => (
               <option key={eq.id} value={eq.id}>
-                {eq.numero_serie} — {eq.linea} ({eq.modelo})
+                {eq.numero_serie} — {eq.linea_nombre} ({eq.modelo})
               </option>
             ))}
           </select>
@@ -71,7 +70,7 @@ export function BloqueEquipo({
           <div className="space-y-1.5">
             <Label className="text-xs">Cabezal</Label>
             <div className="h-9 px-2.5 py-2 rounded-md bg-muted text-xs text-foreground flex items-center border border-border truncate">
-              {equipoSeleccionado?.cabezal_modelo || '—'}
+              {equipoSeleccionado?.cabezal_nombre || '—'}
             </div>
           </div>
           <div className="space-y-1.5">
@@ -83,7 +82,7 @@ export function BloqueEquipo({
           <div className="space-y-1.5">
             <Label className="text-xs">Instalación</Label>
             <div className="h-9 px-2.5 py-2 rounded-md bg-muted text-xs text-foreground flex items-center border border-border truncate">
-              {sugerencia?.antiguedadTexto || '—'}
+              {sugerencia?.antiguedad_texto || '—'}
             </div>
           </div>
         </div>

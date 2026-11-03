@@ -31,7 +31,7 @@ export function LoginView() {
       }
 
       guardarSesion(sesion);
-      router.push(pantallaInicio(sesion.rolesVigentes));
+      router.push(pantallaInicio(sesion.rolesVigentes, sesion.empresa.permisos_consulta));
     } catch {
       setError('Ocurrió un error inesperado. Intenta de nuevo.');
     } finally {
