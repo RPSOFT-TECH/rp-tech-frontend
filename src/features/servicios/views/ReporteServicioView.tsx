@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { mis_servicios, type MiServicio } from '@/lib/datos-simulados/actions';
+import { mis_servicios, parametros_actuales, type MiServicio } from '@/lib/datos-simulados/actions';
 import { RepuestoItem } from '../types';
 import { RepuestosList } from '../components/RepuestosList';
 import { FirmasDigitales } from '../components/FirmasDigitales';
@@ -34,10 +34,16 @@ function ReporteServicioContenido() {
 
   const [nombreOperador, setNombreOperador] = useState('');
   const [nombreCliente, setNombreCliente] = useState('');
+  const [textoConformidad, setTextoConformidad] = useState('');
 
   useEffect(() => {
     async function cargar() {
-      if (!id) return;
+      const parametros = await parametros_actuales();
+      if (parametros) setTextoConformidad(parametros.texto_conformidad);
+      if (!id) {
+        setLoading(false);
+        return;
+      }
       const data = await mis_servicios();
       const encontrado = data.find((item) => item.caso_id === id);
       if (encontrado) setCaso(encontrado);
@@ -229,6 +235,7 @@ function ReporteServicioContenido() {
           setNombreOperador={setNombreOperador}
           nombreCliente={nombreCliente}
           setNombreCliente={setNombreCliente}
+          textoConformidad={textoConformidad}
         />
 
         <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 shadow-lg md:relative md:bg-transparent md:border-t-0 md:p-0 md:shadow-none z-10">
