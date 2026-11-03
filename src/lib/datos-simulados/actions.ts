@@ -18,6 +18,7 @@ export type {
   Sede,
   SugerenciaModo,
   TecnicoLista,
+  VisitaAgenda,
 } from './types';
 
 export { hoyLima } from './fecha';
@@ -37,7 +38,9 @@ export {
 export type { FiltrosCasosLista } from './acciones/vistas';
 export { crear_caso, sugerir_modo_servicio } from './acciones/guardar-caso';
 export type { NuevoCasoInput } from './acciones/guardar-caso';
-export { programar_visita, reprogramar_visita } from './acciones/visitas';
+export { agenda_tecnico, programar_visita, reprogramar_visita } from './acciones/visitas';
+export { crear_cliente, crear_contacto, crear_equipo, crear_sede } from './acciones/altas';
+export type { AltaCliente, AltaContacto, AltaEquipo, AltaSede } from './acciones/altas';
 export {
   anular_caso,
   dentro_plazo_misma_falla,
