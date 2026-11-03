@@ -285,4 +285,5 @@ export type {
   Resultado,
   SugerenciaModo,
   TecnicoLista,
+  VisitaAgenda,
 } from './tipos-vista';
