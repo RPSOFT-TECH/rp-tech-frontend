@@ -1,49 +1,27 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-
-type Rol = 'superadmin' | 'gerente' | 'coordinador' | 'tecnico' | 'consulta' | 'ventas';
+import { puedeAcceder, pantallaInicio } from '@/lib/permisos';
+import type { PermisosConsulta, RolCodigo } from '@/lib/datos-simulados/types';
 
 interface SesionPayload {
-  usuario: { id: number; email: string; activo: boolean };
-  empresa: { id: number; nombre: string };
-  rolesVigentes: Rol[];
+  usuario: { id: string; email: string; activo: boolean };
+  empresa: { id: string; nombre: string; permisos_consulta?: PermisosConsulta };
+  rolesVigentes: RolCodigo[];
 }
 
-const PERMISOS: { prefijo: string; roles: Rol[] }[] = [
-  { prefijo: '/casos/nuevo',    roles: ['superadmin', 'coordinador'] },
-  { prefijo: '/casos',          roles: ['superadmin', 'gerente', 'coordinador', 'consulta'] },
-  { prefijo: '/mis-servicios',  roles: ['tecnico'] },
-  { prefijo: '/administracion', roles: ['superadmin', 'gerente'] },
-];
-
-function puedeAcceder(roles: Rol[], pathname: string): boolean {
-  for (const { prefijo, roles: permitidos } of PERMISOS) {
-    if (pathname === prefijo || pathname.startsWith(prefijo + '/')) {
-      return roles.some((r) => permitidos.includes(r));
-    }
-  }
-  return false;
-}
-
-function pantallaInicio(roles: Rol[]): string {
-  if (roles.length === 1 && roles[0] === 'tecnico') {
-    return '/mis-servicios';
-  }
-  return '/casos';
-}
-
-const RUTAS_PRIVADAS = ['/casos', '/mis-servicios', '/administracion'];
+const RUTAS_PRIVADAS = ['/casos', '/mis-servicios', '/administracion', '/agenda'];
 
 function esRutaPrivada(pathname: string): boolean {
-  return RUTAS_PRIVADAS.some((r) => pathname === r || pathname.startsWith(r + '/'));
+  return RUTAS_PRIVADAS.some((ruta) => pathname === ruta || pathname.startsWith(`${ruta}/`));
+}
+
+function permisosDe(sesion: SesionPayload): PermisosConsulta {
+  return sesion.empresa.permisos_consulta ?? { casos: false, reportes: false, clientes: false };
 }
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  if (pathname === '/') {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
+  if (pathname === '/') return NextResponse.redirect(new URL('/login', request.url));
 
   let sesion: SesionPayload | null = null;
   const cookie = request.cookies.get('rptech_session');
@@ -56,16 +34,18 @@ export function proxy(request: NextRequest) {
   }
 
   if (pathname === '/login' && sesion && sesion.rolesVigentes.length > 0) {
-    return NextResponse.redirect(new URL(pantallaInicio(sesion.rolesVigentes), request.url));
+    return NextResponse.redirect(new URL(pantallaInicio(sesion.rolesVigentes, permisosDe(sesion)), request.url));
   }
 
   if (esRutaPrivada(pathname)) {
-    if (!sesion || !sesion.usuario.activo || sesion.rolesVigentes.length === 0) {
+    if (!sesion || !sesion.usuario.activo) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
-
-    if (!puedeAcceder(sesion.rolesVigentes, pathname)) {
-      return NextResponse.redirect(new URL(pantallaInicio(sesion.rolesVigentes), request.url));
+    if (sesion.rolesVigentes.length === 0) {
+      return NextResponse.redirect(new URL('/sin-acceso', request.url));
+    }
+    if (!puedeAcceder(sesion.rolesVigentes, pathname, permisosDe(sesion))) {
+      return NextResponse.redirect(new URL(pantallaInicio(sesion.rolesVigentes, permisosDe(sesion)), request.url));
     }
   }
 

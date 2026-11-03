@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
-import { crearCaso, obtenerUsuarioActual } from '@/lib/datos-simulados/actions';
+import { crear_caso } from '@/lib/datos-simulados/actions';
 import { nuevoCasoSchema, NuevoCasoFormValues } from '@/lib/validaciones/caso';
 import { useNuevoCasoForm } from '../hooks/useNuevoCasoForm';
 
@@ -28,17 +28,17 @@ export function NuevoCasoView() {
   const form = useForm<NuevoCasoFormValues>({
     resolver: zodResolver(nuevoCasoSchema),
     defaultValues: {
-      canal: 'Llamada',
+      canal_id: '',
       cliente_id: '',
       sede_id: '',
       contacto_id: '',
       telefono: '',
       equipo_id: '',
       incidencia: '',
-      tipo_servicio: '',
-      modalidad: '',
-      modo_sugerido: '',
-      modo_servicio: '',
+      tipo_servicio_id: '',
+      modalidad_id: '',
+      modo_sugerido_id: '',
+      modo_servicio_id: '',
       motivo_cambio_modo: '',
     },
   });
@@ -66,39 +66,32 @@ export function NuevoCasoView() {
     setGuardando(true);
     setErrorGlobal(null);
 
-    const sesion = obtenerUsuarioActual();
+    const resultado = await crear_caso({
+      canal_id: values.canal_id,
+      cliente_id: values.cliente_id,
+      sede_id: values.sede_id,
+      contacto_id: values.contacto_id,
+      telefono: values.telefono,
+      equipo_id: values.equipo_id,
+      incidencia: values.incidencia.trim(),
+      tipo_servicio_id: values.tipo_servicio_id,
+      modalidad_id: values.modalidad_id,
+      modo_sugerido_id: values.modo_sugerido_id || null,
+      modo_servicio_id: values.modo_servicio_id,
+      motivo_cambio_modo: values.motivo_cambio_modo || null,
+    });
 
-    try {
-      const nuevoCaso = await crearCaso({
-        canal: values.canal,
-        creado_por: sesion?.usuario.email || 'coordinador@rptech.test',
-        cliente_id: values.cliente_id,
-        sede_id: values.sede_id,
-        contacto_id: values.contacto_id,
-        telefono: values.telefono,
-        equipo_id: values.equipo_id,
-        incidencia: values.incidencia.trim(),
-        tipo_servicio: values.tipo_servicio,
-        modalidad: values.modalidad,
-        modo_sugerido: values.modo_sugerido || values.modo_servicio,
-        modo_servicio: values.modo_servicio,
-        motivo_cambio_modo: values.motivo_cambio_modo,
-        prioridad: 'Consulta',
-        tecnico_id: null,
-        fecha_programada: null,
-        hora_programada: null,
-      });
-
-      toast.success(`Caso ${nuevoCaso.numero} registrado`);
-
-      startTransition(() => {
-        router.push('/casos');
-      });
-    } catch (err: any) {
-      setErrorGlobal(err?.message || 'Error al guardar el caso. Intenta de nuevo.');
-    } finally {
+    if (!resultado.ok) {
+      setErrorGlobal(resultado.error);
       setGuardando(false);
+      return;
     }
+
+    toast.success(`Caso ${resultado.datos.numero} registrado`);
+    setGuardando(false);
+    startTransition(() => {
+      router.push('/casos');
+    });
   };
 
   return (
@@ -116,7 +109,7 @@ export function NuevoCasoView() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
-            <BloqueSolicitud form={form} />
+            <BloqueSolicitud form={form} canales={catalogos.canales} />
           </div>
 
           <BloqueCliente
