@@ -13,6 +13,7 @@ import type {
   Sede,
   TecnicoLista,
 } from '../types';
+import type { CasoDetalle } from '../tipos-vista';
 import { delay, nombreDe, normalizar, perfilDe, ultimaVisita } from './comun';
 import { obtenerUsuarioActual, rolesVigentesDe } from './sesion';
 
@@ -107,7 +108,7 @@ export async function mis_servicios(): Promise<MiServicio[]> {
   if (!sesion || !sesion.rolesVigentes.includes('tecnico')) return delay([]);
   const yo = sesion.usuario.id;
   const filas = db.reportes
-    .filter((reporte) => !reporte.cerrado && (reporte.tecnico_id === yo || reporte.tecnico_adjunto_id === yo))
+    .filter((reporte) => reporte.tecnico_id === yo || reporte.tecnico_adjunto_id === yo)
     .map((reporte) => {
       const caso = db.casos.find((item) => item.id === reporte.caso_id);
       const cliente = caso ? db.clientes.find((item) => item.id === caso.cliente_id) : undefined;
@@ -118,6 +119,7 @@ export async function mis_servicios(): Promise<MiServicio[]> {
         caso_id: reporte.caso_id,
         numero: reporte.numero,
         numero_caso: caso?.numero ?? '',
+        numero_visita: reporte.numero_visita,
         soy_adjunto: reporte.tecnico_id !== yo,
         fecha_programada: reporte.fecha_programada,
         hora_programada: reporte.hora_programada,
@@ -125,7 +127,9 @@ export async function mis_servicios(): Promise<MiServicio[]> {
         sede_nombre: sede?.nombre ?? '',
         sede_direccion: sede?.direccion ?? '',
         sede_distrito: sede?.distrito ?? '',
+        sede_referencia: sede?.referencia ?? null,
         tipo_servicio_nombre: caso ? nombreDe(db.tipos_servicio, caso.tipo_servicio_id) : '',
+        modalidad_nombre: caso ? nombreDe(db.modalidades, caso.modalidad_id) : '',
         modo_servicio_nombre: caso ? nombreDe(db.modos_servicio, caso.modo_servicio_id) : '',
         numero_serie: equipo?.numero_serie ?? '',
         estado: caso?.estado ?? 'programado',
@@ -256,5 +260,82 @@ function aLista(caso: Caso): CasoLista {
     hora_programada: visita?.hora_programada ?? null,
     reportes_numeros: numeros,
     pendiente_posventa: caso.estado === 'atendido',
+  };
+}
+
+export async function obtener_caso_detalle(casoId: string): Promise<CasoDetalle | null> {
+  const sesion = obtenerUsuarioActual();
+  if (!sesion) return null;
+  const caso = db.casos.find((item) => item.id === casoId);
+  if (!caso) return null;
+  if (!sesion.rolesVigentes.includes('superadmin') && caso.empresa_id !== sesion.empresa.id) return null;
+
+  const cliente = db.clientes.find((item) => item.id === caso.cliente_id);
+  const sede = db.sedes.find((item) => item.id === caso.sede_id);
+  const contacto = db.contactos.find((item) => item.id === caso.contacto_id);
+  const equipo = db.equipos.find((item) => item.id === caso.equipo_id);
+  const casoOrigen = db.casos.find((item) => item.id === caso.caso_origen_id);
+
+  const visitas = db.reportes
+    .filter((reporte) => reporte.caso_id === casoId)
+    .sort((a, b) => a.numero_visita - b.numero_visita)
+    .map((reporte) => {
+      const tecnico = perfilDe(reporte.tecnico_id);
+      const adjunto = perfilDe(reporte.tecnico_adjunto_id);
+      const repuestos = db.reporte_repuestos.filter((item) => item.reporte_id === reporte.id);
+      const adjuntos = db.adjuntos.filter((item) => item.reporte_id === reporte.id);
+      const notas = db.notas.filter((item) => item.reporte_id === reporte.id).sort(
+        (a, b) => b.creado_en.localeCompare(a.creado_en),
+      );
+      return {
+        ...reporte,
+        tecnico_nombre: tecnico?.nombre_completo ?? null,
+        tecnico_adjunto_nombre: adjunto?.nombre_completo ?? null,
+        repuestos,
+        adjuntos,
+        notas,
+      };
+    });
+
+  const historial = db.historial_estados
+    .filter((item) => item.caso_id === casoId)
+    .sort((a, b) => b.fecha.localeCompare(a.fecha));
+  const posventas = db.posventas
+    .filter((item) => item.caso_id === casoId)
+    .sort((a, b) => b.fecha.localeCompare(a.fecha));
+  const envios = db.envios_reporte
+    .filter((item) => {
+      const reporte = db.reportes.find((r) => r.id === item.reporte_id);
+      return reporte && reporte.caso_id === casoId;
+    })
+    .sort((a, b) => b.id.localeCompare(a.id));
+
+  return {
+    ...caso,
+    cliente_razon_social: cliente?.razon_social ?? '',
+    cliente_ruc: cliente?.ruc ?? null,
+    cliente_telefono: cliente?.telefono ?? null,
+    sede_nombre: sede?.nombre ?? '',
+    sede_direccion: sede?.direccion ?? '',
+    sede_distrito: sede?.distrito ?? '',
+    sede_referencia: sede?.referencia ?? null,
+    contacto_nombre: contacto?.nombre ?? '',
+    contacto_cargo: contacto?.cargo ?? null,
+    contacto_telefono: contacto?.telefono ?? null,
+    equipo_serie: equipo?.numero_serie ?? '',
+    equipo_modelo: equipo?.modelo ?? '',
+    equipo_linea: equipo ? nombreDe(db.lineas_maquina, equipo.linea_id) : '',
+    equipo_cabezal: equipo ? nombreDe(db.modelos_cabezal, equipo.cabezal_modelo_id) : '',
+    equipo_cabezal_cantidad: equipo?.cabezal_cantidad ?? null,
+    canal_nombre: nombreDe(db.canales, caso.canal_id),
+    tipo_servicio_nombre: nombreDe(db.tipos_servicio, caso.tipo_servicio_id),
+    modalidad_nombre: nombreDe(db.modalidades, caso.modalidad_id),
+    modo_servicio_nombre: nombreDe(db.modos_servicio, caso.modo_servicio_id),
+    modo_sugerido_nombre: caso.modo_sugerido_id ? nombreDe(db.modos_servicio, caso.modo_sugerido_id) : null,
+    caso_origen_numero: casoOrigen?.numero ?? null,
+    visitas,
+    historial_estados: historial,
+    posventas,
+    envios,
   };
 }
