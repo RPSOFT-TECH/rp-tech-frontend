@@ -27,6 +27,7 @@ export { guardarSesion, leerSesionEstable, login, logout, obtenerUsuarioActual }
 export {
   buscar_clientes,
   casos_lista,
+  obtener_caso_detalle,
   mis_servicios,
   obtener_catalogos,
   obtener_contactos,
@@ -72,6 +73,7 @@ export {
   guardar_sede,
 } from './acciones/admin-clientes';
 export type { ClienteAdmin, ClienteLista, FichaCliente } from './acciones/admin-clientes';
+export type { CasoDetalle } from './tipos-vista';
 export { asignar_rol, quitar_rol, roles_asignables, usuarios_admin } from './acciones/admin-usuarios';
 export type { EstadoRol, RolUsuario, UsuarioAdmin } from './acciones/admin-usuarios';
 export {
