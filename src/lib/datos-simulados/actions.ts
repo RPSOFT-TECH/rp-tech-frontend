@@ -50,7 +50,19 @@ export {
   reabrir_caso,
   registrar_posventa,
 } from './acciones/estados';
-export { cerrar_reporte, registrar_llegada, reportePdf } from './acciones/reportes';
+export {
+  actualizar_desarrollo,
+  actualizar_revision_inicial,
+  agregar_adjunto,
+  agregar_nota,
+  agregar_repuesto,
+  cerrar_reporte,
+  guardar_firmas,
+  quitar_adjunto,
+  quitar_repuesto,
+  registrar_llegada,
+  reportePdf,
+} from './acciones/reportes';
 export {
   actualizar_parametros,
   definir_permisos_consulta,
