@@ -21,7 +21,7 @@ export type {
   VisitaAgenda,
 } from './types';
 
-export { hoyLima } from './fecha';
+export { hoyLima, sumarDias } from './fecha';
 export type { SesionUsuario } from './acciones/sesion';
 export { guardarSesion, leerSesionEstable, login, logout, obtenerUsuarioActual } from './acciones/sesion';
 export {

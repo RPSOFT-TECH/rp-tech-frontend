@@ -5,6 +5,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Bell,
+  Calendar,
   ClipboardList,
   PlusCircle,
   Wrench,
@@ -45,6 +46,11 @@ const RUTAS_META: Record<string, RutaMeta> = {
     titulo: 'Administración',
     descripcion: 'Gestión del sistema y perfiles',
     icon: ShieldCheck,
+  },
+  '/agenda': {
+    titulo: 'Agenda',
+    descripcion: 'Visitas del día por técnico',
+    icon: Calendar,
   },
 };
 
