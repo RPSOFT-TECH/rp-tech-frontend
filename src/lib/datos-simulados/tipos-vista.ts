@@ -62,6 +62,7 @@ export interface MiServicio {
   caso_id: string;
   numero: string | null;
   numero_caso: string;
+  numero_visita: number;
   soy_adjunto: boolean;
   fecha_programada: string | null;
   hora_programada: string | null;
@@ -69,7 +70,9 @@ export interface MiServicio {
   sede_nombre: string;
   sede_direccion: string;
   sede_distrito: string;
+  sede_referencia: string | null;
   tipo_servicio_nombre: string;
+  modalidad_nombre: string;
   modo_servicio_nombre: string;
   numero_serie: string;
   estado: EstadoCaso;

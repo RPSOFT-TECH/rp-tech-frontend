@@ -108,7 +108,7 @@ export async function mis_servicios(): Promise<MiServicio[]> {
   if (!sesion || !sesion.rolesVigentes.includes('tecnico')) return delay([]);
   const yo = sesion.usuario.id;
   const filas = db.reportes
-    .filter((reporte) => !reporte.cerrado && (reporte.tecnico_id === yo || reporte.tecnico_adjunto_id === yo))
+    .filter((reporte) => reporte.tecnico_id === yo || reporte.tecnico_adjunto_id === yo)
     .map((reporte) => {
       const caso = db.casos.find((item) => item.id === reporte.caso_id);
       const cliente = caso ? db.clientes.find((item) => item.id === caso.cliente_id) : undefined;
@@ -119,6 +119,7 @@ export async function mis_servicios(): Promise<MiServicio[]> {
         caso_id: reporte.caso_id,
         numero: reporte.numero,
         numero_caso: caso?.numero ?? '',
+        numero_visita: reporte.numero_visita,
         soy_adjunto: reporte.tecnico_id !== yo,
         fecha_programada: reporte.fecha_programada,
         hora_programada: reporte.hora_programada,
@@ -126,7 +127,9 @@ export async function mis_servicios(): Promise<MiServicio[]> {
         sede_nombre: sede?.nombre ?? '',
         sede_direccion: sede?.direccion ?? '',
         sede_distrito: sede?.distrito ?? '',
+        sede_referencia: sede?.referencia ?? null,
         tipo_servicio_nombre: caso ? nombreDe(db.tipos_servicio, caso.tipo_servicio_id) : '',
+        modalidad_nombre: caso ? nombreDe(db.modalidades, caso.modalidad_id) : '',
         modo_servicio_nombre: caso ? nombreDe(db.modos_servicio, caso.modo_servicio_id) : '',
         numero_serie: equipo?.numero_serie ?? '',
         estado: caso?.estado ?? 'programado',
