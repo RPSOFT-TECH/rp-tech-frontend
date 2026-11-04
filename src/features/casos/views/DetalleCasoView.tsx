@@ -15,7 +15,8 @@ import {
   reabrir_caso,
   dentro_plazo_misma_falla,
   fue_tecnico_del_caso,
-} from '@/lib/datos-simulados/actions';
+  reportePdf,
+} from '@/lib/datos/actions';
 import { Button, Badge, Card, Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui';
 import { EstadoBadge, etiquetaEstado } from '../components/EstadoCaso';
 
@@ -462,6 +463,7 @@ function DetalleCasoContenido() {
                   >
                     Ver reporte
                   </Button>
+                  {visita.cerrado && <BotonesPdf reporteId={visita.id} />}
                   {!visita.cerrado && visita.hora_llegada && puedeCoordinador(roles) && (
                     <Button onClick={() => setAccionAbierta(`cerrar-${visita.id}`)} variant="outline" size="sm" className="px-3">
                       Cerrar reporte
@@ -1079,5 +1081,65 @@ function FormAnularCaso({
         </Button>
       </div>
     </Card>
+  );
+}
+
+/** PDF de un reporte cerrado: descargar o reenviar al cliente (función del servidor "reporte-pdf"). */
+function BotonesPdf({ reporteId }: { reporteId: string }) {
+  const [ocupado, setOcupado] = useState(false);
+  const [aviso, setAviso] = useState<string | null>(null);
+  const [para, setPara] = useState('');
+  const [pidiendoCorreo, setPidiendoCorreo] = useState(false);
+
+  async function descargar() {
+    setOcupado(true);
+    const r = await reportePdf({ reporte_id: reporteId, enviar: false });
+    setOcupado(false);
+    if (r.ok && r.datos.url) window.open(r.datos.url, '_blank', 'noopener');
+    else setAviso(r.ok ? 'No se pudo obtener el PDF.' : r.error);
+  }
+
+  async function reenviar() {
+    setOcupado(true);
+    const r = await reportePdf({ reporte_id: reporteId, enviar: true, para: para.trim() || null });
+    setOcupado(false);
+    if (!r.ok) return setAviso(r.error);
+    const enviados = r.datos.envios.filter((e) => e.estado === 'enviado').map((e) => e.destino);
+    setAviso(enviados.length ? `Enviado a ${enviados.join(', ')}.` : `No se envió: ${r.datos.envios[0]?.detalle ?? 'sin destino'}.`);
+    setPidiendoCorreo(false);
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <Button onClick={descargar} disabled={ocupado} variant="outline" size="sm" className="px-3">
+        Descargar PDF
+      </Button>
+      {pidiendoCorreo ? (
+        <>
+          <input
+            type="email"
+            value={para}
+            onChange={(e) => setPara(e.target.value)}
+            placeholder="Otro correo (opcional)…"
+            aria-label="Correo de destino"
+            autoComplete="off"
+            spellCheck={false}
+            className="min-h-9 border border-border rounded-lg px-2 text-sm"
+          />
+          <Button onClick={reenviar} disabled={ocupado} size="sm" className="px-3">
+            {ocupado ? 'Enviando…' : 'Enviar'}
+          </Button>
+        </>
+      ) : (
+        <Button onClick={() => setPidiendoCorreo(true)} disabled={ocupado} variant="outline" size="sm" className="px-3">
+          Reenviar al cliente
+        </Button>
+      )}
+      {aviso && (
+        <span className="text-xs text-muted-foreground" role="status">
+          {aviso}
+        </span>
+      )}
+    </div>
   );
 }

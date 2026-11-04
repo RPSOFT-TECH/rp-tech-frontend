@@ -1,4 +1,4 @@
-import type { EstadoRol, RolCodigo } from '@/lib/datos-simulados/actions';
+import type { EstadoRol, RolCodigo } from '@/lib/datos/actions';
 
 export const NOMBRE_ROL: Record<RolCodigo, string> = {
   superadmin: 'Superadmin',

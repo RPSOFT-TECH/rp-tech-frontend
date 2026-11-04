@@ -10,7 +10,7 @@ import {
   tecnicos,
   type TecnicoLista,
   type VisitaAgenda,
-} from '@/lib/datos-simulados/actions';
+} from '@/lib/datos/actions';
 import { Button } from '@/components/ui';
 
 interface ColumnaAgenda {

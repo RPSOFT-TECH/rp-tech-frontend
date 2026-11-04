@@ -257,6 +257,26 @@ Para más detalles, consulta `openspec/README.md`.
 npm install
 ```
 
+### Conexión con Supabase
+El frontend lee y escribe en Supabase (repo `rp-tech-backend`). No hay API propia: las reglas las aplica la base (RLS y funciones).
+
+1. Levanta el backend en local (en la carpeta de `rp-tech-backend`, con Docker Desktop abierto):
+   ```bash
+   npx supabase start
+   npx supabase db reset
+   npx supabase functions serve
+   ```
+   La última deja corriendo las funciones `reporte-pdf` (PDF y correo) y `usuarios` (crear usuarios).
+2. Copia `.env.example` como `.env.local` y pon la **Project URL** y la clave **Publishable** que muestra `npx supabase status`. La clave **Secret** nunca va en el frontend.
+3. Entra con los usuarios de prueba del backend (contraseña `Rptech2026!`), por ejemplo `coordinador@rptech.test` o `tecnico1@rptech.test`.
+
+Los correos que envía el sistema en local se ven en Mailpit: http://127.0.0.1:54324.
+
+**Dónde está cada cosa:**
+- `src/lib/datos/`: capa de datos real. Mismos nombres que antes (`casos_lista`, `programar_visita`, `cerrar_reporte`…), así las pantallas no cambiaron. Las pantallas importan de `@/lib/datos/actions`.
+- `src/lib/datos-simulados/`: los datos de prueba de antes. Ya no los usa ninguna pantalla; quedan los tipos (`types.ts`) y las fechas (`fecha.ts`).
+- Fotos y firmas se suben al bucket privado `reportes`; el logo, al bucket `empresas`. Para verlos se pide un enlace temporal.
+
 ### Servidor de Desarrollo (Turbopack)
 ```bash
 npm run dev

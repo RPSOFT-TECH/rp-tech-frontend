@@ -12,7 +12,7 @@ import {
   LucideIcon,
 } from 'lucide-react';
 import { Tooltip } from '@/components/ui/tooltip';
-import { SesionUsuario } from '@/lib/datos-simulados/actions';
+import { SesionUsuario } from '@/lib/datos/actions';
 import { MenuItem } from '@/lib/permisos';
 
 interface SidebarProps {

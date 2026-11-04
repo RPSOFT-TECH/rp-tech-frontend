@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { leerSesionEstable } from '@/lib/datos-simulados/actions';
+import { leerSesionEstable } from '@/lib/datos/actions';
 
 function marcaLima(): string {
   return new Intl.DateTimeFormat('es-PE', {

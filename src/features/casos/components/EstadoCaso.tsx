@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui';
-import type { EstadoCaso } from '@/lib/datos-simulados/actions';
+import type { EstadoCaso } from '@/lib/datos/actions';
 
 const ETIQUETA: Record<EstadoCaso, string> = {
   por_programar: 'Por programar',

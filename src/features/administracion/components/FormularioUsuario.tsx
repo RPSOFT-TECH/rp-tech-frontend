@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { hoyLima, roles_asignables, usuarios, type RolCodigo } from '@/lib/datos-simulados/actions';
+import { hoyLima, roles_asignables, usuarios, type RolCodigo } from '@/lib/datos/actions';
 import { Button } from '@/components/ui';
 import { claseCampo } from './clases';
 import { NOMBRE_ROL } from './etiquetas';
