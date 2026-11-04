@@ -27,6 +27,7 @@ export { guardarSesion, leerSesionEstable, login, logout, obtenerUsuarioActual }
 export {
   buscar_clientes,
   casos_lista,
+  obtener_caso_detalle,
   mis_servicios,
   obtener_catalogos,
   obtener_contactos,
@@ -49,7 +50,19 @@ export {
   reabrir_caso,
   registrar_posventa,
 } from './acciones/estados';
-export { cerrar_reporte, registrar_llegada, reportePdf } from './acciones/reportes';
+export {
+  actualizar_desarrollo,
+  actualizar_revision_inicial,
+  agregar_adjunto,
+  agregar_nota,
+  agregar_repuesto,
+  cerrar_reporte,
+  guardar_firmas,
+  quitar_adjunto,
+  quitar_repuesto,
+  registrar_llegada,
+  reportePdf,
+} from './acciones/reportes';
 export {
   actualizar_parametros,
   definir_permisos_consulta,
@@ -64,13 +77,15 @@ export { empresas_permisos, parametros_actuales } from './acciones/admin';
 export type { EmpresaPermisos } from './acciones/admin';
 export {
   clientes_admin,
+  clientes_lista,
   ficha_cliente,
   guardar_cliente,
   guardar_contacto,
   guardar_equipo,
   guardar_sede,
 } from './acciones/admin-clientes';
-export type { ClienteAdmin, FichaCliente } from './acciones/admin-clientes';
+export type { ClienteAdmin, ClienteLista, FichaCliente } from './acciones/admin-clientes';
+export type { CasoDetalle } from './tipos-vista';
 export { asignar_rol, quitar_rol, roles_asignables, usuarios_admin } from './acciones/admin-usuarios';
 export type { EstadoRol, RolUsuario, UsuarioAdmin } from './acciones/admin-usuarios';
 export {

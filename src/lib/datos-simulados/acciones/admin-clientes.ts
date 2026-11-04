@@ -217,3 +217,27 @@ export async function guardar_equipo(datos: Equipo): Promise<Resultado<EquipoVis
     cabezal_nombre: nombreDe(db.modelos_cabezal, equipo.cabezal_modelo_id),
   });
 }
+
+export interface ClienteLista {
+  id: string;
+  razon_social: string;
+  ruc: string | null;
+}
+
+export async function clientes_lista(): Promise<ClienteLista[]> {
+  const sesion = obtenerUsuarioActual();
+  if (!sesion) return [];
+  const lista = db.clientes
+    .filter((cliente) => {
+      if (!cliente.activo) return false;
+      if (!sesion.rolesVigentes.includes('superadmin') && cliente.empresa_id !== sesion.empresa.id) return false;
+      return true;
+    })
+    .map((cliente) => ({
+      id: cliente.id,
+      razon_social: cliente.razon_social,
+      ruc: cliente.ruc,
+    }))
+    .sort((a, b) => a.razon_social.localeCompare(b.razon_social, 'es'));
+  return lista;
+}
