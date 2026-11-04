@@ -39,6 +39,70 @@ export async function registrar_llegada(p_reporte: string, p_hora?: string | nul
   return ok(reporte);
 }
 
+/** Igual que modalidades.remota en la base: la visita remota no exige fotos, firmas, voltajes, limpieza ni protección. */
+export function es_visita_remota(p_reporte: string): boolean {
+  const reporte = db.reportes.find((item) => item.id === p_reporte);
+  const caso = reporte ? db.casos.find((item) => item.id === reporte.caso_id) : undefined;
+  const modalidad = caso ? db.modalidades.find((item) => item.id === caso.modalidad_id) : undefined;
+  return modalidad?.remota === true;
+}
+
+/** Lo que falta para cerrar, con las mismas reglas y textos que cerrar_reporte en la base. */
+export function faltantes_cierre(
+  reporte: Reporte,
+  adjuntos: Pick<Adjunto, 'tipo'>[],
+  remota: boolean,
+): { revision: string[]; general: string[] } {
+  const revision: string[] = [];
+  const general: string[] = [];
+  if (!reporte.hora_llegada) general.push('Llegada');
+  if (!reporte.procedimiento?.trim()) general.push('Procedimiento');
+  else if (reporte.procedimiento.trim().length < 20) general.push('Procedimiento (mínimo 20 caracteres)');
+  if (!reporte.conclusion?.trim()) general.push('Conclusión');
+  if (!reporte.estado_equipo) revision.push('estado del equipo');
+  if (!reporte.estado_cabezales) revision.push('estado de los cabezales');
+  if (!reporte.tinta?.trim()) revision.push('tinta');
+  if (!remota) {
+    if (!reporte.limpieza) revision.push('limpieza del equipo');
+    if (!reporte.sistema_proteccion) revision.push('sistema de protección');
+    else if (reporte.sistema_proteccion === 'otro' && !reporte.sistema_proteccion_otro?.trim()) {
+      revision.push('cuál sistema de protección');
+    }
+    if (reporte.voltaje_ln === null || reporte.voltaje_lt === null || reporte.voltaje_nt === null) {
+      revision.push('voltajes L+N, L+T y N+T');
+    }
+    if (!adjuntos.some((a) => a.tipo === 'foto_ingreso')) general.push('Foto de ingreso');
+    if (!adjuntos.some((a) => a.tipo === 'foto_salida')) general.push('Foto de salida');
+    if (!reporte.firma_operador || !reporte.nombre_operador_firma?.trim() || !reporte.firma_cliente || !reporte.nombre_cliente_firma?.trim()) {
+      general.push('Las dos firmas con su nombre');
+    }
+  }
+  return { revision, general };
+}
+
+/** Datos de una visita para la pantalla del reporte. Lo ven el técnico, el adjunto y la oficina de la empresa. */
+export async function obtener_reporte(p_reporte: string): Promise<
+  Resultado<{ reporte: Reporte; repuestos: ReporteRepuesto[]; adjuntos: Adjunto[]; remota: boolean }>
+> {
+  const sesion = obtenerUsuarioActual();
+  if (!sesion) return fallo('Inicia sesión para continuar.');
+  const reporte = db.reportes.find((item) => item.id === p_reporte);
+  if (!reporte) return fallo('La visita no existe.');
+  const caso = db.casos.find((item) => item.id === reporte.caso_id);
+  if (!caso) return fallo('El caso no existe.');
+  const empresa = casoDeEmpresa(caso);
+  if (empresa) return fallo(empresa);
+  const esSuyo = reporte.tecnico_id === sesion.usuario.id || reporte.tecnico_adjunto_id === sesion.usuario.id;
+  const esOficina = sesion.rolesVigentes.some((rol) => rol !== 'tecnico');
+  if (!esSuyo && !esOficina) return fallo('No tienes permiso para ver este reporte.');
+  return ok({
+    reporte,
+    repuestos: db.reporte_repuestos.filter((item) => item.reporte_id === reporte.id),
+    adjuntos: db.adjuntos.filter((item) => item.reporte_id === reporte.id),
+    remota: es_visita_remota(reporte.id),
+  });
+}
+
 export async function cerrar_reporte(
   p_reporte: string,
   p_resultado: ResultadoReporte,
@@ -50,17 +114,29 @@ export async function cerrar_reporte(
   const reporte = db.reportes.find((item) => item.id === p_reporte);
   if (!reporte) return fallo('La visita no existe.');
   if (reporte.tecnico_id !== sesion.usuario.id) return fallo('Solo el técnico asignado puede cerrar el reporte.');
-  if (reporte.cerrado) return fallo('El reporte está cerrado y no se puede modificar.');
-  if (!reporte.hora_llegada) return fallo('Registra la llegada antes de cerrar el reporte.');
-  if (!reporte.firma_operador || !reporte.firma_cliente) return fallo('Para cerrar el reporte faltan las firmas.');
-  const ingresos = db.adjuntos.filter((item) => item.reporte_id === reporte.id && item.tipo === 'foto_ingreso');
-  const salidas = db.adjuntos.filter((item) => item.reporte_id === reporte.id && item.tipo === 'foto_salida');
-  if (ingresos.length === 0 || salidas.length === 0) {
-    return fallo('Para cerrar el reporte falta al menos una foto de ingreso y una de salida.');
+  if (reporte.cerrado) return fallo('El reporte ya está cerrado.');
+  if (!reporte.hora_llegada) return fallo('Registra tu llegada antes de cerrar el reporte.');
+  if (!reporte.procedimiento?.trim() || !reporte.conclusion?.trim()) {
+    return fallo('Completa el procedimiento y la conclusión.');
   }
-  if (p_resultado !== 'resuelto' && p_resultado !== 'pendiente') return fallo('El resultado del reporte no es válido.');
+  if (reporte.procedimiento.trim().length < 20) {
+    return fallo('Describe el procedimiento con más detalle (mínimo 20 caracteres).');
+  }
+  if (p_resultado !== 'resuelto' && p_resultado !== 'pendiente') return fallo('El resultado debe ser Resuelto o Pendiente.');
   if (p_resultado === 'pendiente' && !p_requerimiento?.trim()) {
-    return fallo('Indica el requerimiento para dejar el reporte pendiente.');
+    return fallo('Indica qué se requiere para continuar.');
+  }
+  const remota = es_visita_remota(reporte.id);
+  const adjuntos = db.adjuntos.filter((item) => item.reporte_id === reporte.id);
+  const { revision } = faltantes_cierre(reporte, adjuntos, remota);
+  if (revision.length) return fallo(`Completa la revisión inicial: ${revision.join(', ')}.`);
+  if (!remota) {
+    if (!adjuntos.some((a) => a.tipo === 'foto_ingreso') || !adjuntos.some((a) => a.tipo === 'foto_salida')) {
+      return fallo('Falta al menos una foto de ingreso y una de salida.');
+    }
+    if (!reporte.firma_operador || !reporte.nombre_operador_firma?.trim() || !reporte.firma_cliente || !reporte.nombre_cliente_firma?.trim()) {
+      return fallo('Faltan las firmas del operador y del cliente.');
+    }
   }
   const caso = db.casos.find((item) => item.id === reporte.caso_id);
   if (!caso) return fallo('El caso no existe.');

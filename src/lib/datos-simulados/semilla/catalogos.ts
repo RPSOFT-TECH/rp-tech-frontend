@@ -84,7 +84,7 @@ export function sembrarCatalogos(empresaId: string, slot: number) {
   return {
     tipos_servicio: filas(11, empresaId, slot, TIPOS),
     modos_servicio: filas(12, empresaId, slot, MODOS),
-    modalidades: filas(13, empresaId, slot, MODALIDADES),
+    modalidades: filas(13, empresaId, slot, MODALIDADES).map((m) => ({ ...m, remota: m.nombre === 'Remoto' })),
     canales: filas(14, empresaId, slot, CANALES),
     lineas_maquina: filas(15, empresaId, slot, LINEAS),
     modelos_cabezal: filas(16, empresaId, slot, CABEZALES),

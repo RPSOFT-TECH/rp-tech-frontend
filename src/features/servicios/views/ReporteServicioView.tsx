@@ -14,10 +14,12 @@ import {
   quitar_adjunto,
   guardar_firmas,
   cerrar_reporte,
+  faltantes_cierre,
+  obtener_reporte,
   reportePdf,
   type MiServicio,
 } from '@/lib/datos-simulados/actions';
-import type { Adjunto, Reporte, ReporteRepuesto } from '@/lib/datos-simulados/types';
+import type { Reporte } from '@/lib/datos-simulados/types';
 import { Button, Card, Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui';
 
 const PASOS = [
@@ -109,6 +111,8 @@ function ReporteServicioContenido() {
   const [resultado, setResultado] = useState<'resuelto' | 'pendiente' | null>(null);
   const [requerimiento, setRequerimiento] = useState('');
   const [horaSalida, setHoraSalida] = useState('');
+  // Visita remota: no exige fotos, firmas, voltajes, limpieza ni protección
+  const [remota, setRemota] = useState(false);
 
   const sesion = (() => {
     const m = (globalThis as { localStorage?: Storage }).localStorage;
@@ -140,8 +144,11 @@ function ReporteServicioContenido() {
       }
       setCaso(encontrado);
 
-      const reporteData = dbReportePorId(encontrado.id);
+      const respuesta = await obtener_reporte(encontrado.id);
+      if (!activo) return;
+      const reporteData = respuesta.ok ? respuesta.datos.reporte : null;
       setReporte(reporteData);
+      setRemota(respuesta.ok ? respuesta.datos.remota : false);
       setLoading(false);
 
       if (reporteData) {
@@ -169,7 +176,7 @@ function ReporteServicioContenido() {
         setNombreClienteFirma(reporteData.nombre_cliente_firma || '');
         setFirmaCliente(reporteData.firma_cliente || null);
         setRepuestos(
-          (dbReportesRepuestosPorReporte(encontrado.id) || []).map((r) => ({
+          (respuesta.ok ? respuesta.datos.repuestos : []).map((r) => ({
             id: r.id,
             codigo: r.codigo,
             descripcion: r.descripcion,
@@ -178,7 +185,7 @@ function ReporteServicioContenido() {
           })),
         );
         setAdjuntos(
-          (dbAdjuntosPorReporte(encontrado.id) || []).map((a) => ({
+          (respuesta.ok ? respuesta.datos.adjuntos : []).map((a) => ({
             id: a.id,
             tipo: a.tipo,
             nombre: a.nombre_archivo,
@@ -348,20 +355,41 @@ function ReporteServicioContenido() {
     }
   };
 
+  // Mismas reglas que cerrar_reporte: usa lo que está en pantalla, aunque aún no se haya guardado
+  const calcularFaltas = (): string[] => {
+    if (!reporte) return [];
+    const numero = (v: string) => (v.trim() === '' ? null : Number(v));
+    const actual: Reporte = {
+      ...reporte,
+      estado_equipo: estadoEquipo,
+      limpieza,
+      estado_cabezales: estadoCabezales,
+      sistema_proteccion: sistemaProteccion,
+      sistema_proteccion_otro: sistemaProteccionOtro || null,
+      tinta: tinta || null,
+      voltaje_ln: numero(voltajeLn),
+      voltaje_lt: numero(voltajeLt),
+      voltaje_nt: numero(voltajeNt),
+      procedimiento: procedimiento || null,
+      conclusion: conclusion || null,
+      firma_operador: firmaOperador,
+      nombre_operador_firma: nombreOperadorFirma || null,
+      firma_cliente: firmaCliente,
+      nombre_cliente_firma: nombreClienteFirma || null,
+    };
+    const { revision, general } = faltantes_cierre(actual, adjuntos, remota);
+    return [...general, ...(revision.length ? [`Revisión inicial (${revision.join(', ')})`] : [])];
+  };
+
   const cerrarReporte = async () => {
     if (!reporte || !resultado) return;
     if (resultado === 'pendiente' && !requerimiento.trim()) {
       setMensaje('Indica el requerimiento para dejar el reporte pendiente.');
       return;
     }
-    const tieneFotoIngreso = adjuntos.some((a) => a.tipo === 'foto_ingreso');
-    const tieneFotoSalida = adjuntos.some((a) => a.tipo === 'foto_salida');
-    if (!tieneFotoIngreso || !tieneFotoSalida) {
-      setMensaje('Falta al menos una foto de ingreso y una de salida.');
-      return;
-    }
-    if (!firmaOperador || !firmaCliente) {
-      setMensaje('Faltan las dos firmas (operador y cliente).');
+    const faltas = calcularFaltas();
+    if (faltas.length) {
+      setMensaje(`Para cerrar falta: ${faltas.join(', ')}.`);
       return;
     }
     setGuardando(true);
@@ -387,18 +415,7 @@ function ReporteServicioContenido() {
     return <div className="p-8 text-center text-destructive">Reporte no encontrado.</div>;
   }
 
-  const hayFotoIngreso = adjuntos.some((a) => a.tipo === 'foto_ingreso');
-  const hayFotoSalida = adjuntos.some((a) => a.tipo === 'foto_salida');
-  const hayFirmaOperador = !!firmaOperador;
-  const hayFirmaCliente = !!firmaCliente;
-
-  const faltasCierre: string[] = [];
-  if (!reporte.hora_llegada) faltasCierre.push('Llegada');
-  if (!procedimiento) faltasCierre.push('Procedimiento');
-  if (!conclusion) faltasCierre.push('Conclusión');
-  if (!hayFotoIngreso) faltasCierre.push('Foto de ingreso');
-  if (!hayFotoSalida) faltasCierre.push('Foto de salida');
-  if (!hayFirmaOperador || !hayFirmaCliente) faltasCierre.push('Las dos firmas');
+  const faltasCierre = calcularFaltas();
 
   return (
     <div className="p-4 max-w-md mx-auto md:max-w-2xl pb-24">
@@ -1151,19 +1168,6 @@ function ReporteServicioContenido() {
   );
 }
 
-// Helpers simulados para leer datos del store (evitar importación directa de db en cliente)
-function dbReportePorId(id: string): Reporte | null {
-  void id;
-  return null;
-}
-function dbReportesRepuestosPorReporte(id: string): ReporteRepuesto[] | null {
-  void id;
-  return null;
-}
-function dbAdjuntosPorReporte(id: string): Adjunto[] | null {
-  void id;
-  return null;
-}
 
 export function ReporteServicioView() {
   return (
