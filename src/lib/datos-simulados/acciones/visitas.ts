@@ -74,7 +74,7 @@ export async function reprogramar_visita(
 export async function agenda_tecnico(p_tecnico: string, p_fecha: string): Promise<VisitaAgenda[]> {
   const sesion = obtenerUsuarioActual();
   if (!sesion || !p_tecnico || !p_fecha) return delay([]);
-  if (!sesion.rolesVigentes.some((rol) => rol === 'superadmin' || rol === 'coordinador')) return delay([]);
+  if (!sesion.rolesVigentes.some((rol) => rol === 'superadmin' || rol === 'gerente' || rol === 'coordinador')) return delay([]);
   const visitas = db.reportes
     .filter((reporte) => {
       if (reporte.fecha_programada !== p_fecha) return false;
