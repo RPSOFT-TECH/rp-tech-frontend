@@ -7,7 +7,7 @@ import {
   empresas_permisos,
   type EmpresaPermisos,
   type PermisosConsulta,
-} from '@/lib/datos-simulados/actions';
+} from '@/lib/datos/actions';
 import { DataTable } from '@/components/ui';
 
 const CAMPOS: { clave: keyof PermisosConsulta; label: string }[] = [

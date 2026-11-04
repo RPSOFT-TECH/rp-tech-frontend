@@ -3,7 +3,7 @@
 import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSyncExternalStore } from 'react';
-import { leerSesionEstable } from '@/lib/datos-simulados/actions';
+import { leerSesionEstable } from '@/lib/datos/actions';
 import { ListaClientes } from '../components/ListaClientes';
 import { FichaCliente } from '../components/FichaCliente';
 import { UsuariosAdmin } from '../components/UsuariosAdmin';

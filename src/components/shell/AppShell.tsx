@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import {
   leerSesionEstable,
   logout,
-} from '@/lib/datos-simulados/actions';
+} from '@/lib/datos/actions';
 import { menuDeRoles } from '@/lib/permisos';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
@@ -21,7 +21,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    if (!sesion || !sesion.usuario.activo || sesion.rolesVigentes.length === 0) {
+    // Se lee la sesión guardada y no "sesion": al hidratar, useSyncExternalStore entrega null
+    // (el valor del servidor) y eso mandaba al login en cada recarga de página.
+    const actual = leerSesionEstable();
+    if (!actual || !actual.usuario.activo || actual.rolesVigentes.length === 0) {
       router.replace('/login');
     }
   }, [sesion, router]);

@@ -16,9 +16,10 @@ import {
   cerrar_reporte,
   faltantes_cierre,
   obtener_reporte,
+  obtenerUsuarioActual,
   reportePdf,
   type MiServicio,
-} from '@/lib/datos-simulados/actions';
+} from '@/lib/datos/actions';
 import type { Reporte } from '@/lib/datos-simulados/types';
 import { Button, Card, Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui';
 
@@ -105,7 +106,7 @@ function ReporteServicioContenido() {
   const [firmaOperador, setFirmaOperador] = useState<string | null>(null);
   const [nombreClienteFirma, setNombreClienteFirma] = useState('');
   const [firmaCliente, setFirmaCliente] = useState<string | null>(null);
-  const [textoConformidad] = useState('');
+  const textoConformidad = obtenerUsuarioActual()?.empresa.parametros?.texto_conformidad ?? '';
 
   // Paso 7 - Cierre
   const [resultado, setResultado] = useState<'resuelto' | 'pendiente' | null>(null);
@@ -153,6 +154,8 @@ function ReporteServicioContenido() {
 
       if (reporteData) {
         setHoraLlegada(reporteData.hora_llegada || '');
+        // Si ya llegó, se retoma en la revisión inicial (antes quedaba en el paso 1 sin forma de avanzar).
+        if (reporteData.hora_llegada && !reporteData.cerrado) setPaso(2);
         setEstadoEquipo(reporteData.estado_equipo);
         setLimpieza(reporteData.limpieza);
         setEstadoCabezales(reporteData.estado_cabezales);
@@ -189,7 +192,7 @@ function ReporteServicioContenido() {
             id: a.id,
             tipo: a.tipo,
             nombre: a.nombre_archivo,
-            url: a.ruta,
+            url: a.url ?? a.ruta,
           })),
         );
       }
@@ -251,6 +254,7 @@ function ReporteServicioContenido() {
     if (r.ok) {
       setReporte(r.datos);
       guardarAviso(`Guardado ${horaLimaStr()}`);
+      avanzarPaso(); // antes no había forma de pasar al paso 3
     } else {
       setMensaje(r.error || 'Error al guardar revisión.');
     }
@@ -310,15 +314,16 @@ function ReporteServicioContenido() {
   const agregarAdjunto = async (tipo: 'foto_ingreso' | 'foto_salida' | 'otro', archivo: File) => {
     if (!reporte) return;
     const url = URL.createObjectURL(archivo);
-    const idAdj = `temp-${Date.now()}`;
-    setAdjuntos([...adjuntos, { id: idAdj, tipo, nombre: archivo.name, url }]);
+    const idAdj = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    // Se usa la forma con función: al subir varias fotos a la vez, "adjuntos" de este render ya quedó viejo.
+    setAdjuntos((actuales) => [...actuales, { id: idAdj, tipo, nombre: archivo.name, url }]);
     setGuardando(true);
-    const r = await agregar_adjunto(reporte.id, { tipo, ruta: url, nombre_archivo: archivo.name, tipo_mime: archivo.type });
+    const r = await agregar_adjunto(reporte.id, { tipo, ruta: url, nombre_archivo: archivo.name, tipo_mime: archivo.type, archivo });
     setGuardando(false);
     if (r.ok) {
-      setAdjuntos(adjuntos.map((a) => (a.id === idAdj ? { ...a, id: r.datos.id } : a)));
+      setAdjuntos((actuales) => actuales.map((a) => (a.id === idAdj ? { ...a, id: r.datos.id } : a)));
     } else {
-      setAdjuntos(adjuntos.filter((a) => a.id !== idAdj));
+      setAdjuntos((actuales) => actuales.filter((a) => a.id !== idAdj));
       setMensaje(r.error || 'Error al subir adjunto.');
     }
   };
@@ -334,21 +339,24 @@ function ReporteServicioContenido() {
         return;
       }
     }
-    setAdjuntos(adjuntos.filter((a) => a.id !== id));
+    setAdjuntos((actuales) => actuales.filter((a) => a.id !== id));
   };
 
-  const guardarFirmas = async () => {
+  // Recibe lo que acaba de cambiar: el estado de React aún no se actualizó en este clic.
+  const guardarFirmas = async (cambio: { firma_operador?: string | null; firma_cliente?: string | null } = {}) => {
     if (!reporte) return;
     setGuardando(true);
     const r = await guardar_firmas(reporte.id, {
-      firma_operador: firmaOperador,
+      firma_operador: 'firma_operador' in cambio ? cambio.firma_operador : firmaOperador,
       nombre_operador_firma: nombreOperadorFirma || null,
-      firma_cliente: firmaCliente,
+      firma_cliente: 'firma_cliente' in cambio ? cambio.firma_cliente : firmaCliente,
       nombre_cliente_firma: nombreClienteFirma || null,
     });
     setGuardando(false);
     if (r.ok) {
       setReporte(r.datos);
+      setFirmaOperador(r.datos.firma_operador);
+      setFirmaCliente(r.datos.firma_cliente);
       guardarAviso(`Guardado ${horaLimaStr()}`);
     } else {
       setMensaje(r.error || 'Error al guardar firmas.');
@@ -399,8 +407,17 @@ function ReporteServicioContenido() {
       setReporte(r.datos);
       setMensaje('Reporte cerrado correctamente.');
       const envio = await reportePdf({ reporte_id: reporte.id, enviar: true, para: undefined });
-      if (envio.ok) {
-        setMensaje(`Reporte enviado a ${envio.datos.envios[0]?.destino || 'cliente'}.`);
+      // El reporte ya quedó cerrado aunque el envío falle: se avisa para reenviarlo desde el detalle del caso.
+      if (!envio.ok) {
+        setMensaje(`Reporte cerrado. No se pudo generar o enviar el PDF: ${envio.error}`);
+      } else {
+        const enviados = envio.datos.envios.filter((e) => e.estado === 'enviado').map((e) => e.destino);
+        const fallidos = envio.datos.envios.filter((e) => e.estado !== 'enviado');
+        setMensaje(
+          enviados.length
+            ? `Reporte cerrado y enviado a ${enviados.join(', ')}.`
+            : `Reporte cerrado. El PDF no se envió${fallidos[0]?.detalle ? `: ${fallidos[0].detalle}` : '.'} Puedes reenviarlo desde el detalle del caso.`,
+        );
       }
     } else {
       setMensaje(r.error || 'Error al cerrar reporte.');
@@ -457,6 +474,9 @@ function ReporteServicioContenido() {
                 <div className="flex items-center gap-2">
                   <span className="font-mono font-bold text-primary">{reporte.hora_llegada}</span>
                   <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded">Registrado</span>
+                  <Button onClick={avanzarPaso} className="ml-auto min-h-11">
+                    Seguir
+                  </Button>
                 </div>
               ) : (
                 <>
@@ -660,7 +680,7 @@ function ReporteServicioContenido() {
               disabled={!esPasoEditable || guardando}
               className="w-full min-h-11"
             >
-              {guardando ? 'Guardando...' : 'Guardar revisión inicial'}
+              {guardando ? 'Guardando…' : 'Guardar y seguir'}
             </Button>
           </Card>
         )}
@@ -982,8 +1002,9 @@ function ReporteServicioContenido() {
                     onChange={(e) => {
                       const f = (e.target as HTMLInputElement).files?.[0];
                       if (f) {
-                        setFirmaOperador(URL.createObjectURL(f));
-                        guardarFirmas();
+                        const nueva = URL.createObjectURL(f);
+                        setFirmaOperador(nueva);
+                        guardarFirmas({ firma_operador: nueva });
                       }
                     }}
                     accept="image/*"
@@ -997,7 +1018,7 @@ function ReporteServicioContenido() {
                     <button
                       onClick={() => {
                         setFirmaOperador(null);
-                        guardarFirmas();
+                        guardarFirmas({ firma_operador: null });
                       }}
                       className="text-xs text-destructive hover:bg-destructive/10 px-2 py-1 rounded"
                     >
@@ -1021,8 +1042,9 @@ function ReporteServicioContenido() {
                     onChange={(e) => {
                       const f = (e.target as HTMLInputElement).files?.[0];
                       if (f) {
-                        setFirmaCliente(URL.createObjectURL(f));
-                        guardarFirmas();
+                        const nueva = URL.createObjectURL(f);
+                        setFirmaCliente(nueva);
+                        guardarFirmas({ firma_cliente: nueva });
                       }
                     }}
                     accept="image/*"
@@ -1036,7 +1058,7 @@ function ReporteServicioContenido() {
                     <button
                       onClick={() => {
                         setFirmaCliente(null);
-                        guardarFirmas();
+                        guardarFirmas({ firma_cliente: null });
                       }}
                       className="text-xs text-destructive hover:bg-destructive/10 px-2 py-1 rounded"
                     >
@@ -1158,8 +1180,20 @@ function ReporteServicioContenido() {
         <Button variant="outline" onClick={() => router.push('/mis-servicios')} className="min-h-11">
           Volver a Mis Servicios
         </Button>
-        {reporte.numero && (
-          <Button variant="outline" onClick={() => setMensaje('PDF disponible al conectar al backend.')} disabled className="min-h-11 opacity-50">
+        {reporte.cerrado && (
+          <Button
+            variant="outline"
+            disabled={guardando}
+            onClick={async () => {
+              setGuardando(true);
+              // Sin enviar: genera el PDF (o reutiliza el guardado) y devuelve un enlace de 1 día.
+              const r = await reportePdf({ reporte_id: reporte.id, enviar: false });
+              setGuardando(false);
+              if (r.ok && r.datos.url) window.open(r.datos.url, '_blank', 'noopener');
+              else setMensaje(r.ok ? 'No se pudo obtener el PDF.' : r.error);
+            }}
+            className="min-h-11"
+          >
             Descargar PDF
           </Button>
         )}

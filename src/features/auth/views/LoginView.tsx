@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { login, guardarSesion } from '@/lib/datos-simulados/actions';
+import { login, guardarSesion } from '@/lib/datos/actions';
 import { pantallaInicio } from '@/lib/permisos';
 import { AuthFormWrapper } from '../components/AuthFormWrapper';
 import { LoginForm } from '../components/LoginForm';

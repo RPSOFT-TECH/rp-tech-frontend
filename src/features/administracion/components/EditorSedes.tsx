@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { crear_sede, guardar_sede, type Sede } from '@/lib/datos-simulados/actions';
+import { crear_sede, guardar_sede, type Sede } from '@/lib/datos/actions';
 import { Button, Modal } from '@/components/ui';
 import { claseCampo } from './clases';
 

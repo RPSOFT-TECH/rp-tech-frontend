@@ -13,7 +13,7 @@ import {
   type ClienteLista,
   type TecnicoLista,
   type Catalogo,
-} from '@/lib/datos-simulados/actions';
+} from '@/lib/datos/actions';
 import {
   SearchInput,
   Button,

@@ -1,4 +1,4 @@
-import type { RolCodigo } from '@/lib/datos-simulados/actions';
+import type { RolCodigo } from '@/lib/datos/actions';
 
 export const PESTANAS: { id: string; label: string; roles: RolCodigo[] }[] = [
   { id: 'clientes', label: 'Clientes', roles: ['superadmin', 'gerente', 'coordinador'] },

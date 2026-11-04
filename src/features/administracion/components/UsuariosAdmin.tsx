@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { leerSesionEstable, usuarios_admin, type UsuarioAdmin } from '@/lib/datos-simulados/actions';
+import { leerSesionEstable, usuarios_admin, type UsuarioAdmin } from '@/lib/datos/actions';
 import { Button, DataTable, Modal } from '@/components/ui';
 import { NOMBRE_ESTADO, NOMBRE_ROL } from './etiquetas';
 import { FormularioUsuario } from './FormularioUsuario';

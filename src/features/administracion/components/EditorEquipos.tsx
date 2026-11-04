@@ -8,7 +8,7 @@ import {
   obtener_catalogos,
   type EquipoVista,
   type Sede,
-} from '@/lib/datos-simulados/actions';
+} from '@/lib/datos/actions';
 import { Button, Modal } from '@/components/ui';
 import { claseCampo } from './clases';
 import { HistorialEquipo } from './HistorialCliente';

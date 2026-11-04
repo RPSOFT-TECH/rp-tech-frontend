@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { crear_sede, type Sede } from '@/lib/datos-simulados/actions';
+import { crear_sede, type Sede } from '@/lib/datos/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

@@ -1,5 +1,5 @@
 import { UseFormReturn } from 'react-hook-form';
-import { SugerenciaModo } from '@/lib/datos-simulados/actions';
+import { SugerenciaModo } from '@/lib/datos/actions';
 import { NuevoCasoFormValues } from '@/lib/validaciones/caso';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
