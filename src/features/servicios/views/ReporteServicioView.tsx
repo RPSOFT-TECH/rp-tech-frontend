@@ -107,7 +107,6 @@ function ReporteServicioContenido() {
 
   // Paso 7 - Cierre
   const [resultado, setResultado] = useState<'resuelto' | 'pendiente' | null>(null);
-  [, setResultado];
   const [requerimiento, setRequerimiento] = useState('');
   const [horaSalida, setHoraSalida] = useState('');
 
@@ -1154,12 +1153,15 @@ function ReporteServicioContenido() {
 
 // Helpers simulados para leer datos del store (evitar importación directa de db en cliente)
 function dbReportePorId(id: string): Reporte | null {
+  void id;
   return null;
 }
 function dbReportesRepuestosPorReporte(id: string): ReporteRepuesto[] | null {
+  void id;
   return null;
 }
 function dbAdjuntosPorReporte(id: string): Adjunto[] | null {
+  void id;
   return null;
 }
 
