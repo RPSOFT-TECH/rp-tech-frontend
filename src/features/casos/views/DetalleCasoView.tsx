@@ -28,7 +28,7 @@ function DetalleCasoContenido() {
   const [loading, setLoading] = useState(true);
   const [accionAbierta, setAccionAbierta] = useState<string | null>(null);
   const [accionMensaje, setAccionMensaje] = useState<string | null>(null);
-  const [plazoVigente, setPlazoVigente] = useState<boolean | null>(null);
+  const [plazoPorCaso, setPlazoPorCaso] = useState<{ id: string; vigente: boolean } | null>(null);
   const [esTecnicoDelCasoValor, setEsTecnicoDelCasoValor] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -67,11 +67,9 @@ function DetalleCasoContenido() {
   );
 
   useEffect(() => {
-    if (caso?.estado === 'cerrado') {
-      dentro_plazo_misma_falla(caso.id).then((vigente) => setPlazoVigente(vigente));
-    } else {
-      setPlazoVigente(null);
-    }
+    if (caso?.estado !== 'cerrado' || !caso.id) return;
+    const idCaso = caso.id;
+    dentro_plazo_misma_falla(idCaso).then((vigente) => setPlazoPorCaso({ id: idCaso, vigente }));
   }, [caso?.estado, caso?.id]);
 
   useEffect(() => {
@@ -114,6 +112,7 @@ function DetalleCasoContenido() {
   const visitaAbierta = caso.visitas.some((visita) => !visita.cerrado && visita.hora_llegada === null);
   const ultimaVisita = caso.visitas.length > 0 ? caso.visitas[caso.visitas.length - 1] : null;
   const reporteAbierto = Boolean(ultimaVisita && !ultimaVisita.cerrado);
+  const plazoVigente = caso.estado === 'cerrado' && plazoPorCaso?.id === caso.id ? plazoPorCaso.vigente : null;
   const contacto = caso.contacto_cargo ? `${caso.contacto_nombre} (${caso.contacto_cargo})` : caso.contacto_nombre;
   const consulta = searchParams.toString();
 
