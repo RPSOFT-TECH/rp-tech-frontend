@@ -39,7 +39,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
   }
 
-  if (!sesion) return null;
+  if (!sesion) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <main className="flex-1 p-4 sm:p-6 max-w-7xl w-full mx-auto">{children}</main>
+      </div>
+    );
+  }
 
   const menu = menuDeRoles(sesion.rolesVigentes, sesion.empresa.permisos_consulta);
 
