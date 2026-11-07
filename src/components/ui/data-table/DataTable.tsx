@@ -44,7 +44,7 @@ export function DataTable<TRow>({
 
   return (
     <div className={cn('flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm', className)}>
-      <div className="flex-1 overflow-auto">
+      <div className="no-scrollbar min-h-0 flex-1 overflow-auto">
         <table className="w-full border-collapse text-sm">
           <thead className="sticky top-0 z-20">
             <tr className="border-b border-border/40 bg-muted/90 backdrop-blur-sm">

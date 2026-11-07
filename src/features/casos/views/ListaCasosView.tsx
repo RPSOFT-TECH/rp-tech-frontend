@@ -15,7 +15,6 @@ import {
 } from '@/lib/datos-simulados/actions';
 import { ClipboardList } from 'lucide-react';
 import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
-import { BandejasCasos } from '../components/lista/BandejasCasos';
 import { descargarExcel, listaFiltradaPorBandeja, puedeCrear } from '../components/lista/bandejas';
 import { FiltrosCasos } from '../components/lista/FiltrosCasos';
 import { ResultadoCasos } from '../components/lista/ResultadoCasos';
@@ -113,19 +112,6 @@ function ListaCasosContenido() {
     [searchParams, router, startTransition],
   );
 
-  const seleccionarBandeja = (clave: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('bandeja', clave);
-    if (clave === 'pendientes_posventa') {
-      params.set('estado', 'atendido');
-    } else if (clave !== 'todos' && clave !== 'entrega_turno') {
-      params.set('estado', clave);
-    } else if (clave === 'todos') {
-      params.delete('estado');
-    }
-    startTransition(() => router.push(`/casos?${params.toString()}`));
-  };
-
   const hayFiltros =
     bandeja !== 'todos' ||
     estadoFiltro !== 'todos' ||
@@ -141,8 +127,7 @@ function ListaCasosContenido() {
   const consulta = searchParams.toString();
 
   return (
-    <div>
-      <BandejasCasos casos={casos} bandeja={bandeja} onSeleccionar={seleccionarBandeja} />
+    <div className="flex h-full min-h-0 flex-col md:overflow-hidden">
       <FiltrosCasos
         busqueda={busqueda}
         onBusqueda={setBusqueda}

@@ -59,11 +59,11 @@ function ItemMenu({ item, activo }: { item: MenuItem; activo: boolean }) {
               href={item.href}
               aria-label={item.label}
               className={cn(
-                'relative flex size-12 items-center justify-center rounded-xl transition-colors',
+                'relative flex size-9 items-center justify-center rounded-lg transition-colors',
                 activo ? 'bg-primary/12 text-primary' : 'text-foreground hover:bg-muted/70',
               )}
             >
-              <Icon className="size-6 shrink-0" strokeWidth={activo ? 2.5 : 2.25} />
+              <Icon className="size-4 shrink-0" strokeWidth={activo ? 2.25 : 2} />
               {activo ? <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-primary" /> : null}
             </Link>
           </SidebarMenuItem>
@@ -80,15 +80,15 @@ function ItemMenu({ item, activo }: { item: MenuItem; activo: boolean }) {
       <Link
         href={item.href}
         className={cn(
-          'group flex h-12 w-full items-center gap-3 rounded-xl px-3 transition-colors select-none',
+          'group flex h-9 w-full items-center gap-2 rounded-lg px-2.5 transition-colors select-none',
           activo ? 'bg-primary/10 font-semibold text-foreground' : 'text-foreground hover:bg-muted/60',
         )}
       >
         <Icon
-          className={cn('size-6 shrink-0', activo ? 'text-primary' : 'text-foreground/80 group-hover:text-foreground')}
-          strokeWidth={activo ? 2.5 : 2.25}
+          className={cn('size-4 shrink-0', activo ? 'text-primary' : 'text-foreground/80 group-hover:text-foreground')}
+          strokeWidth={activo ? 2.25 : 2}
         />
-        <span className="truncate text-sm leading-none">{item.label}</span>
+        <span className="truncate text-[13px] leading-none">{item.label}</span>
       </Link>
     </SidebarMenuItem>
   );
@@ -111,21 +111,21 @@ export function AppSidebar({
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      <SidebarHeader className={cn('min-h-16 border-b border-sidebar-border bg-sidebar', colapsado ? 'items-center justify-center px-1 py-3' : 'px-4 py-4')}>
-        <p className={cn('leading-none font-extrabold tracking-tight', colapsado ? 'text-center text-[11px]' : 'text-[1.35rem]')}>
+      <SidebarHeader className={cn('min-h-12 border-b border-sidebar-border bg-sidebar', colapsado ? 'items-center justify-center px-1 py-2' : 'px-3 py-2')}>
+        <p className={cn('leading-none font-extrabold tracking-tight', colapsado ? 'text-center text-[10px]' : 'text-base')}>
           RP-<span className="text-primary">TECH</span>
         </p>
       </SidebarHeader>
-      <SidebarContent className={colapsado ? 'items-center px-1 py-3' : 'px-2 py-3'}>
+      <SidebarContent className={colapsado ? 'items-center px-1 py-2' : 'px-2 py-2'}>
         <SidebarGroup className="p-0">
           {colapsado ? (
             <div className="mx-auto my-1 h-px w-5 bg-border/40" />
           ) : (
-            <SidebarGroupLabel className="mb-1 h-auto px-3 text-[10px] font-bold tracking-[0.2em] text-muted-foreground/70 uppercase">
+            <SidebarGroupLabel className="mb-1 h-auto px-2.5 text-[10px] font-bold tracking-[0.16em] text-muted-foreground/70 uppercase">
               Menú
             </SidebarGroupLabel>
           )}
-          <SidebarMenu className="gap-1">
+          <SidebarMenu className="gap-0.5">
             {menu.map((item) => (
               <ItemMenu key={item.href} item={item} activo={item.href === activo} />
             ))}
@@ -133,8 +133,8 @@ export function AppSidebar({
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border bg-sidebar p-2">
-        <div className={cn('flex items-center', colapsado ? 'flex-col gap-2' : 'gap-2 px-1')}>
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+        <div className={cn('flex items-center', colapsado ? 'flex-col gap-1.5' : 'gap-2 px-1')}>
+          <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
             {inicial}
           </span>
           {colapsado ? null : (
@@ -149,9 +149,9 @@ export function AppSidebar({
                 type="button"
                 onClick={onLogout}
                 aria-label="Cerrar sesión"
-                className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted/70 hover:text-foreground"
+                className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted/70 hover:text-foreground"
               >
-                <LogOut className="size-5" strokeWidth={2.25} />
+                <LogOut className="size-4" strokeWidth={2} />
               </button>
             </TooltipTrigger>
             <TooltipContent side={colapsado ? 'right' : 'top'} sideOffset={8} className="text-xs font-semibold">

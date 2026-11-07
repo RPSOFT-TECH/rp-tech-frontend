@@ -154,16 +154,17 @@ export function ResultadoCasos({
   ];
 
   return (
-    <>
-      <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 md:hidden">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="mb-3 grid shrink-0 grid-cols-1 gap-3 sm:grid-cols-2 md:hidden">
         <CustomSelect label="Estado" value={estado} onChange={(valor) => onFiltro('estado', valor)} options={estados} />
         <CustomSelect label="Técnico" value={tecnicoId} onChange={(valor) => onFiltro('tecnico_id', valor)} options={tecnicosOpciones} />
         <CustomSelect label="Cliente" value={clienteId} onChange={(valor) => onFiltro('cliente_id', valor)} options={clientesOpciones} />
         <CustomSelect label="Tipo de servicio" value={tipoServicioId} onChange={(valor) => onFiltro('tipo_servicio_id', valor)} options={tiposOpciones} />
         <CustomSelect label="Modalidad" value={modalidadId} onChange={(valor) => onFiltro('modalidad_id', valor)} options={modalidadesOpciones} />
       </div>
-      <div className="hidden md:block">
+      <div className="hidden min-h-0 flex-1 md:block">
         <DataTable
+          className="h-full"
           columnas={columnas}
           datos={casos}
           claveFila={(caso) => caso.id}
@@ -201,6 +202,6 @@ export function ResultadoCasos({
           ))}
         </div>
       ) : null}
-    </>
+    </div>
   );
 }
