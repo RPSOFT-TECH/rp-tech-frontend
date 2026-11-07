@@ -14,9 +14,9 @@ import {
   BloqueEquipo,
   BloqueServicio,
 } from '../components';
-import { BloqueProgramar, type ProgramacionVisita } from '../components/BloqueProgramar';
-import { EncabezadoNuevoCaso } from '../components/EncabezadoNuevoCaso';
-import { ConfirmacionCaso, type ConfirmacionCasoDatos } from '../components/ConfirmacionCaso';
+import { BloqueProgramar, type ProgramacionVisita } from '../components/nuevo/BloqueProgramar';
+import { EncabezadoNuevoCaso } from '../components/nuevo/EncabezadoNuevoCaso';
+import { ConfirmacionCaso, type ConfirmacionCasoDatos } from '../components/nuevo/ConfirmacionCaso';
 import { PlusCircle } from 'lucide-react';
 import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
 import { Button } from '@/components/ui/button';

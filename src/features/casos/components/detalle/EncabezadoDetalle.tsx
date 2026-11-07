@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { CasoDetalle } from '@/lib/datos-simulados/actions';
 import { Badge } from '@/components/ui';
-import { etiquetaEstado } from '../EstadoCaso';
+import { EstadoBadge } from '../EstadoCaso';
 import { fechaHoraLima } from './formato';
 
 export function EncabezadoDetalle({
@@ -21,7 +21,7 @@ export function EncabezadoDetalle({
           <h1 className="text-2xl font-bold text-foreground">
             Caso {caso.numero}
             {caso.reaperturas > 0 && (
-              <span className="ml-2 text-xs font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded">
+              <span className="ml-2 rounded border border-chart-3/50 bg-chart-3/20 px-2 py-0.5 text-xs font-bold text-foreground">
                 Reabierto {caso.reaperturas} vez{caso.reaperturas > 1 ? 'es' : ''}
               </span>
             )}
@@ -31,20 +31,9 @@ export function EncabezadoDetalle({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge
-            variant={
-              caso.estado === 'anulado'
-                ? 'destructive'
-                : caso.estado === 'cerrado' || caso.estado === 'atendido'
-                  ? 'ghost'
-                  : 'default'
-            }
-            className="whitespace-nowrap"
-          >
-            {etiquetaEstado(caso.estado)}
-          </Badge>
+          <EstadoBadge estado={caso.estado} />
           {caso.motivo_espera_id && (
-            <Badge variant="outline" className="text-xs whitespace-nowrap">
+            <Badge variant="outline" className="border-chart-5/40 bg-chart-5/15 text-xs whitespace-nowrap text-chart-5">
               En espera
             </Badge>
           )}
@@ -80,17 +69,17 @@ export function MensajesDetalle({
   return (
     <div className="mb-6">
       {caso.estado === 'programado' && visitaAbierta && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-amber-900 text-sm">
+        <div className="rounded-lg border border-chart-3/40 bg-chart-3/15 p-4 text-sm text-foreground">
           Visita en curso: espera a que el técnico registre su llegada.
         </div>
       )}
       {caso.estado === 'por_programar' && ultimaVisita && ultimaVisita.resultado === 'pendiente' && ultimaVisita.requerimiento && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-amber-900 text-sm">
+        <div className="rounded-lg border border-chart-3/40 bg-chart-3/15 p-4 text-sm text-foreground">
           Pendiente: se requiere {ultimaVisita.requerimiento}.
         </div>
       )}
       {caso.estado === 'atendido' && esTecnicoDelCaso && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-900 text-sm">
+        <div className="rounded-lg border border-primary/30 bg-primary/10 p-4 text-sm text-foreground">
           La posventa la registra otro Coordinador o el Gerente (tú fuiste técnico de este caso).
         </div>
       )}
@@ -98,8 +87,8 @@ export function MensajesDetalle({
         <div
           className={`mt-3 rounded-lg p-3 text-sm ${
             accionMensaje.includes('correctamente')
-              ? 'bg-green-50 text-green-900 border border-green-200'
-              : 'bg-red-50 text-red-900 border border-red-200'
+              ? 'border border-chart-2/40 bg-chart-2/15 text-foreground'
+              : 'border border-destructive/40 bg-destructive/10 text-destructive'
           }`}
         >
           {accionMensaje}

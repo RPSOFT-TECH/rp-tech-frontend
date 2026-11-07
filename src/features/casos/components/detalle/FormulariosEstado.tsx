@@ -13,9 +13,9 @@ export function FormPonerEnEspera({ caso, onEjecutar, onCerrar }: FormAccionProp
 
   return (
     <Card className="p-6 mb-6 border border-amber/50 bg-amber/5">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-amber-900 mb-3">Poner en espera</h3>
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-chart-3 mb-3">Poner en espera</h3>
       {mensaje && (
-        <div className="mb-3 text-xs text-red-900 bg-red-50 border border-red-200 rounded p-2">{mensaje}</div>
+        <div className="mb-3 text-xs border border-destructive/40 bg-destructive/10 text-destructive rounded p-2">{mensaje}</div>
       )}
       <div className="flex flex-col gap-1 mb-4">
         <CustomSelect
@@ -69,10 +69,10 @@ export function FormRegistrarPosventa({ caso, onEjecutar, onCerrar }: FormAccion
   const [mensaje, setMensaje] = useState<string | null>(null);
 
   return (
-    <Card className="p-6 mb-6 border border-blue/50 bg-blue/5">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-blue-900 mb-3">Registrar posventa</h3>
+    <Card className="p-6 mb-6 border border-primary/30 bg-primary/10">
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-primary mb-3">Registrar posventa</h3>
       {mensaje && (
-        <div className="mb-3 text-xs text-red-900 bg-red-50 border border-red-200 rounded p-2">{mensaje}</div>
+        <div className="mb-3 text-xs border border-destructive/40 bg-destructive/10 text-destructive rounded p-2">{mensaje}</div>
       )}
       <div className="flex flex-col gap-1 mb-4">
         <label className="text-xs font-semibold text-muted-foreground">Resultado</label>
@@ -129,9 +129,9 @@ export function FormReabrirCaso({ caso, onEjecutar, onCerrar }: FormAccionProps)
 
   return (
     <Card className="p-6 mb-6 border border-amber/50 bg-amber/5">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-amber-900 mb-3">Reabrir caso</h3>
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-chart-3 mb-3">Reabrir caso</h3>
       {mensaje && (
-        <div className="mb-3 text-xs text-red-900 bg-red-50 border border-red-200 rounded p-2">{mensaje}</div>
+        <div className="mb-3 text-xs border border-destructive/40 bg-destructive/10 text-destructive rounded p-2">{mensaje}</div>
       )}
       <div className="flex flex-col gap-1 mb-4">
         <label className="text-xs font-semibold text-muted-foreground">Motivo de reapertura</label>
@@ -173,7 +173,7 @@ export function FormAnularCaso({ caso, onEjecutar, onCerrar }: FormAccionProps) 
     <Card className="p-6 mb-6 border border-destructive/50 bg-destructive/5">
       <h3 className="text-xs font-semibold uppercase tracking-wider text-destructive mb-3">Anular caso</h3>
       {mensaje && (
-        <div className="mb-3 text-xs text-red-900 bg-red-50 border border-red-200 rounded p-2">{mensaje}</div>
+        <div className="mb-3 text-xs border border-destructive/40 bg-destructive/10 text-destructive rounded p-2">{mensaje}</div>
       )}
       <div className="flex flex-col gap-1 mb-4">
         <label className="text-xs font-semibold text-muted-foreground">Motivo de anulación</label>

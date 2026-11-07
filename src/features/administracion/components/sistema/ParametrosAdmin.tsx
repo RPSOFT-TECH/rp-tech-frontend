@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { toast } from 'sonner';
 import { actualizar_parametros, leerSesionEstable, parametros_actuales } from '@/lib/datos-simulados/actions';
 import { Button } from '@/components/ui';
-import { claseCampo } from './clases';
+import { claseCampo } from '../comun/clases';
 
 function unir(valores: string[]): string {
   return valores.join(', ');

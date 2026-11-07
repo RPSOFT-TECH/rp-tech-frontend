@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { ThemeProvider } from 'next-themes';
 import { ConsumirAvisos } from '@/components/avisos-sonner';
 import { ToastProvider } from '@/contexts/ToastContext';
@@ -13,7 +14,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <ToastProvider>
           {children}
           <SonnerToaster />
-          <ConsumirAvisos />
+          <Suspense fallback={null}>
+            <ConsumirAvisos />
+          </Suspense>
         </ToastProvider>
       </TooltipProvider>
     </ThemeProvider>

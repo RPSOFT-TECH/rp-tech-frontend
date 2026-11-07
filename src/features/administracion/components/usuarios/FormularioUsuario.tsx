@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { hoyLima, roles_asignables, usuarios, type RolCodigo } from '@/lib/datos-simulados/actions';
 import { Button, CustomSelect, SelectorFecha } from '@/components/ui';
-import { claseCampo } from './clases';
-import { NOMBRE_ROL } from './etiquetas';
+import { claseCampo } from '../comun/clases';
+import { NOMBRE_ROL } from '../comun/etiquetas';
 
 interface FilaRol {
   codigo: RolCodigo | '';

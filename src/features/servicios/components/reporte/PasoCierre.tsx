@@ -26,9 +26,9 @@ export function PasoCierre({ form }: { form: FormularioReporte }) {
       <div className="mb-4">
         <h4 className="text-xs font-semibold text-muted-foreground">¿Qué falta?</h4>
         {faltasCierre.length === 0 ? (
-          <p className="text-xs text-green-700 bg-green-50 rounded p-2">Todo listo para cerrar.</p>
+          <p className="text-xs border border-chart-2/40 bg-chart-2/15 text-chart-2 rounded p-2">Todo listo para cerrar.</p>
         ) : (
-          <ul className="text-xs text-amber-800 bg-amber-50 rounded p-2 space-y-1">
+          <ul className="text-xs border border-chart-3/40 bg-chart-3/15 text-foreground rounded p-2 space-y-1">
             {faltasCierre.map((falta) => (
               <li key={falta}>• {falta}</li>
             ))}
@@ -100,11 +100,11 @@ export function AvisoCierre({ form }: { form: FormularioReporte }) {
   const { reporte, reporteCerrado } = form;
   if (!reporte || !reporteCerrado) return null;
   return (
-    <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-      <h3 className="text-xs font-semibold text-green-900 mb-2">Reporte cerrado</h3>
-      <p className="text-xs text-green-800">El reporte está bloqueado y solo se pueden agregar notas.</p>
+    <div className="border border-chart-2/40 bg-chart-2/15 rounded-lg p-4 mb-6">
+      <h3 className="text-xs font-semibold text-chart-2 mb-2">Reporte cerrado</h3>
+      <p className="text-xs text-foreground">El reporte está bloqueado y solo se pueden agregar notas.</p>
       {reporte.cerrado_en && (
-        <p className="text-xs text-green-600 mt-1">Cerrado el {fechaHoraLima(reporte.cerrado_en)}</p>
+        <p className="text-xs text-chart-2 mt-1">Cerrado el {fechaHoraLima(reporte.cerrado_en)}</p>
       )}
     </div>
   );

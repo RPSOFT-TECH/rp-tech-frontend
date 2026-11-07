@@ -1,4 +1,4 @@
-import { RepuestoItem } from '../types';
+import { RepuestoItem } from '../../types';
 
 interface RepuestosListProps {
   repuestos: RepuestoItem[];

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { ficha_cliente, guardar_cliente, type FichaCliente as DatosFicha } from '@/lib/datos-simulados/actions';
 import { Button } from '@/components/ui/button';
-import { claseCampo } from './clases';
+import { claseCampo } from '../comun/clases';
 import { EditorSedes } from './EditorSedes';
 import { EditorContactos } from './EditorContactos';
 import { EditorEquipos } from './EditorEquipos';

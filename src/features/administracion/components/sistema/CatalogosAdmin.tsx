@@ -13,7 +13,7 @@ import {
   type ItemCatalogo,
 } from '@/lib/datos-simulados/actions';
 import { Button, CustomSelect } from '@/components/ui';
-import { claseCampo } from './clases';
+import { claseCampo } from '../comun/clases';
 
 const NOMBRES: Record<CodigoCatalogo, string> = {
   tipos_servicio: 'Tipos de servicio',
