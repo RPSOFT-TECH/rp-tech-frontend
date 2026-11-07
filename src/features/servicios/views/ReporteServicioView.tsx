@@ -1,8 +1,12 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import Link from 'next/link';
+import { FileText } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
+import { VistaPreviaPdf } from '@/components/pdf/VistaPreviaPdf';
+import { HojaReporte } from '../components/reporte/HojaReporte';
 import { AvisoCierre, PasoCierre } from '../components/reporte/PasoCierre';
 import { PasoConformidad } from '../components/reporte/PasoConformidad';
 import { PasoDesarrollo } from '../components/reporte/PasoDesarrollo';
@@ -15,7 +19,13 @@ import { PASOS } from '../reporte/pasos';
 
 function ReporteServicioContenido() {
   const form = useReporteServicio();
-  const { loading, reporte, caso, mensaje, paso, router, setMensaje } = form;
+  const { loading, reporte, caso, mensaje, paso, router } = form;
+  const [pdfAbierto, setPdfAbierto] = useState(false);
+  useRegistrarTitulo(
+    'Reporte de servicio',
+    caso ? `Caso ${caso.numero_caso}` : 'Informe de atención técnica, repuestos y firmas',
+    FileText,
+  );
 
   if (loading) {
     return <div className="text-center py-12 text-muted-foreground">Cargando reporte de servicio...</div>;
@@ -76,11 +86,21 @@ function ReporteServicioContenido() {
           Volver a Mis Servicios
         </Button>
         {reporte.numero && (
-          <Button variant="outline" onClick={() => setMensaje('PDF disponible al conectar al backend.')} disabled className="min-h-11 opacity-50">
+          <Button variant="outline" onClick={() => setPdfAbierto(true)} className="min-h-11">
             Descargar PDF
           </Button>
         )}
       </div>
+      {reporte.numero ? (
+        <VistaPreviaPdf
+          abierto={pdfAbierto}
+          onCerrar={() => setPdfAbierto(false)}
+          titulo="Vista previa del reporte"
+          nombreArchivo={`reporte-${reporte.numero}`}
+        >
+          <HojaReporte numeroCaso={caso.numero_caso} reporte={reporte} />
+        </VistaPreviaPdf>
+      ) : null}
     </div>
   );
 }

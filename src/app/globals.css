@@ -204,6 +204,17 @@
   }
 }
 
+.glass {
+  background: color-mix(in oklch, var(--background) 82%, transparent);
+  backdrop-filter: blur(8px) saturate(140%);
+  border: 1px solid color-mix(in oklch, var(--border) 70%, transparent);
+}
+
+@keyframes rptech-toast {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
 .bubble {
   position: absolute;
   bottom: -150px;

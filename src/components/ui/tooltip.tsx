@@ -1,77 +1,57 @@
-'use client';
+"use client"
 
-import { useState, useRef, ReactNode } from 'react';
-import { createPortal } from 'react-dom';
+import * as React from "react"
+import * as TooltipPrimitive from "@radix-ui/react-tooltip"
 
-interface TooltipProps {
-  contenido: string;
-  children: ReactNode;
-  posicion?: 'top' | 'bottom' | 'left' | 'right';
-}
+import { cn } from "@/lib/utils"
 
-export function Tooltip({ contenido, children, posicion = 'top' }: TooltipProps) {
-  const [visible, setVisible] = useState(false);
-  const [coords, setCoords] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const triggerRef = useRef<HTMLDivElement>(null);
-
-  const calcularCoords = () => {
-    if (!triggerRef.current) return;
-    const rect = triggerRef.current.getBoundingClientRect();
-    const gap = 8;
-
-    switch (posicion) {
-      case 'bottom':
-        setCoords({ x: rect.left + rect.width / 2, y: rect.bottom + gap });
-        break;
-      case 'left':
-        setCoords({ x: rect.left - gap, y: rect.top + rect.height / 2 });
-        break;
-      case 'right':
-        setCoords({ x: rect.right + gap, y: rect.top + rect.height / 2 });
-        break;
-      case 'top':
-      default:
-        setCoords({ x: rect.left + rect.width / 2, y: rect.top - gap });
-        break;
-    }
-  };
-
-  const handleMouseEnter = () => {
-    calcularCoords();
-    setVisible(true);
-  };
-
-  const transformClass =
-    posicion === 'top'
-      ? '-translate-x-1/2 -translate-y-full'
-      : posicion === 'bottom'
-      ? '-translate-x-1/2'
-      : posicion === 'left'
-      ? '-translate-x-full -translate-y-1/2'
-      : '-translate-y-1/2';
-
+function TooltipProvider({
+  delayDuration = 0,
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
   return (
-    <div
-      ref={triggerRef}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={() => setVisible(false)}
-      onFocus={handleMouseEnter}
-      onBlur={() => setVisible(false)}
-      className="inline-flex"
-    >
-      {children}
-      {visible &&
-        typeof document !== 'undefined' &&
-        createPortal(
-          <div
-            className={`fixed z-50 px-2.5 py-1 text-xs font-medium text-primary-foreground bg-foreground rounded-md shadow-md pointer-events-none transition-opacity duration-150 ${transformClass}`}
-            style={{ left: `${coords.x}px`, top: `${coords.y}px` }}
-            role="tooltip"
-          >
-            {contenido}
-          </div>,
-          document.body
-        )}
-    </div>
-  );
+    <TooltipPrimitive.Provider
+      data-slot="tooltip-provider"
+      delayDuration={delayDuration}
+      {...props}
+    />
+  )
 }
+
+function Tooltip({
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Root>) {
+  return <TooltipPrimitive.Root data-slot="tooltip" {...props} />
+}
+
+function TooltipTrigger({
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
+  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
+}
+
+function TooltipContent({
+  className,
+  sideOffset = 0,
+  children,
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Content>) {
+  return (
+    <TooltipPrimitive.Portal>
+      <TooltipPrimitive.Content
+        data-slot="tooltip-content"
+        sideOffset={sideOffset}
+        className={cn(
+          "z-50 inline-flex w-fit max-w-xs origin-(--radix-tooltip-content-transform-origin) items-center gap-1.5 rounded-md bg-foreground px-3 py-1.5 text-xs text-background has-data-[slot=kbd]:pr-1.5 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          className
+        )}
+        {...props}
+      >
+        {children}
+        <TooltipPrimitive.Arrow className="z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-foreground fill-foreground" />
+      </TooltipPrimitive.Content>
+    </TooltipPrimitive.Portal>
+  )
+}
+
+export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger }

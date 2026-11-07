@@ -17,6 +17,8 @@ import {
 import { BloqueProgramar, type ProgramacionVisita } from '../components/BloqueProgramar';
 import { EncabezadoNuevoCaso } from '../components/EncabezadoNuevoCaso';
 import { ConfirmacionCaso, type ConfirmacionCasoDatos } from '../components/ConfirmacionCaso';
+import { PlusCircle } from 'lucide-react';
+import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -37,6 +39,7 @@ function NuevoCasoContenido() {
   const [clave, setClave] = useState(0);
   const [origenId, setOrigenId] = useState(origenInicial);
   const [confirmacion, setConfirmacion] = useState<ConfirmacionCasoDatos | null>(null);
+  useRegistrarTitulo('Nuevo caso', 'Apertura de orden técnica de atención', PlusCircle);
 
   if (confirmacion) {
     return (

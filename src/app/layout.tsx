@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Be_Vietnam_Pro } from 'next/font/google';
 import './globals.css';
-import { SonnerToaster } from '@/components/ui/sonner';
+import { Providers } from '@/components/providers';
 
 const fontSans = Be_Vietnam_Pro({
   subsets: ['latin'],
@@ -42,10 +42,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${fontSans.variable} h-full antialiased`}>
+    <html lang="es" className={`${fontSans.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col font-sans">
-        {children}
-        <SonnerToaster />
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

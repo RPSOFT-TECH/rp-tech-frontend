@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx';
 import type { CasoLista } from '@/lib/datos-simulados/actions';
 import { etiquetaEstado } from '../EstadoCaso';
 
@@ -94,15 +95,8 @@ export function descargarExcel(casos: CasoLista[]) {
     'Reabierto',
   ];
 
-  const lineas = [cabeceras.join(';'), ...filas.map((fila) => fila.map((valor) => `"${String(valor).replace(/"/g, '""')}"`).join(';'))];
-  const contenido = '\uFEFF' + lineas.join('\r\n');
-  const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const enlace = document.createElement('a');
-  enlace.href = url;
-  enlace.download = `casos_${new Date().toISOString().slice(0, 10)}.csv`;
-  document.body.appendChild(enlace);
-  enlace.click();
-  document.body.removeChild(enlace);
-  URL.revokeObjectURL(url);
+  const hoja = XLSX.utils.aoa_to_sheet([cabeceras, ...filas]);
+  const libro = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(libro, hoja, 'Casos');
+  XLSX.writeFile(libro, `casos_${new Date().toISOString().slice(0, 10)}.xlsx`);
 }
