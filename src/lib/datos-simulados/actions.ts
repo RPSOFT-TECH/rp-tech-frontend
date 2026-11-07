@@ -23,7 +23,7 @@ export type {
 
 export { hoyLima, sumarDias } from './fecha';
 export type { SesionUsuario } from './acciones/sesion';
-export { guardarSesion, leerSesionEstable, login, logout, obtenerUsuarioActual } from './acciones/sesion';
+export { guardarSesion, leerSesionEstable, limpiarSesion, login, logout, obtenerUsuarioActual, suscribirSesion } from './acciones/sesion';
 export {
   buscar_clientes,
   casos_lista,
