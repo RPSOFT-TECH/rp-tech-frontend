@@ -2,9 +2,8 @@
 
 import * as React from 'react';
 import { toast as sonnerToast } from 'sonner';
-import { ToastItem } from '@/components/ui/ToastItem';
 
-const DEFAULT_DURATION = 3000;
+const DEFAULT_DURATION = 3500;
 
 interface ShowOptions {
   description?: string;
@@ -23,16 +22,13 @@ interface ToastContextType {
 
 const ToastContext = React.createContext<ToastContextType | null>(null);
 
-type Variante = 'success' | 'error' | 'info' | 'warning' | 'history';
+type Variante = 'success' | 'error' | 'info' | 'warning';
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const show = React.useCallback((variant: Variante, title: string, description?: string, opts?: ShowOptions) => {
     const dur = opts?.duration ?? DEFAULT_DURATION;
     const desc = opts?.description ?? description;
-    sonnerToast.custom(
-      (id) => <ToastItem id={id} variant={variant} title={title} description={desc} duration={dur} />,
-      { duration: dur },
-    );
+    sonnerToast[variant](title, { description: desc, duration: dur });
   }, []);
 
   const value = React.useMemo<ToastContextType>(
@@ -41,22 +37,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       error: (titulo, descripcion, opts) => show('error', titulo, descripcion, opts),
       info: (titulo, descripcion, opts) => show('info', titulo, descripcion, opts),
       warning: (titulo, descripcion, opts) => show('warning', titulo, descripcion, opts),
-      history: (titulo, descripcion, opts) => show('history', titulo, descripcion, opts),
+      history: (titulo, descripcion, opts) => {
+        sonnerToast.message(titulo, {
+          description: opts?.description ?? descripcion,
+          duration: opts?.duration ?? DEFAULT_DURATION,
+        });
+      },
       loading: (titulo, descripcion, opts) => {
-        const dur = opts?.duration ?? Infinity;
+        const dur = opts?.duration ?? 30000;
         const desc = opts?.description ?? descripcion;
-        return sonnerToast.custom(
-          (id) => (
-            <ToastItem
-              id={id}
-              variant="loading"
-              title={titulo}
-              description={desc}
-              duration={dur === Infinity ? 99999 : dur}
-            />
-          ),
-          { duration: dur },
-        );
+        return sonnerToast.loading(titulo, { description: desc, duration: dur });
       },
       dismiss: (id) => sonnerToast.dismiss(id),
     }),

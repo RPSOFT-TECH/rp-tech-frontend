@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface ModalProps {
@@ -29,10 +30,15 @@ export function Modal({
 }: ModalProps) {
   return (
     <Dialog open={abierto} onOpenChange={(abiertoAhora) => { if (!abiertoAhora) onCerrar(); }}>
-      <DialogContent className={TAMANOS[tamano]}>
+      <DialogContent
+        className={cn(
+          'max-h-[min(85vh,720px)] gap-5 overflow-y-auto rounded-2xl bg-card! p-6 shadow-xl ring-1 ring-border/60 backdrop-blur-none',
+          TAMANOS[tamano],
+        )}
+      >
         {(titulo || descripcion) && (
-          <DialogHeader>
-            {titulo ? <DialogTitle>{titulo}</DialogTitle> : null}
+          <DialogHeader className="space-y-1 pr-8 text-left">
+            {titulo ? <DialogTitle className="text-base font-bold tracking-tight">{titulo}</DialogTitle> : null}
             {descripcion ? <DialogDescription>{descripcion}</DialogDescription> : null}
           </DialogHeader>
         )}

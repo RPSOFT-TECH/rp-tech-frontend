@@ -1,7 +1,7 @@
 'use client';
 
 import type { CasoDetalle } from '@/lib/datos-simulados/actions';
-import { Button, Card, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
+import { Button, Modal, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
 import { fechaHoraLima, valor, visitaDeClave } from './formato';
 
 function Bloque({ titulo, children }: { titulo: string; children: React.ReactNode }) {
@@ -30,16 +30,12 @@ export function ModalReporteVisita({
   accion: string | null;
   onCerrar: () => void;
 }) {
-  if (!accion?.startsWith('ver-')) return null;
-  const visita = visitaDeClave(accion, caso.visitas);
+  const abierto = !!accion?.startsWith('ver-');
+  const visita = abierto && accion ? visitaDeClave(accion, caso.visitas) : null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative">
-        <button onClick={onCerrar} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
-          ✕
-        </button>
-        <h2 className="text-lg font-bold text-foreground mb-4">Reporte de visita</h2>
+    <Modal abierto={abierto && !!visita} onCerrar={onCerrar} titulo="Reporte de visita" tamano="xl">
+      {visita ? (
         <div className="space-y-6">
           <Bloque titulo="Revisión inicial">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
@@ -118,7 +114,7 @@ export function ModalReporteVisita({
               <div>
                 <span className="font-semibold text-muted-foreground">Operador:</span> {valor(visita.nombre_operador_firma)}
                 {visita.firma_operador ? (
-                  <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Firmado</span>
+                  <span className="ml-2 rounded bg-primary/10 px-2 py-0.5 text-xs text-primary">Firmado</span>
                 ) : (
                   <span className="ml-2 text-xs text-muted-foreground">Pendiente</span>
                 )}
@@ -126,7 +122,7 @@ export function ModalReporteVisita({
               <div>
                 <span className="font-semibold text-muted-foreground">Cliente:</span> {valor(visita.nombre_cliente_firma)}
                 {visita.firma_cliente ? (
-                  <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Firmado</span>
+                  <span className="ml-2 rounded bg-primary/10 px-2 py-0.5 text-xs text-primary">Firmado</span>
                 ) : (
                   <span className="ml-2 text-xs text-muted-foreground">Pendiente</span>
                 )}
@@ -145,11 +141,11 @@ export function ModalReporteVisita({
               </ul>
             </Bloque>
           )}
+          <div className="flex justify-end">
+            <Button type="button" onClick={onCerrar}>Cerrar</Button>
+          </div>
         </div>
-        <div className="mt-6 flex justify-end">
-          <Button onClick={onCerrar}>Cerrar</Button>
-        </div>
-      </Card>
-    </div>
+      ) : null}
+    </Modal>
   );
 }

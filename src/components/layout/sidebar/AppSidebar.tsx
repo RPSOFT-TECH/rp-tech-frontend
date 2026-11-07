@@ -35,9 +35,14 @@ const ICONOS: Record<string, LucideIcon> = {
   '/agenda': Calendar,
 };
 
-function esActivo(href: string, pathname: string) {
-  if (href === '/casos' && pathname.startsWith('/casos/nuevo')) return false;
-  return pathname === href || pathname.startsWith(`${href}/`);
+function hrefActivo(menu: MenuItem[], pathname: string): string | null {
+  let mejor: string | null = null;
+  for (const item of menu) {
+    const coincide = pathname === item.href || pathname.startsWith(`${item.href}/`);
+    if (!coincide) continue;
+    if (!mejor || item.href.length > mejor.length) mejor = item.href;
+  }
+  return mejor;
 }
 
 function ItemMenu({ item, activo }: { item: MenuItem; activo: boolean }) {
@@ -45,28 +50,46 @@ function ItemMenu({ item, activo }: { item: MenuItem; activo: boolean }) {
   const Icon = ICONOS[item.href] ?? ClipboardList;
   const colapsado = state === 'collapsed';
 
-  const enlace = (
-    <Link
-      href={item.href}
-      className={cn(
-        'flex items-center rounded-xl transition-colors',
-        colapsado ? 'size-9 justify-center' : 'h-10 w-full gap-3 px-3',
-        activo ? 'bg-primary/10 font-semibold text-primary' : 'text-foreground/80 hover:bg-muted/60 hover:text-foreground',
-      )}
-    >
-      <Icon className="size-4 shrink-0" strokeWidth={activo ? 2.4 : 1.8} />
-      {colapsado ? null : <span className="truncate text-[13px]">{item.label}</span>}
-    </Link>
-  );
+  if (colapsado) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <SidebarMenuItem className="flex justify-center">
+            <Link
+              href={item.href}
+              aria-label={item.label}
+              className={cn(
+                'relative flex size-9 items-center justify-center rounded-xl transition-colors',
+                activo ? 'bg-primary/12 text-primary' : 'text-foreground/65 hover:bg-muted/70 hover:text-foreground',
+              )}
+            >
+              <Icon className="size-5 shrink-0" strokeWidth={activo ? 2.5 : 1.9} />
+              {activo ? <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-primary" /> : null}
+            </Link>
+          </SidebarMenuItem>
+        </TooltipTrigger>
+        <TooltipContent side="right" sideOffset={8} className="text-xs font-semibold">
+          {item.label}
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
 
   return (
-    <SidebarMenuItem className={colapsado ? 'flex justify-center' : undefined}>
-      {colapsado ? (
-        <Tooltip>
-          <TooltipTrigger asChild>{enlace}</TooltipTrigger>
-          <TooltipContent side="right" className="text-xs font-semibold">{item.label}</TooltipContent>
-        </Tooltip>
-      ) : enlace}
+    <SidebarMenuItem>
+      <Link
+        href={item.href}
+        className={cn(
+          'group flex h-10 w-full items-center gap-3 rounded-xl px-3 transition-colors select-none',
+          activo ? 'bg-primary/8 font-semibold text-foreground' : 'text-foreground/80 hover:bg-muted/60 hover:text-foreground',
+        )}
+      >
+        <Icon
+          className={cn('size-[18px] shrink-0', activo ? 'text-primary' : 'text-foreground/55 group-hover:text-foreground/80')}
+          strokeWidth={activo ? 2.5 : 1.9}
+        />
+        <span className="truncate text-[13px] leading-none">{item.label}</span>
+      </Link>
     </SidebarMenuItem>
   );
 }
@@ -83,59 +106,76 @@ export function AppSidebar({
   const { state } = useSidebar();
   const pathname = usePathname();
   const colapsado = state === 'collapsed';
+  const activo = hrefActivo(menu, pathname);
   const inicial = (sesion.usuario.nombre_completo || 'U')[0]?.toUpperCase();
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
-      <SidebarHeader className={cn('border-b border-sidebar-border', colapsado ? 'items-center px-2' : 'px-4')}>
-        <div className="flex items-center gap-3">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
-            <Wrench className="size-5 text-primary" strokeWidth={2.2} />
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+      <SidebarHeader className={cn('border-b border-sidebar-border bg-sidebar', colapsado ? 'items-center px-0 py-3' : 'px-3 py-3.5')}>
+        <div className={cn('flex items-center gap-2.5', colapsado && 'justify-center')}>
+          <div
+            className={cn(
+              'flex shrink-0 items-center justify-center rounded-full bg-primary/10 ring-2 ring-primary/15',
+              colapsado ? 'size-8' : 'size-10',
+            )}
+          >
+            <Wrench className={cn('text-primary', colapsado ? 'size-4' : 'size-5')} strokeWidth={2.2} />
           </div>
           {colapsado ? null : (
             <div className="min-w-0">
-              <p className="text-base leading-none font-extrabold tracking-tight">
+              <p className="truncate text-sm leading-none font-extrabold tracking-tight">
                 RP-<span className="text-primary">TECH</span>
               </p>
-              <p className="mt-1 truncate text-[11px] text-muted-foreground">Gestión de Servicio Técnico</p>
+              <p className="mt-1 truncate text-[10px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                Servicio técnico
+              </p>
             </div>
           )}
         </div>
       </SidebarHeader>
-      <SidebarContent className={colapsado ? 'items-center px-1.5 py-3' : 'px-3 py-4'}>
+      <SidebarContent className={colapsado ? 'items-center px-1 py-3' : 'px-2 py-3'}>
         <SidebarGroup className="p-0">
-          <SidebarGroupLabel className={cn('text-[10px] font-bold tracking-[0.2em] text-muted-foreground uppercase', colapsado && 'sr-only')}>
-            Menú
-          </SidebarGroupLabel>
+          {colapsado ? (
+            <div className="mx-auto my-1 h-px w-5 bg-border/40" />
+          ) : (
+            <SidebarGroupLabel className="mb-1 h-auto px-3 text-[10px] font-bold tracking-[0.2em] text-muted-foreground/70 uppercase">
+              Menú
+            </SidebarGroupLabel>
+          )}
           <SidebarMenu className="gap-1">
             {menu.map((item) => (
-              <ItemMenu key={item.href} item={item} activo={esActivo(item.href, pathname)} />
+              <ItemMenu key={item.href} item={item} activo={item.href === activo} />
             ))}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="border-t border-sidebar-border">
-        <button
-          type="button"
-          onClick={onLogout}
-          className={cn(
-            'flex items-center rounded-xl text-left hover:bg-muted/60',
-            colapsado ? 'mx-auto size-10 justify-center' : 'w-full justify-between gap-2 px-3 py-2',
-          )}
-        >
-          <span className="flex min-w-0 items-center gap-2.5">
-            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-bold text-secondary-foreground">
-              {inicial}
-            </span>
-            {colapsado ? null : (
-              <span className="min-w-0">
-                <span className="block truncate text-xs font-bold">{sesion.usuario.nombre_completo}</span>
-                <span className="block truncate text-[10px] text-muted-foreground capitalize">{sesion.rolesVigentes[0]}</span>
-              </span>
-            )}
+      <SidebarFooter className="border-t border-sidebar-border bg-sidebar p-2">
+        <div className={cn('flex items-center', colapsado ? 'flex-col gap-2' : 'gap-2 px-1')}>
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+            {inicial}
           </span>
-          {colapsado ? null : <LogOut className="size-4 shrink-0 text-muted-foreground" />}
-        </button>
+          {colapsado ? null : (
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-xs font-bold">{sesion.usuario.nombre_completo}</span>
+              <span className="block truncate text-[10px] text-muted-foreground capitalize">{sesion.rolesVigentes[0]}</span>
+            </span>
+          )}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={onLogout}
+                aria-label="Cerrar sesión"
+                className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted/70 hover:text-foreground"
+              >
+                <LogOut className="size-4" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side={colapsado ? 'right' : 'top'} sideOffset={8} className="text-xs font-semibold">
+              Cerrar sesión
+            </TooltipContent>
+          </Tooltip>
+        </div>
       </SidebarFooter>
     </Sidebar>
   );
