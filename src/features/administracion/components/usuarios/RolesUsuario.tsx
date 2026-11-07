@@ -11,7 +11,7 @@ import {
   type UsuarioAdmin,
 } from '@/lib/datos-simulados/actions';
 import { Button, CustomSelect, SelectorFecha } from '@/components/ui';
-import { NOMBRE_ESTADO, NOMBRE_ROL } from './etiquetas';
+import { NOMBRE_ESTADO, NOMBRE_ROL } from '../comun/etiquetas';
 
 export function RolesUsuario({ usuario, onCambio }: { usuario: UsuarioAdmin; onCambio: () => void }) {
   const [opciones] = useState(() => roles_asignables());

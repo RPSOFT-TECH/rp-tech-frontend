@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { crear_sede, guardar_sede, type Sede } from '@/lib/datos-simulados/actions';
 import { Button, Modal } from '@/components/ui';
-import { claseCampo } from './clases';
+import { claseCampo } from '../comun/clases';
 
 export function EditorSedes({ clienteId, sedes, onCambio }: { clienteId: string; sedes: Sede[]; onCambio: () => void }) {
   const [abierto, setAbierto] = useState(false);

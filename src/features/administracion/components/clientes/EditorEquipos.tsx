@@ -10,7 +10,7 @@ import {
   type Sede,
 } from '@/lib/datos-simulados/actions';
 import { Button, CustomSelect, Modal, SelectorFecha } from '@/components/ui';
-import { claseCampo } from './clases';
+import { claseCampo } from '../comun/clases';
 import { HistorialEquipo } from './HistorialCliente';
 
 const CANTIDADES = [1, 2, 3, 4, 6, 8];

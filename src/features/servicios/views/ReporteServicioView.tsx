@@ -50,7 +50,7 @@ function ReporteServicioContenido() {
       </div>
 
       {mensaje && (
-        <div className={`mb-4 rounded-lg p-3 text-sm ${avisoOk ? 'bg-green-50 text-green-900 border border-green-200' : 'bg-red-50 text-red-900 border border-red-200'}`}>
+        <div className={`mb-4 rounded-lg border p-3 text-sm ${avisoOk ? 'border-chart-2/40 bg-chart-2/15 text-foreground' : 'border-destructive/40 bg-destructive/10 text-destructive'}`}>
           {mensaje}
         </div>
       )}

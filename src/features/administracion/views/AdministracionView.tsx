@@ -6,13 +6,13 @@ import { useSyncExternalStore } from 'react';
 import { leerSesionEstable } from '@/lib/datos-simulados/actions';
 import { ShieldCheck } from 'lucide-react';
 import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
-import { ListaClientes } from '../components/ListaClientes';
-import { FichaCliente } from '../components/FichaCliente';
-import { UsuariosAdmin } from '../components/UsuariosAdmin';
-import { ParametrosAdmin } from '../components/ParametrosAdmin';
-import { CatalogosAdmin } from '../components/CatalogosAdmin';
-import { PermisosAdmin } from '../components/PermisosAdmin';
-import { pestanasVisibles } from '../components/pestanas';
+import { ListaClientes } from '../components/clientes/ListaClientes';
+import { FichaCliente } from '../components/clientes/FichaCliente';
+import { UsuariosAdmin } from '../components/usuarios/UsuariosAdmin';
+import { ParametrosAdmin } from '../components/sistema/ParametrosAdmin';
+import { CatalogosAdmin } from '../components/sistema/CatalogosAdmin';
+import { PermisosAdmin } from '../components/sistema/PermisosAdmin';
+import { pestanasVisibles } from '../components/comun/pestanas';
 
 export function AdministracionView() {
   return (

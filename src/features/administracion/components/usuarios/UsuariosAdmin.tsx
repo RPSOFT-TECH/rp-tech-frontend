@@ -3,7 +3,7 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { leerSesionEstable, usuarios_admin, type UsuarioAdmin } from '@/lib/datos-simulados/actions';
 import { Button, DataTable, Modal } from '@/components/ui';
-import { NOMBRE_ESTADO, NOMBRE_ROL } from './etiquetas';
+import { NOMBRE_ESTADO, NOMBRE_ROL } from '../comun/etiquetas';
 import { FormularioUsuario } from './FormularioUsuario';
 import { RolesUsuario } from './RolesUsuario';
 

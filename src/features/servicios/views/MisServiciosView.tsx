@@ -60,7 +60,7 @@ export function MisServiciosView() {
           Hoy ({serviciosHoy.length})
         </h2>
         {serviciosDiasAnteriores.length > 0 && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-amber-900 text-sm mb-4">
+          <div className="mb-4 rounded-lg border border-chart-3/40 bg-chart-3/15 p-3 text-sm text-foreground">
             De días anteriores, sin cerrar: {serviciosDiasAnteriores.length}
           </div>
         )}
@@ -147,7 +147,7 @@ function TarjetaServicio({ servicio, hoy }: { servicio: MiServicio; hoy: string 
           </span>
         )}
         {servicio.estado === 'en_atencion' && (
-          <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs font-medium">
+          <span className="rounded border border-chart-2/40 bg-chart-2/15 px-2 py-1 text-xs font-medium text-chart-2">
             En atención
           </span>
         )}

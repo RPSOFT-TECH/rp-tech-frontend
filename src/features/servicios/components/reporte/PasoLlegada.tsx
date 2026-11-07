@@ -13,7 +13,7 @@ export function PasoLlegada({ form }: { form: FormularioReporte }) {
         {reporte.hora_llegada ? (
           <div className="flex items-center gap-2">
             <span className="font-mono font-bold text-primary">{reporte.hora_llegada}</span>
-            <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded">Registrado</span>
+            <span className="rounded border border-chart-2/40 bg-chart-2/15 px-2 py-0.5 text-xs text-chart-2">Registrado</span>
           </div>
         ) : (
           <>

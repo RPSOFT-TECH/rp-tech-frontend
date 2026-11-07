@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { X } from 'lucide-react';
 import { Button, SearchInput } from '@/components/ui';
 import { buttonVariants } from '@/components/ui/button';
-import { FiltroFecha } from '../FiltrosListaCasos';
+import { FiltroFecha } from './FiltrosListaCasos';
 
 export function FiltrosCasos({
   busqueda,

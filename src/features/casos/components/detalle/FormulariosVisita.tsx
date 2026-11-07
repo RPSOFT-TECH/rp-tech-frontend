@@ -17,7 +17,7 @@ export function FormProgramarVisita({ caso, onEjecutar, onCerrar }: FormAccionPr
     <Card className="p-6 mb-6 border border-primary/50 bg-primary/5">
       <h3 className="text-xs font-semibold uppercase tracking-wider text-primary mb-3">Programar visita</h3>
       {mensaje && (
-        <div className="mb-3 text-xs text-red-900 bg-red-50 border border-red-200 rounded p-2">{mensaje}</div>
+        <div className="mb-3 text-xs border border-destructive/40 bg-destructive/10 text-destructive rounded p-2">{mensaje}</div>
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
         <div className="flex flex-col gap-1">
@@ -86,7 +86,7 @@ export function FormReprogramarVisita({ caso, onEjecutar, onCerrar }: FormAccion
     <Card className="p-6 mb-6 border border-primary/50 bg-primary/5">
       <h3 className="text-xs font-semibold uppercase tracking-wider text-primary mb-3">Reprogramar visita</h3>
       {mensaje && (
-        <div className="mb-3 text-xs text-red-900 bg-red-50 border border-red-200 rounded p-2">{mensaje}</div>
+        <div className="mb-3 text-xs border border-destructive/40 bg-destructive/10 text-destructive rounded p-2">{mensaje}</div>
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
         <div className="flex flex-col gap-1">

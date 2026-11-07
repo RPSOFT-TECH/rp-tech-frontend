@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { clientes_admin, crear_cliente, type ClienteAdmin } from '@/lib/datos-simulados/actions';
 import { Button, DataTable, Modal, SearchInput } from '@/components/ui';
-import { claseCampo } from './clases';
+import { claseCampo } from '../comun/clases';
 
 export function ListaClientes({ onAbrir }: { onAbrir: (id: string) => void }) {
   const [texto, setTexto] = useState('');

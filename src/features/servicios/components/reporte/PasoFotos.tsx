@@ -79,7 +79,7 @@ export function PasoFotos({ form }: { form: FormularioReporte }) {
             {adjuntos.map((adjunto) => (
               <div key={adjunto.id} className="flex items-center gap-2 text-xs bg-muted/50 rounded p-2">
                 {adjunto.tipo === 'foto_ingreso' && <span className="text-primary font-bold">INGRESO</span>}
-                {adjunto.tipo === 'foto_salida' && <span className="text-blue-600 font-bold">SALIDA</span>}
+                {adjunto.tipo === 'foto_salida' && <span className="text-chart-4 font-bold">SALIDA</span>}
                 {adjunto.tipo === 'otro' && <span className="text-muted-foreground font-bold">OTRO</span>}
                 <span className="flex-1 truncate">{adjunto.nombre}</span>
                 <button
