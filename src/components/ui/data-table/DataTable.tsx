@@ -23,6 +23,8 @@ interface IDataTableProps<TRow> {
   className?: string;
   rowClassName?: (row: TRow) => string;
   onRowClick?: (row: TRow) => void;
+  rowHeight?: number;
+  bodyMinHeight?: number;
 }
 
 export function DataTable<TRow>({
@@ -35,17 +37,23 @@ export function DataTable<TRow>({
   className,
   rowClassName,
   onRowClick,
+  rowHeight,
+  bodyMinHeight,
 }: IDataTableProps<TRow>): React.ReactElement {
-  if (data.length === 0) {
+  if (data.length === 0 && !rowHeight) {
     return (
       <DataTableEmpty title={emptyTitle} description={emptyDescription} action={emptyAction} />
     );
   }
 
   return (
-    <div className={cn('flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm', className)}>
-      <div className="no-scrollbar min-h-0 flex-1 overflow-auto">
-        <table className="w-full border-collapse text-sm">
+    <div className={cn('flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm', className)}>
+      <div
+        data-table-scroll
+        className="no-scrollbar flex min-h-0 min-w-0 flex-1 flex-col overflow-auto"
+        style={bodyMinHeight ? { minHeight: bodyMinHeight } : undefined}
+      >
+        <table className={cn('w-full border-collapse text-sm', data.length === 0 && 'h-full')}>
           <thead className="sticky top-0 z-20">
             <tr className="border-b border-border/40 bg-muted/90 backdrop-blur-sm">
               {columns.map((col) => (
@@ -65,6 +73,15 @@ export function DataTable<TRow>({
             </tr>
           </thead>
           <tbody className="divide-y divide-border/10">
+            {data.length === 0 ? (
+              <tr className="h-full">
+                <td colSpan={columns.length} className="px-5 text-center align-middle">
+                  <p className="text-sm font-semibold text-foreground">{emptyTitle}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{emptyDescription}</p>
+                  {emptyAction}
+                </td>
+              </tr>
+            ) : null}
             {data.map((row, rowIndex) => {
               const id = typeof rowKey === 'function' ? rowKey(row) : String(row[rowKey]);
               return (
@@ -73,6 +90,7 @@ export function DataTable<TRow>({
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.18, delay: Math.min(rowIndex, 8) * 0.02 }}
+                  style={rowHeight ? { height: rowHeight } : undefined}
                   onClick={onRowClick ? () => onRowClick(row) : undefined}
                   className={cn(
                     'transition-colors duration-200 hover:bg-primary/[0.04]',
