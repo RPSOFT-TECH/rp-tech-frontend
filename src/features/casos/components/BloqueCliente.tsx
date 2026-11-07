@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { CustomSelect } from '@/components/ui/custom-select';
 import { SearchInput } from '@/components/ui/search-input';
 import { ModalCliente } from './altas/ModalCliente';
 import { ModalSede } from './altas/ModalSede';
@@ -28,9 +29,6 @@ interface BloqueClienteProps {
   onSedeCreada: (sede: Sede) => void;
   onContactoCreado: (contacto: Contacto) => void;
 }
-
-const claseSelect =
-  'w-full min-h-11 rounded-lg border border-input bg-background px-3 text-sm text-foreground disabled:cursor-not-allowed disabled:opacity-50';
 
 export function BloqueCliente({
   form,
@@ -53,6 +51,7 @@ export function BloqueCliente({
   const {
     register,
     watch,
+    setValue,
     formState: { errors },
   } = form;
   const buscandoCliente = !clienteSeleccionado && queryCliente.trim().length >= 2;
@@ -132,14 +131,17 @@ export function BloqueCliente({
               + Crear
             </Button>
           </div>
-          <select id="sede" disabled={!clienteSeleccionado} value={watch('sede_id')} {...register('sede_id')} className={claseSelect}>
-            <option value="">Selecciona una sede...</option>
-            {sedes.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.nombre} — {s.direccion} ({s.distrito}) {s.principal ? '• Principal' : ''}
-              </option>
-            ))}
-          </select>
+          <CustomSelect
+            id="sede"
+            disabled={!clienteSeleccionado}
+            value={watch('sede_id') || ''}
+            onChange={(valor) => setValue('sede_id', valor, { shouldValidate: true, shouldDirty: true })}
+            placeholder="Selecciona una sede..."
+            options={sedes.map((s) => ({
+              value: s.id,
+              label: `${s.nombre} — ${s.direccion} (${s.distrito})${s.principal ? ' • Principal' : ''}`,
+            }))}
+          />
           {errors.sede_id && <p className="text-xs text-destructive">{errors.sede_id.message}</p>}
         </div>
 
@@ -156,20 +158,14 @@ export function BloqueCliente({
               + Crear
             </Button>
           </div>
-          <select
+          <CustomSelect
             id="contacto"
             disabled={!clienteSeleccionado}
-            value={watch('contacto_id')}
-            onChange={(e) => onContactoChange(e.target.value)}
-            className={claseSelect}
-          >
-            <option value="">Selecciona un contacto...</option>
-            {contactos.map((ct) => (
-              <option key={ct.id} value={ct.id}>
-                {ct.nombre} — {ct.cargo}
-              </option>
-            ))}
-          </select>
+            value={watch('contacto_id') || ''}
+            onChange={onContactoChange}
+            placeholder="Selecciona un contacto..."
+            options={contactos.map((ct) => ({ value: ct.id, label: `${ct.nombre} — ${ct.cargo}` }))}
+          />
           {errors.contacto_id && <p className="text-xs text-destructive">{errors.contacto_id.message}</p>}
         </div>
 

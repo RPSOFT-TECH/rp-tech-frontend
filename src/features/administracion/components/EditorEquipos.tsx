@@ -9,7 +9,7 @@ import {
   type EquipoVista,
   type Sede,
 } from '@/lib/datos-simulados/actions';
-import { Button, Modal } from '@/components/ui';
+import { Button, CustomSelect, Modal, SelectorFecha } from '@/components/ui';
 import { claseCampo } from './clases';
 import { HistorialEquipo } from './HistorialCliente';
 
@@ -143,14 +143,7 @@ function Formulario({
       <Select nombre="linea_id" label="Línea" valor={equipo?.linea_id ?? lineas[0]?.id ?? ''} opciones={lineas} />
       <Select nombre="cabezal_modelo_id" label="Cabezal" valor={equipo?.cabezal_modelo_id ?? cabezales[0]?.id ?? ''} opciones={cabezales} />
       <Select nombre="sede_id" label="Sede" valor={equipo?.sede_id ?? sedes[0]?.id ?? ''} opciones={sedes.map((sede) => ({ id: sede.id, nombre: sede.nombre }))} />
-      <label className="block space-y-1 text-sm">
-        <span>Cantidad de cabezales</span>
-        <select name="cabezal_cantidad" defaultValue={equipo?.cabezal_cantidad ?? 1} className={claseCampo}>
-          {CANTIDADES.map((cantidad) => (
-            <option key={cantidad} value={cantidad}>{cantidad}</option>
-          ))}
-        </select>
-      </label>
+      <CantidadCabezales inicial={equipo?.cabezal_cantidad ?? 1} />
       <Campo nombre="fecha_instalacion" label="Fecha de instalación" valor={equipo?.fecha_instalacion ?? ''} tipo="date" />
       {error && <p className="text-xs text-destructive">{error}</p>}
       <Button type="submit" className="min-h-11" disabled={sedes.length === 0}>Guardar</Button>
@@ -158,7 +151,18 @@ function Formulario({
   );
 }
 
+function CampoFecha({ nombre, label, valor }: { nombre: string; label: string; valor: string }) {
+  const [actual, setActual] = useState(valor);
+  return (
+    <div className="block space-y-1 text-sm">
+      <input type="hidden" name={nombre} value={actual} />
+      <SelectorFecha label={label} value={actual} onChange={setActual} />
+    </div>
+  );
+}
+
 function Campo({ nombre, label, valor, tipo = 'text' }: { nombre: string; label: string; valor: string; tipo?: string }) {
+  if (tipo === 'date') return <CampoFecha nombre={nombre} label={label} valor={valor} />;
   return (
     <label className="block space-y-1 text-sm">
       <span>{label}</span>
@@ -168,14 +172,31 @@ function Campo({ nombre, label, valor, tipo = 'text' }: { nombre: string; label:
 }
 
 function Select({ nombre, label, valor, opciones }: { nombre: string; label: string; valor: string; opciones: { id: string; nombre: string }[] }) {
+  const [actual, setActual] = useState(valor);
   return (
-    <label className="block space-y-1 text-sm">
-      <span>{label}</span>
-      <select name={nombre} defaultValue={valor} className={claseCampo}>
-        {opciones.map((opcion) => (
-          <option key={opcion.id} value={opcion.id}>{opcion.nombre}</option>
-        ))}
-      </select>
-    </label>
+    <div className="block space-y-1 text-sm">
+      <input type="hidden" name={nombre} value={actual} />
+      <CustomSelect
+        label={label}
+        value={actual}
+        onChange={setActual}
+        options={opciones.map((opcion) => ({ value: opcion.id, label: opcion.nombre }))}
+      />
+    </div>
+  );
+}
+
+function CantidadCabezales({ inicial }: { inicial: number }) {
+  const [actual, setActual] = useState(String(inicial));
+  return (
+    <div className="block space-y-1 text-sm">
+      <input type="hidden" name="cabezal_cantidad" value={actual} />
+      <CustomSelect
+        label="Cantidad de cabezales"
+        value={actual}
+        onChange={setActual}
+        options={CANTIDADES.map((cantidad) => ({ value: String(cantidad), label: String(cantidad) }))}
+      />
+    </div>
   );
 }

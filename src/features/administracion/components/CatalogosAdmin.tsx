@@ -12,7 +12,7 @@ import {
   type CodigoCatalogo,
   type ItemCatalogo,
 } from '@/lib/datos-simulados/actions';
-import { Button } from '@/components/ui';
+import { Button, CustomSelect } from '@/components/ui';
 import { claseCampo } from './clases';
 
 const NOMBRES: Record<CodigoCatalogo, string> = {
@@ -56,21 +56,15 @@ export function CatalogosAdmin() {
 
   return (
     <div className="space-y-4">
-      <label className="block space-y-1 text-sm max-w-sm" htmlFor="catalogo">
-        <span className="font-medium text-foreground">Catálogo</span>
-        <select
+      <div className="max-w-sm">
+        <CustomSelect
           id="catalogo"
+          label="Catálogo"
           value={codigo}
-          onChange={(e) => setCodigo(e.target.value as CodigoCatalogo)}
-          className={claseCampo}
-        >
-          {CODIGOS_CATALOGO.map((item) => (
-            <option key={item} value={item}>
-              {NOMBRES[item]}
-            </option>
-          ))}
-        </select>
-      </label>
+          onChange={(valor) => setCodigo(valor as CodigoCatalogo)}
+          options={CODIGOS_CATALOGO.map((item) => ({ value: item, label: NOMBRES[item] }))}
+        />
+      </div>
       <ul className="space-y-2">
         {items.map((item, indice) => (
           <li key={item.id} className="bg-card border border-border rounded-xl p-3 space-y-2">

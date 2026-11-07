@@ -1,6 +1,7 @@
 import { UseFormReturn } from 'react-hook-form';
 import { SugerenciaModo } from '@/lib/datos-simulados/actions';
 import { NuevoCasoFormValues } from '@/lib/validaciones/caso';
+import { CustomSelect } from '@/components/ui/custom-select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -24,6 +25,7 @@ export function BloqueServicio({ form, catalogos, sugerencia }: BloqueServicioPr
   const {
     register,
     watch,
+    setValue,
     formState: { errors },
   } = form;
 
@@ -40,18 +42,13 @@ export function BloqueServicio({ form, catalogos, sugerencia }: BloqueServicioPr
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="space-y-1.5">
             <Label htmlFor="tipo_servicio_id">Tipo de servicio</Label>
-            <select
+            <CustomSelect
               id="tipo_servicio_id"
-              {...register('tipo_servicio_id')}
-              className="w-full min-h-11 rounded-lg border border-input bg-background px-3 text-sm text-foreground"
-            >
-              <option value="">Selecciona tipo...</option>
-              {catalogos.tipos_servicio.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.nombre}
-                </option>
-              ))}
-            </select>
+              value={watch('tipo_servicio_id') || ''}
+              onChange={(valor) => setValue('tipo_servicio_id', valor, { shouldValidate: true, shouldDirty: true })}
+              placeholder="Selecciona tipo..."
+              options={catalogos.tipos_servicio.map((item) => ({ value: item.id, label: item.nombre }))}
+            />
             {errors.tipo_servicio_id && (
               <p className="text-xs text-destructive">{errors.tipo_servicio_id.message}</p>
             )}
@@ -59,18 +56,13 @@ export function BloqueServicio({ form, catalogos, sugerencia }: BloqueServicioPr
 
           <div className="space-y-1.5">
             <Label htmlFor="modalidad_id">Modalidad</Label>
-            <select
+            <CustomSelect
               id="modalidad_id"
-              {...register('modalidad_id')}
-              className="w-full min-h-11 rounded-lg border border-input bg-background px-3 text-sm text-foreground"
-            >
-              <option value="">Selecciona modalidad...</option>
-              {catalogos.modalidades.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.nombre}
-                </option>
-              ))}
-            </select>
+              value={watch('modalidad_id') || ''}
+              onChange={(valor) => setValue('modalidad_id', valor, { shouldValidate: true, shouldDirty: true })}
+              placeholder="Selecciona modalidad..."
+              options={catalogos.modalidades.map((item) => ({ value: item.id, label: item.nombre }))}
+            />
             {errors.modalidad_id && (
               <p className="text-xs text-destructive">{errors.modalidad_id.message}</p>
             )}
@@ -78,19 +70,16 @@ export function BloqueServicio({ form, catalogos, sugerencia }: BloqueServicioPr
 
           <div className="space-y-1.5">
             <Label htmlFor="modo_servicio_id">Modo de servicio</Label>
-            <select
+            <CustomSelect
               id="modo_servicio_id"
-              {...register('modo_servicio_id')}
-              className="w-full min-h-11 rounded-lg border border-input bg-background px-3 text-sm text-foreground"
-            >
-              <option value="">Selecciona modo...</option>
-              {catalogos.modos_servicio.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.nombre}
-                  {sugerencia?.modo_id === item.id ? ' · Sugerido' : ''}
-                </option>
-              ))}
-            </select>
+              value={watch('modo_servicio_id') || ''}
+              onChange={(valor) => setValue('modo_servicio_id', valor, { shouldValidate: true, shouldDirty: true })}
+              placeholder="Selecciona modo..."
+              options={catalogos.modos_servicio.map((item) => ({
+                value: item.id,
+                label: sugerencia?.modo_id === item.id ? `${item.nombre} · Sugerido` : item.nombre,
+              }))}
+            />
             {errors.modo_servicio_id && (
               <p className="text-xs text-destructive">{errors.modo_servicio_id.message}</p>
             )}

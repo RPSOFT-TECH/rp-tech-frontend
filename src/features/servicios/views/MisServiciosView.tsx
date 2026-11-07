@@ -51,11 +51,8 @@ export function MisServiciosView() {
   const serviciosCerrados = servicios.filter((s) => s.cerrado);
 
   return (
-    <div className="p-4 max-w-md mx-auto md:max-w-3xl pb-24">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">Mis servicios</h1>
-        <p className="text-xs text-muted-foreground">Técnico: {nombre}</p>
-      </div>
+    <div className="mx-auto w-full max-w-md pb-24 md:max-w-3xl">
+      <p className="mb-6 text-xs text-muted-foreground">Técnico: {nombre}</p>
 
       {/* Día de hoy */}
       <div className="mb-8">

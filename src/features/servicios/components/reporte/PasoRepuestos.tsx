@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
+import { Button, Card, CustomSelect, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
 import type { FormularioReporte } from './tipo';
 
 export function PasoRepuestos({ form }: { form: FormularioReporte }) {
@@ -40,17 +40,17 @@ export function PasoRepuestos({ form }: { form: FormularioReporte }) {
           <input type="number" value={repuestoCantidad} onChange={(evento) => setRepuestoCantidad(Number(evento.target.value) || 1)} disabled={!esPasoEditable} className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm" />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-muted-foreground">Tipo</label>
-          <select
+          <CustomSelect
+            label="Tipo"
             value={repuestoTipo}
-            onChange={(evento) => setRepuestoTipo(evento.target.value as 'venta' | 'descarte' | 'garantia')}
             disabled={!esPasoEditable}
-            className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm"
-          >
-            <option value="venta">Venta</option>
-            <option value="descarte">Descarte</option>
-            <option value="garantia">Garantía</option>
-          </select>
+            onChange={(valor) => setRepuestoTipo(valor as 'venta' | 'descarte' | 'garantia')}
+            options={[
+              { value: 'venta', label: 'Venta' },
+              { value: 'descarte', label: 'Descarte' },
+              { value: 'garantia', label: 'Garantía' },
+            ]}
+          />
         </div>
       </div>
       <Button onClick={agregarRepuestoItem} disabled={!esPasoEditable || guardando || !repuestoDescripcion} className="w-full min-h-11 mb-4">

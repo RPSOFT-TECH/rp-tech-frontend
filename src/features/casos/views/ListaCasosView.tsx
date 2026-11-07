@@ -1,7 +1,6 @@
 'use client';
 
 import { Suspense, useCallback, useEffect, useMemo, useState, useSyncExternalStore, useTransition } from 'react';
-import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   casos_lista,
@@ -134,22 +133,7 @@ function ListaCasosContenido() {
   const consulta = searchParams.toString();
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Casos</h1>
-          <p className="text-sm text-muted-foreground">Gestión de incidentes, visitas y atenciones técnicas</p>
-        </div>
-        {puedeCrearCaso && (
-          <Link
-            href="/casos/nuevo"
-            className="w-full md:w-auto inline-flex items-center justify-center bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-4 py-2 rounded-lg text-sm transition-colors shadow-sm min-h-11"
-          >
-            Nuevo caso
-          </Link>
-        )}
-      </div>
-
+    <div>
       <BandejasCasos casos={casos} bandeja={bandeja} onSeleccionar={seleccionarBandeja} />
       <FiltrosCasos
         busqueda={busqueda}
@@ -161,25 +145,27 @@ function ListaCasosContenido() {
           setBusquedaDebounce('');
           router.push('/casos');
         }}
-        estado={estadoFiltro}
-        tecnicoId={tecnicoFiltro}
-        clienteId={clienteFiltro}
-        tipoServicioId={tipoFiltro}
-        modalidadId={modalidadFiltro}
         fechaDesde={fechaDesde}
         fechaHasta={fechaHasta}
-        tecnicos={tecnicosLista}
-        clientes={clientesLista}
-        tiposServicio={tiposServicio}
-        modalidades={modalidades}
         onFiltro={actualizarFiltro}
         onExportar={() => descargarExcel(casosBandeja)}
+        puedeCrearCaso={puedeCrearCaso}
       />
       <ResultadoCasos
         casos={casos}
         loading={loading}
         urlDetalle={(id) => `/casos/${id}?${consulta}`}
         onAbrir={(id) => router.push(`/casos/${id}?${consulta}`)}
+        estado={estadoFiltro}
+        tecnicoId={tecnicoFiltro}
+        clienteId={clienteFiltro}
+        tipoServicioId={tipoFiltro}
+        modalidadId={modalidadFiltro}
+        tecnicos={tecnicosLista}
+        clientes={clientesLista}
+        tiposServicio={tiposServicio}
+        modalidades={modalidades}
+        onFiltro={actualizarFiltro}
       />
     </div>
   );

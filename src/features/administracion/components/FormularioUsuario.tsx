@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { hoyLima, roles_asignables, usuarios, type RolCodigo } from '@/lib/datos-simulados/actions';
-import { Button } from '@/components/ui';
+import { Button, CustomSelect, SelectorFecha } from '@/components/ui';
 import { claseCampo } from './clases';
 import { NOMBRE_ROL } from './etiquetas';
 
@@ -74,33 +74,14 @@ export function FormularioUsuario({
         <p className="text-sm font-medium text-foreground">Roles y vigencia</p>
         {filas.map((fila, indice) => (
           <div key={indice} className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <select
-              aria-label="Rol"
+            <CustomSelect
               value={fila.codigo}
-              onChange={(e) => cambiar(indice, { codigo: e.target.value as RolCodigo | '' })}
-              className={claseCampo}
-            >
-              <option value="">Elige un rol</option>
-              {opciones.map((codigo) => (
-                <option key={codigo} value={codigo}>
-                  {NOMBRE_ROL[codigo]}
-                </option>
-              ))}
-            </select>
-            <input
-              aria-label="Desde"
-              type="date"
-              value={fila.desde}
-              onChange={(e) => cambiar(indice, { desde: e.target.value })}
-              className={claseCampo}
+              onChange={(valor) => cambiar(indice, { codigo: valor as RolCodigo | '' })}
+              placeholder="Elige un rol"
+              options={opciones.map((codigo) => ({ value: codigo, label: NOMBRE_ROL[codigo] }))}
             />
-            <input
-              aria-label="Hasta"
-              type="date"
-              value={fila.hasta}
-              onChange={(e) => cambiar(indice, { hasta: e.target.value })}
-              className={claseCampo}
-            />
+            <SelectorFecha value={fila.desde} onChange={(desde) => cambiar(indice, { desde })} placeholder="Desde" />
+            <SelectorFecha value={fila.hasta} onChange={(hasta) => cambiar(indice, { hasta })} placeholder="Hasta" />
           </div>
         ))}
         <Button

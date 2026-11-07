@@ -43,7 +43,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (!sesionVigente(sesion)) {
     return (
       <div className="min-h-screen bg-background text-foreground">
-        <main className="mx-auto w-full max-w-7xl flex-1 p-4 sm:p-6">{children}</main>
+        <main className="w-full flex-1 px-4 py-4 sm:px-6 sm:py-5">{children}</main>
       </div>
     );
   }
@@ -58,7 +58,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <SidebarInset className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <AppHeader />
             <main className="min-h-0 flex-1 overflow-auto">
-              <div className="mx-auto w-full max-w-7xl p-4 sm:p-6">{children}</div>
+              <div className="w-full px-4 py-4 sm:px-6 sm:py-5">{children}</div>
             </main>
           </SidebarInset>
         </div>

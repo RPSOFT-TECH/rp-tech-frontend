@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { programar_visita, reprogramar_visita } from '@/lib/datos-simulados/actions';
-import { Button, Card } from '@/components/ui';
+import { Button, Card, SelectorFecha } from '@/components/ui';
 import type { FormAccionProps } from './tipos';
 
 export function FormProgramarVisita({ caso, onEjecutar, onCerrar }: FormAccionProps) {
@@ -21,8 +21,7 @@ export function FormProgramarVisita({ caso, onEjecutar, onCerrar }: FormAccionPr
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-muted-foreground">Fecha</label>
-          <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm" />
+          <SelectorFecha label="Fecha" value={fecha} onChange={setFecha} />
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs font-semibold text-muted-foreground">Hora</label>
@@ -91,8 +90,7 @@ export function FormReprogramarVisita({ caso, onEjecutar, onCerrar }: FormAccion
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-muted-foreground">Fecha</label>
-          <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm" />
+          <SelectorFecha label="Fecha" value={fecha} onChange={setFecha} />
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs font-semibold text-muted-foreground">Hora</label>

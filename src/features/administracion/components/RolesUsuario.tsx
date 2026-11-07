@@ -10,8 +10,7 @@ import {
   type RolCodigo,
   type UsuarioAdmin,
 } from '@/lib/datos-simulados/actions';
-import { Button } from '@/components/ui';
-import { claseCampo } from './clases';
+import { Button, CustomSelect, SelectorFecha } from '@/components/ui';
 import { NOMBRE_ESTADO, NOMBRE_ROL } from './etiquetas';
 
 export function RolesUsuario({ usuario, onCambio }: { usuario: UsuarioAdmin; onCambio: () => void }) {
@@ -81,23 +80,15 @@ export function RolesUsuario({ usuario, onCambio }: { usuario: UsuarioAdmin; onC
         }}
       >
         <p className="text-sm font-medium text-foreground">Asignar rol</p>
-        <select aria-label="Rol" value={codigo} onChange={(e) => setCodigo(e.target.value as RolCodigo | '')} className={claseCampo}>
-          <option value="">Elige un rol</option>
-          {opciones.map((opcion) => (
-            <option key={opcion} value={opcion}>
-              {NOMBRE_ROL[opcion]}
-            </option>
-          ))}
-        </select>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <label className="block space-y-1 text-sm">
-            <span className="font-medium text-foreground">Desde</span>
-            <input type="date" value={desde} onChange={(e) => setDesde(e.target.value)} className={claseCampo} />
-          </label>
-          <label className="block space-y-1 text-sm">
-            <span className="font-medium text-foreground">Hasta</span>
-            <input type="date" value={hasta} onChange={(e) => setHasta(e.target.value)} className={claseCampo} />
-          </label>
+        <CustomSelect
+          value={codigo}
+          onChange={(valor) => setCodigo(valor as RolCodigo | '')}
+          placeholder="Elige un rol"
+          options={opciones.map((opcion) => ({ value: opcion, label: NOMBRE_ROL[opcion] }))}
+        />
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <SelectorFecha label="Desde" value={desde} onChange={setDesde} />
+          <SelectorFecha label="Hasta" value={hasta} onChange={setHasta} />
         </div>
         <Button type="submit" className="min-h-11">
           Asignar rol

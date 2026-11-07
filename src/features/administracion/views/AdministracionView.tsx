@@ -38,9 +38,8 @@ function Contenido() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold text-foreground mb-4">Administración</h1>
-      <div className="flex flex-wrap gap-2 mb-6">
+    <div className="mx-auto w-full max-w-6xl">
+      <div className="mb-6 flex flex-wrap gap-2">
         {visibles.map((pestana) => (
           <button
             key={pestana.id}

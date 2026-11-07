@@ -23,6 +23,7 @@ interface DataTableProps<T> {
   onFilaClick?: (fila: T) => void;
   className?: string;
   porPagina?: number;
+  conservarEncabezado?: boolean;
 }
 
 const POR_PAGINA = 5;
@@ -48,6 +49,7 @@ export function DataTable<T>({
   onFilaClick,
   className = '',
   porPagina = POR_PAGINA,
+  conservarEncabezado = false,
 }: DataTableProps<T>) {
   const firma = firmaDe(datos, claveFila);
   const [pagina, setPagina] = useState(1);
@@ -82,16 +84,43 @@ export function DataTable<T>({
   }));
 
   if (datos.length === 0) {
+    if (!conservarEncabezado) {
+      return (
+        <Tabla
+          className={className}
+          columns={columnasTabla}
+          data={datos}
+          rowKey={claveFila}
+          emptyTitle={textoVacio}
+          emptyDescription="No hay datos para mostrar en este momento."
+          onRowClick={onFilaClick}
+        />
+      );
+    }
     return (
-      <Tabla
-        className={className}
-        columns={columnasTabla}
-        data={datos}
-        rowKey={claveFila}
-        emptyTitle={textoVacio}
-        emptyDescription="No hay datos para mostrar en este momento."
-        onRowClick={onFilaClick}
-      />
+      <div className={cn('overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm', className)}>
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="border-b border-border/40 bg-muted/90">
+              {columnasTabla.map((col) => (
+                <th
+                  key={col.key}
+                  className="px-5 py-4 text-left text-[12px] font-black tracking-[0.12em] whitespace-nowrap text-foreground/90 uppercase"
+                >
+                  {col.header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colSpan={columnasTabla.length} className="px-5 py-10 text-center text-sm text-muted-foreground">
+                {textoVacio}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     );
   }
 

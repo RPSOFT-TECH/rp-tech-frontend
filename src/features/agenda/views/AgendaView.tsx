@@ -79,10 +79,8 @@ function Contenido() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-6xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-        <h1 className="text-2xl font-bold text-foreground">{tituloDia(fecha)}</h1>
-        <div className="flex flex-wrap gap-2">
+    <div className="mx-auto w-full max-w-6xl">
+      <div className="mb-6 flex flex-wrap justify-end gap-2">
           <Button type="button" variant="outline" className="min-h-11" onClick={() => ir(sumarDias(fecha, -1))}>
             Anterior
           </Button>
@@ -92,7 +90,6 @@ function Contenido() {
           <Button type="button" variant="outline" className="min-h-11" onClick={() => ir(sumarDias(fecha, 1))}>
             Siguiente
           </Button>
-        </div>
       </div>
       {columnas === null && <p className="text-sm text-muted-foreground">Cargando visitas...</p>}
       {columnas && columnas.length === 0 && (
