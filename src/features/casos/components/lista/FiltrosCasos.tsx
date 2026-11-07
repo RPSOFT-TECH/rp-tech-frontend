@@ -9,7 +9,6 @@ import { FiltroFecha } from '../FiltrosListaCasos';
 export function FiltrosCasos({
   busqueda,
   onBusqueda,
-  onBuscar,
   hayFiltros,
   onLimpiar,
   fechaDesde,
@@ -20,7 +19,6 @@ export function FiltrosCasos({
 }: {
   busqueda: string;
   onBusqueda: (valor: string) => void;
-  onBuscar: () => void;
   hayFiltros: boolean;
   onLimpiar: () => void;
   fechaDesde: string;
@@ -42,22 +40,12 @@ export function FiltrosCasos({
             Excel
           </Button>
         </div>
-        <form
-          className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center"
-          onSubmit={(evento) => {
-            evento.preventDefault();
-            onBuscar();
-          }}
-        >
+        <form className="min-w-0 flex-1" onSubmit={(evento) => evento.preventDefault()}>
           <SearchInput
             value={busqueda}
             onChange={(evento) => onBusqueda(evento.target.value)}
             placeholder="Buscar por número, cliente, reporte, RUC o serie"
-            contenedorClassName="flex-1"
           />
-          <Button type="submit" className="h-12 rounded-xl px-5 font-semibold">
-            Buscar
-          </Button>
         </form>
         {hayFiltros ? (
           <Button type="button" variant="outline" onClick={onLimpiar} className="h-12 rounded-xl px-5 font-semibold">

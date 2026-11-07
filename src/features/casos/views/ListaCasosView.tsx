@@ -91,9 +91,17 @@ function ListaCasosContenido() {
   }, [bandeja, estadoFiltro, tecnicoFiltro, clienteFiltro, tipoFiltro, modalidadFiltro, fechaDesde, fechaHasta, busquedaDebounce]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setBusquedaDebounce(busqueda), 400);
+    const timer = setTimeout(() => {
+      setBusquedaDebounce(busqueda);
+      const params = new URLSearchParams(window.location.search);
+      if ((params.get('q') || '') === busqueda) return;
+      if (busqueda) params.set('q', busqueda);
+      else params.delete('q');
+      const consulta = params.toString();
+      startTransition(() => router.replace(consulta ? `/casos?${consulta}` : '/casos'));
+    }, 400);
     return () => clearTimeout(timer);
-  }, [busqueda]);
+  }, [busqueda, router, startTransition]);
 
   const actualizarFiltro = useCallback(
     (nombre: string, valor: string) => {
@@ -138,7 +146,6 @@ function ListaCasosContenido() {
       <FiltrosCasos
         busqueda={busqueda}
         onBusqueda={setBusqueda}
-        onBuscar={() => actualizarFiltro('q', busqueda)}
         hayFiltros={hayFiltros}
         onLimpiar={() => {
           setBusqueda('');

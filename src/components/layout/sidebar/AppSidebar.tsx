@@ -59,11 +59,11 @@ function ItemMenu({ item, activo }: { item: MenuItem; activo: boolean }) {
               href={item.href}
               aria-label={item.label}
               className={cn(
-                'relative flex size-9 items-center justify-center rounded-xl transition-colors',
-                activo ? 'bg-primary/12 text-primary' : 'text-foreground/65 hover:bg-muted/70 hover:text-foreground',
+                'relative flex size-12 items-center justify-center rounded-xl transition-colors',
+                activo ? 'bg-primary/12 text-primary' : 'text-foreground hover:bg-muted/70',
               )}
             >
-              <Icon className="size-5 shrink-0" strokeWidth={activo ? 2.5 : 1.9} />
+              <Icon className="size-6 shrink-0" strokeWidth={activo ? 2.5 : 2.25} />
               {activo ? <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-primary" /> : null}
             </Link>
           </SidebarMenuItem>
@@ -80,15 +80,15 @@ function ItemMenu({ item, activo }: { item: MenuItem; activo: boolean }) {
       <Link
         href={item.href}
         className={cn(
-          'group flex h-10 w-full items-center gap-3 rounded-xl px-3 transition-colors select-none',
-          activo ? 'bg-primary/8 font-semibold text-foreground' : 'text-foreground/80 hover:bg-muted/60 hover:text-foreground',
+          'group flex h-12 w-full items-center gap-3 rounded-xl px-3 transition-colors select-none',
+          activo ? 'bg-primary/10 font-semibold text-foreground' : 'text-foreground hover:bg-muted/60',
         )}
       >
         <Icon
-          className={cn('size-[18px] shrink-0', activo ? 'text-primary' : 'text-foreground/55 group-hover:text-foreground/80')}
-          strokeWidth={activo ? 2.5 : 1.9}
+          className={cn('size-6 shrink-0', activo ? 'text-primary' : 'text-foreground/80 group-hover:text-foreground')}
+          strokeWidth={activo ? 2.5 : 2.25}
         />
-        <span className="truncate text-[13px] leading-none">{item.label}</span>
+        <span className="truncate text-sm leading-none">{item.label}</span>
       </Link>
     </SidebarMenuItem>
   );
@@ -151,7 +151,7 @@ export function AppSidebar({
                 aria-label="Cerrar sesión"
                 className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted/70 hover:text-foreground"
               >
-                <LogOut className="size-4" />
+                <LogOut className="size-5" strokeWidth={2.25} />
               </button>
             </TooltipTrigger>
             <TooltipContent side={colapsado ? 'right' : 'top'} sideOffset={8} className="text-xs font-semibold">
