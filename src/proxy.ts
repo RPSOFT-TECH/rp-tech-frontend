@@ -23,6 +23,17 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (pathname === '/') return NextResponse.redirect(new URL('/login', request.url));
 
+  if (pathname === '/login' && request.nextUrl.searchParams.get('salida') === '1') {
+    const respuesta = NextResponse.next();
+    respuesta.cookies.set('rptech_session', '', {
+      path: '/',
+      maxAge: 0,
+      sameSite: 'lax',
+      httpOnly: false,
+    });
+    return respuesta;
+  }
+
   let sesion: SesionPayload | null = null;
   const cookie = request.cookies.get('rptech_session');
   if (cookie?.value) {
@@ -34,7 +45,10 @@ export function proxy(request: NextRequest) {
   }
 
   if (pathname === '/login' && sesion && sesion.rolesVigentes.length > 0) {
-    return NextResponse.redirect(new URL(pantallaInicio(sesion.rolesVigentes, permisosDe(sesion)), request.url));
+    const destino = request.nextUrl.clone();
+    destino.pathname = pantallaInicio(sesion.rolesVigentes, permisosDe(sesion));
+    destino.search = '';
+    return NextResponse.redirect(destino);
   }
 
   if (esRutaPrivada(pathname)) {

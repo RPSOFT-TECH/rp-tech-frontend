@@ -1,8 +1,8 @@
 <h1 align="center">RP-TECH Frontend</h1>
 
 <p align="center">
-  Sistema integral de gestión de órdenes de servicio técnico, incidencias y reportes para maquinaria industrial de impresión textil.<br />
-  Arquitectura modular escalable basada en <strong>Features</strong> inspirada en <code>SOFI-WEB</code>, con estricto tipado TypeScript y sistema de diseño en tokens OKLCH.
+  Sistema de órdenes de servicio técnico.<br />
+  Frontend modular por features, páginas delgadas y un kit visual propio sobre tokens OKLCH.
 </p>
 
 <p align="center">
@@ -11,293 +11,279 @@
   <img src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-v4-38BDF8?logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
   <img src="https://img.shields.io/badge/Zod-3-3068B7?logo=zod&logoColor=white" alt="Zod" />
-  <img src="https://img.shields.io/badge/Turbopack-Enabled-000000?logo=turbopack&logoColor=white" alt="Turbopack" />
   <img src="https://img.shields.io/badge/OpenSpec-Driven-blueviolet" alt="OpenSpec" />
 </p>
 
-| Pieza | Stack Tecnológico |
+| Pieza | Qué se usa |
 | --- | --- |
-| **Framework** | Next.js 16 (App Router con Turbopack) |
-| **UI Library** | React 19 + TypeScript |
-| **Estilos y Tokens** | Tailwind CSS v4 + variables semánticas OKLCH |
-| **Tipografía** | Be Vietnam Pro (Google Fonts con soporte latin completo) |
-| **Formularios** | React Hook Form + validaciones estrictas con Zod |
-| **Notificaciones** | Sonner |
-| **Componentes Base** | shadcn/ui (Tailwind v4 tokens adaptados) |
-| **Control de Acceso** | Middleware de enrutamiento + roles por rangos de fecha |
+| Framework | Next.js 16.4 App Router, `cacheComponents` y `partialPrefetching` |
+| UI | React 19 y TypeScript |
+| Estilos | Tailwind CSS v4 y tokens de `src/app/globals.css` |
+| Tipografía | Be Vietnam Pro (`next/font/google`, `--font-sans`) |
+| Formularios | React Hook Form y Zod 3 |
+| Avisos | Sonner |
+| Iconos | lucide-react |
+| Tablas y gráficos | `DataTable` propio y Recharts |
+| PDF y Excel | `@react-pdf/renderer`, jsPDF, html2canvas y `xlsx` |
 
 ---
 
-## Tabla de Contenidos
+## Tabla de contenidos
 
-1. [Arquitectura Modular](#arquitectura-modular)
-2. [Mapa de Carpetas](#mapa-de-carpetas)
-3. [Capas y Responsabilidades](#capas-y-responsabilidades)
-4. [Design System y Tokens](#design-system-y-tokens)
-5. [Seguridad, Multiempresa y Permisos](#seguridad-multiempresa-y-permisos)
-6. [Convenciones Obligatorias de Código](#convenciones-obligatorias-de-código)
-7. [Módulos de Negocio (Features)](#módulos-de-negocio-features)
-8. [OpenSpec y Workflow de Desarrollo](#openspec-y-workflow-de-desarrollo)
-9. [Instalación y Scripts](#instalación-y-scripts)
-10. [Documentación Técnica Adicional](#documentación-técnica-adicional)
-
----
-
-## Arquitectura Modular
-
-Siguiendo el estándar de arquitectura modular probado en `SOFI-WEB`, RP-TECH Frontend separa radicalmente las rutas de navegación de la lógica y componentes de dominio.
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  app/          Rutas Next (App Router) — páginas delgadas   │
-│  features/     Módulos de dominio (auth, casos, servicios)  │
-│  components/   Shell corporativo (AppShell) + ui kit        │
-│  lib/          Datos simulados, reglas de negocio y Zod     │
-│  docs/         Especificaciones técnicas para el equipo     │
-│  openspec/     Control de cambios y contratos de features   │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Diagrama de Flujo de Dependencias
-
-```
-  app/(rutas delgadas) ──► features/<dominio>/views ──► features/<dominio>/components
-         │                           │
-         │                           ▼
-         │                   hooks / types
-         ▼
-  components/shell (AppShell)
-         │
-         ▼
-  components/ui (Button, Card, Input, Table...)
-         │
-         ▼
-  globals.css (Tokens OKLCH) · Be Vietnam Pro
-```
-
-**Regla de Oro:** Los archivos `page.tsx` en `app/` son meros montadores de vistas (*thin wrappers*). No contienen estados, llamadas directas de mutación ni JSX complejo.
+1. [Arquitectura](#arquitectura)
+2. [Mapa de carpetas](#mapa-de-carpetas)
+3. [Agrupar por lógica](#agrupar-por-lógica)
+4. [Componentes globales](#componentes-globales)
+5. [Librerías](#librerías)
+6. [Tokens y etiquetas de estado](#tokens-y-etiquetas-de-estado)
+7. [Reglas de código](#reglas-de-código)
+8. [Features](#features)
+9. [OpenSpec](#openspec)
+10. [Scripts](#scripts)
 
 ---
 
-## Mapa de Carpetas
+## Arquitectura
+
+Las rutas no contienen la pantalla. Montan una vista del feature.
+
+```
+app/  →  features/<dominio>/views  →  components agrupados por lógica
+                │
+                ▼
+         hooks, utils, types
+                │
+                ▼
+         @/components/ui  y  @/lib
+```
+
+| Capa | Ruta | Hace | No hace |
+| --- | --- | --- | --- |
+| Página | `src/app/**/page.tsx` | Importa la vista del barrel y la monta | Estado, formularios, JSX de pantalla |
+| Vista | `src/features/<dominio>/views` | Compone la pantalla y sus hooks | Importar archivos privados de otro feature |
+| Componentes | `src/features/<dominio>/components/<grupo>` | UI de esa lógica | Llamar datos que pertenecen a otro dominio |
+| Hooks | `src/features/<dominio>/hooks` | Estado y acciones, sin JSX | Pintar interfaz |
+| UI | `src/components/ui` | Primitivas compartidas | Importar `features/` o `app/` |
+| Shell | `src/components/shell` y `src/components/layout` | Sidebar, header y sesión | Formularios de un caso |
+| Lib | `src/lib` | Datos simulados, permisos, Zod, PDF | Componentes visuales |
+
+Flujo permitido: `app` → `features` → `components/ui` y `lib`. Un feature importa otro solo por `@/features/<dominio>`.
+
+`src/app/(app)/layout.tsx` solo devuelve `<AppShell>{children}</AppShell>`. `AppShell` siempre pinta `{children}`. Si no hay sesión, usa un main mínimo y redirige a `/login` en el cliente.
+
+`usePathname` y `useSearchParams` en un Client Component bloquean el prerender si quedan fuera de `<Suspense>`. El aviso de Sonner (`ConsumirAvisos`) vive en su propio `Suspense` dentro de `Providers`. Ese límite no envuelve la página. No uses `fallback={null}` alrededor de `{children}` ni `export const instant = false` para tapar ese hook.
+
+---
+
+## Mapa de carpetas
 
 ```
 src/
-├── app/                        # Capa de Enrutamiento Delgada (Thin Pages)
-│   ├── (app)/                  # Grupo de rutas protegidas bajo AppShell
-│   │   ├── layout.tsx          # Monta <AppShell /> con Suspense
-│   │   ├── administracion/     # Gestión de clientes, usuarios y catálogo
-│   │   ├── casos/              # Listado general de casos con filtros
-│   │   │   ├── nuevo/          # Formulario reactivo de nuevo caso
-│   │   │   └── [id]/           # Ficha completa del caso y visitas
-│   │   └── mis-servicios/      # Vista técnica para operadores
-│   │       └── [id]/reporte/   # Reporte digital de servicio con firmas
-│   ├── login/                  # Inicio de sesión
-│   ├── sin-acceso/             # Pantalla de roles vencidos o sin permisos
-│   ├── globals.css             # Paleta OKLCH y utilidades Tailwind v4
-│   ├── layout.tsx              # Root layout con Be Vietnam Pro y Sonner
-│   └── page.tsx                # Raíz redirigida por middleware
-│
-├── features/                   # Módulos de Dominio Aislados
-│   ├── auth/                   # Autenticación y control de sesión
-│   │   ├── views/              # LoginView, SinAccesoView
-│   │   └── index.ts            # Barrel público del dominio
-│   ├── casos/                  # Gestión de casos de servicio técnico
-│   │   ├── components/         # BloqueSolicitud, BloqueCliente, BloqueEquipo, BloqueServicio
-│   │   ├── hooks/              # useNuevoCasoForm
-│   │   ├── views/              # ListaCasosView, NuevoCasoView, DetalleCasoView
-│   │   └── index.ts            # Barrel de vistas públicas
-│   └── servicios/              # Atención técnica de campo
-│       ├── components/         # TarjetaServicio, RepuestosList, FirmasDigitales
-│       ├── views/              # MisServiciosView, ReporteServicioView
-│       ├── types.ts            # Tipos e interfaces de servicios
-│       └── index.ts            # Barrel de servicios
-│
-├── components/                 # Componentes Transversales Reutilizables
-│   ├── shell/                  # Layout maestro (AppShell, Sidebar, BottomNav)
-│   └── ui/                     # Primitivas canónicas de UI (Button, Card, Input...)
-│
-├── lib/                        # Infraestructura y Lógica de Negocio
-│   ├── datos-simulados/        # Datos mock y server actions simuladas
-│   │   ├── casos/              # Modularización de tipos y mock cases
-│   │   ├── clientes.ts         # Clientes con soporte y RUC
-│   │   ├── contactos.ts        # Contactos por cliente
-│   │   ├── sedes.ts            # Sedes y direcciones
-│   │   ├── equipos.ts          # Maquinaria, cabezales y fechas
-│   │   ├── usuarios.ts         # Usuarios y roles con vigencia
-│   │   └── actions.ts          # Búsquedas, mutaciones y sugerencias
-│   ├── permisos/               # Reglas de autorización multi-rol
-│   └── validaciones/           # Esquemas Zod para formularios
-│
-├── docs/                       # Documentación Técnica del Frontend
-│   ├── KIT-UI.md               # Catálogo de componentes UI y props
-│   ├── REGLAS-ARQUITECTURA.md  # Reglas de código y modularización
-│   └── REGLAS-RESPONSIVE.md    # Estándar responsive y accesibilidad táctil
-│
-└── openspec/                   # Especificaciones Formales y Control de Cambios
-    ├── config.yaml             # Configuración del proyecto y diseño
-    ├── README.md               # Guía OpenSpec para el equipo
-    ├── specs/                  # Especificaciones activas
-    └── changes/                # Tareas y propuestas de arquitectura
+├── app/
+│   ├── (app)/
+│   │   ├── layout.tsx                 # AppShell
+│   │   ├── administracion/page.tsx
+│   │   ├── agenda/page.tsx
+│   │   ├── casos/page.tsx
+│   │   ├── casos/nuevo/page.tsx
+│   │   ├── casos/[id]/page.tsx
+│   │   └── mis-servicios/
+│   │       ├── page.tsx
+│   │       └── [id]/reporte/page.tsx
+│   ├── login/page.tsx
+│   ├── sin-acceso/page.tsx
+│   ├── layout.tsx                     # Be Vietnam Pro y Providers
+│   └── globals.css                    # Única fuente de color
+├── features/
+│   ├── auth/components + views
+│   ├── agenda/components + utils + views
+│   ├── casos/components/{lista,detalle,nuevo} + hooks + views
+│   ├── administracion/components/{comun,clientes,usuarios,sistema} + views
+│   ├── servicios/components/reporte + hooks + views
+│   └── errores/views
+├── components/
+│   ├── ui/                            # Kit global
+│   ├── layout/header y layout/sidebar
+│   ├── shell/AppShell.tsx
+│   ├── pdf/VistaPreviaPdf.tsx
+│   ├── avisos-sonner.tsx
+│   └── providers.tsx
+└── lib/
+    ├── datos-simulados/               # acciones/, semilla/, store, fecha
+    ├── permisos/
+    ├── validaciones/
+    └── pdf/
+```
+
+Datos simulados, sesión y permisos siguen en `src/lib/datos-simulados` y `src/lib/permisos`. No se mueven a un feature.
+
+---
+
+## Agrupar por lógica
+
+Dentro de `components/` los archivos van en una carpeta que nombra la pantalla o el subdominio. Nada queda suelto en la raíz si hay varios archivos de la misma lógica.
+
+| Feature | Carpeta | Qué agrupa |
+| --- | --- | --- |
+| casos | `components/lista` | Filtros y resultado del listado |
+| casos | `components/detalle` | Ficha, visitas y formularios de estado |
+| casos | `components/nuevo` | Bloques del alta |
+| casos | `components/nuevo/altas` | Modales de cliente, sede, contacto y equipo |
+| casos | `components/EstadoCaso.tsx` | Etiqueta compartida por lista y detalle. Se queda en la raíz porque no pertenece a un solo grupo |
+| administracion | `comun`, `clientes`, `usuarios`, `sistema` | Utilidad compartida, ficha de cliente, usuarios y parámetros |
+| servicios | `components/reporte` | Pasos del informe, firmas, fotos y repuestos |
+| agenda | `components` y `utils` | Grilla del mes y panel del día |
+| auth | `components` | Pocos archivos de login. No hace falta partirlos |
+
+Cada feature publica su API en `index.ts`. La página importa ese barrel.
+
+```tsx
+import { ListaCasosView } from '@/features/casos';
+
+export default function ListaCasosPage() {
+  return <ListaCasosView />;
+}
 ```
 
 ---
 
-## Capas y Responsabilidades
+## Componentes globales
 
-| Capa | Ubicación | Responsabilidad | Lo que NO debe hacer |
-| --- | --- | --- | --- |
-| **Thin Pages** | `src/app/` | Montar la vista correspondiente y declarar Suspense. | No contener lógica de negocio, ni handlers de formularios, ni JSX pesado. |
-| **Views** | `src/features/*/views` | Orquestar hooks y componentes de sección para conformar la pantalla. | No mezclar lógica de otros dominios de negocio. |
-| **Components** | `src/features/*/components` | Presentar información del dominio y recibir eventos de usuario. | No hacer llamadas directas a APIs globales sin desacoplamiento. |
-| **Hooks** | `src/features/*/hooks` | Manejar estados, debounce, sincronizaciones y validaciones. | No retornar JSX. |
-| **UI Kit** | `src/components/ui/` | Átomos visuales genéricos (Botón, Input, Tarjeta, etc.). | No contener reglas de negocio ni imports de `features/`. |
-| **Shell** | `src/components/shell/` | Estructura de navegación global, menús por rol y cabeceras. | No acoplarse a formularios específicos. |
+La UI repetida sale de `@/components/ui`. No se reescribe en el feature.
 
----
+| Necesidad | Componente | Import |
+| --- | --- | --- |
+| Acción | `Button` | `@/components/ui` |
+| Listado | `DataTable` | `@/components/ui` |
+| Diálogo y confirmación | `Modal`, `ConfirmModal` | `@/components/ui/modal`, `@/components/ui/ConfirmModal` |
+| Aviso | Sonner | `guardarAviso` de `@/components/avisos-sonner` y `SonnerToaster` |
+| Ayuda flotante | `Tooltip` | `@/components/ui` |
+| Búsqueda | `SearchInput` | `@/components/ui` |
+| Select de formulario | `CustomSelect` | `@/components/ui` |
+| Fecha | `SelectorFecha` | `@/components/ui` |
+| KPI reutilizable | `MetricCard` | `@/components/ui` |
+| Barras | `GraficoBarras` | `@/components/ui/charts/GraficoBarras` |
+| Estado de caso | `EstadoBadge` | `@/features/casos` vía `etiquetaEstado` / `EstadoCaso` |
+| Tarjeta, campo, aviso fijo | `Card`, `Input`, `Textarea`, `Badge`, `Alert` | `@/components/ui` |
+| PDF | `VistaPreviaPdf` | `@/components/pdf/VistaPreviaPdf` |
 
-## Design System y Tokens
+`DataTable` pagina de 10 en 10. Si la tabla lleva `className="h-full"`, mide el alto con `useAjustePagina` y no baja de esa tarjeta cuando hay 0 o 1 fila. Las tablas que no llenan el alto reservan el cuerpo de 10 filas y no se miden.
 
-El sistema visual utiliza el espacio de color perceptual **OKLCH** configurado directamente en `src/app/globals.css` mediante la directiva `@theme inline` de Tailwind CSS v4.
+La búsqueda de casos escribe al teclear. No lleva botón Buscar.
 
-### Tokens Principales
+`MetricCard` existe para KPIs. El listado de casos no lo muestra.
 
-- **`--primary`**: `oklch(0.6723 0.1606 244.9955)` (Azul técnico corporativo RP-TECH).
-- **`--card`**: `oklch(0.9784 0.0011 197.1387)` (Superficie suave para paneles y tarjetas).
-- **`--border`**: `oklch(0.9317 0.0118 231.6594)` (Líneas divisorias limpias y sutiles).
-- **`--radius`**: `1.3rem` (Bordes redondeados modernos y amigables).
-- **Sombras**: Tinte azulado sutil (`rgba(29, 161, 242, 0.15)`).
-
-### Tipografía Oficial: Be Vietnam Pro
-
-Cargada de forma optimizada en `src/app/layout.tsx` a través de `next/font/google`:
-- Subconjuntos: `latin`.
-- Pesos soportados: `300`, `400`, `500`, `600`, `700`, `800`.
-- Variable CSS: `--font-sans`.
-- Fuentes auxiliares: `Georgia, serif` (`--font-serif`) y `Menlo, monospace` (`--font-mono`).
+Un componente local solo se crea cuando la interacción es de ese dominio y no sirve en otro: firmas, pasos del reporte, bloques del alta, celda del calendario. Aunque sea local, usa `Button`, `Modal`, `Card` y los tokens.
 
 ---
 
-## Seguridad, Multiempresa y Permisos
+## Librerías
 
-1. **Aislamiento Multiempresa (`empresa_id`):**
-   - Todos los datos simulados y futuras llamadas API filtran estrictamente por la empresa del usuario autenticado (`empresa_id`).
-   - El rol `superadmin` es el único con visibilidad transversal multitenant.
-2. **Vigencia Temporal de Roles:**
-   - La asignación de roles incluye campos `desde` y `hasta`.
-   - Si la fecha actual no se encuentra en el rango de vigencia, el rol queda inactivo.
-   - Si un usuario no posee ningún rol vigente, es redirigido a `/sin-acceso`.
-3. **Sugerencia Automática de Modo de Servicio:**
-   - Si el equipo tiene menos de 12 meses de instalación → `Garantía del equipo`.
-   - Si tiene más de 12 meses y el cliente tiene contrato vigente → `Garantía de soporte técnico`.
-   - En cualquier otro caso → `Facturado`.
-   - Si el usuario selecciona un modo diferente al sugerido, el sistema exige ingresar un motivo justificado mediante validación Zod.
+| Librería | Uso |
+| --- | --- |
+| `next` 16.4 y `react` 19.3 | App Router y UI |
+| `tailwindcss` 4 | Utilidades sobre los tokens |
+| `shadcn`, Radix y `@base-ui/react` | Primitivas. `Button` sale de Base UI |
+| `class-variance-authority` y `cn` | Variantes y fusión de clases |
+| `lucide-react` | Iconos |
+| `sonner` y `next-themes` | Avisos y tema claro/oscuro |
+| `react-hook-form` y `zod` ^3.25 | Formularios. Zod se queda en la versión 3 |
+| `recharts` | `GraficoBarras` |
+| `framer-motion` | Filas de la tabla |
+| `date-fns`, `dayjs`, `react-day-picker` | Fechas del kit |
+| `@react-pdf/renderer`, `jspdf`, `html2canvas` | PDF |
+| `xlsx` | Exportación Excel del listado |
+| `primereact` 10.9.7 y `antd` | Dependencias ya instaladas del kit. La pantalla nueva no copia su tema |
 
----
-
-## Convenciones Obligatorias de Código
-
-Para mantener la máxima legibilidad y calidad arquitectónica:
-
-1. **Cero Comentarios en el Código:**
-   - Prohibidos los comentarios triviales, decorativos o de cabecera (`// src/...`).
-   - El código debe ser autoexplicativo a través de tipos fuertes y nombres semánticos.
-2. **Límite de 350 Líneas por Archivo:**
-   - Ningún archivo puede exceder las 350 líneas de código.
-   - Si un archivo crece, se debe modularizar en carpetas lógicas cohesionadas.
-3. **Cero Estilos Hardcodeados:**
-   - Usar siempre tokens semánticos (`text-primary`, `bg-card`, etc.).
-   - Prohibido el uso de valores hexadecimales en duro o atributos `style={{ ... }}`.
-   - Utilizar la clase utilitaria `min-h-11` para garantizar áreas táctiles de 44px.
-4. **Auditoría Continua de Código Muerto:**
-   - Todo archivo, función o exportación huérfana debe ser eliminada de inmediato.
+No se agregan Poppins, un verde de PrimeReact ni variables `--success`, `--warning`, `--danger` o `--info`. Esos papeles los cubren `primary`, `destructive` y `chart-1` … `chart-5`.
 
 ---
 
-## Módulos de Negocio (Features)
+## Tokens y etiquetas de estado
 
-### 1. `features/auth`
-- Gestión del inicio de sesión (`LoginView`) con validación de credenciales.
-- Detección de roles vigentes y redirección automática según perfil (`pantallaInicio`).
-- Pantalla informativa de denegación de permisos (`SinAccesoView`).
+Los colores viven en `src/app/globals.css`. En componentes se usan las utilidades (`bg-primary`, `text-chart-2`, `border-destructive/40`), nunca un hex, un `rgb` ni un número OKLCH.
 
-### 2. `features/casos`
-- **`ListaCasosView`**: Listado reactivo con búsqueda, filtros combinados (estado, técnico, tipo de servicio, rango de fechas), vista de tabla en PC y tarjetas responsivas en móvil.
-- **`NuevoCasoView`**: Asistente de creación de casos dividido en 4 bloques funcionales (`BloqueSolicitud`, `BloqueCliente`, `BloqueEquipo`, `BloqueServicio`) con autocompletado y cálculo automático de garantía.
-- **`DetalleCasoView`**: Ficha técnica completa del caso, datos de cliente, sede, equipo, visitas programadas e historial.
+| Token | Papel |
+| --- | --- |
+| `--primary` / `--chart-1` | Azul RP-TECH |
+| `--chart-2` y `--chart-4` | Verdes |
+| `--chart-3` | Dorado. Es claro: el texto del badge va en `text-foreground` |
+| `--chart-5` | Rojo cálido |
+| `--destructive` | Rojo de anulación y error |
+| `--secondary` | Superficie oscura o gris. No se usa en etiquetas de estado |
 
-### 3. `features/servicios`
-- **`MisServiciosView`**: Portal técnico para visualización de servicios programados para hoy y próximas visitas.
-- **`ReporteServicioView`**: Formulario digital de informe de atención en campo con registro de horas de ingreso/salida, procedimientos técnicos, insumos/repuestos, fotografías y firmas digitales táctiles.
+| Estado | Clases |
+| --- | --- |
+| Por programar | `border-chart-3/50 bg-chart-3/20 text-foreground` |
+| Programado | `border-primary/40 bg-primary/15 text-primary` |
+| En atención y Cerrado | `border-chart-2/40 bg-chart-2/15 text-chart-2` |
+| Atendido | `border-chart-4/40 bg-chart-4/15 text-chart-4` |
+| En espera | `border-chart-5/40 bg-chart-5/15 text-chart-5` |
+| Anulado | `border-destructive/40 bg-destructive/15 text-destructive` |
 
----
-
-## OpenSpec y Workflow de Desarrollo
-
-El proyecto opera bajo la metodología **OpenSpec**, donde todo cambio de arquitectura o funcionalidad requiere un ciclo formal de especificación:
-
-1. **Propose:** Creación de propuesta en `openspec/changes/<nombre>/proposal.md`.
-2. **Design:** Documentación de impacto y contratos en `design.md`.
-3. **Tasks:** Plan de tareas atómicas en `tasks.md`.
-4. **Apply:** Ejecución de código con verificación estricta (`tsc` y `build`).
-5. **Archive:** Cierre y congelamiento en histórico de cambios.
-
-Para más detalles, consulta `openspec/README.md`.
+Tipografía: Be Vietnam Pro. Números de caso y horas usan `font-mono`.
 
 ---
 
-## Instalación y Scripts
+## Reglas de código
 
-### Prerrequisitos
-- Node.js 20+ (recomendado 22+ o 24+)
-- npm o bun
+1. **Tope de 300 líneas.** Ningún `.ts` o `.tsx` nuevo pasa de 300 líneas. No es un mínimo de tamaño: es el máximo. Al acercarse, se parte en una carpeta de la misma lógica. Hoy se pasan y no se parten solo para cuadrar el número: `src/components/ui/sidebar.tsx` (primitiva shadcn), `src/lib/datos-simulados/acciones/reportes.ts`, `src/lib/datos-simulados/acciones/vistas.ts` y `src/features/servicios/hooks/useAccionesReporte.ts`. Esos archivos no crecen; el siguiente cambio los divide.
+2. **Cero comentarios en `src/`.** Sin cabeceras, sin comentarios JSX y sin banners. La explicación vive en `docs/` y `openspec/`.
+3. **Sin colores en duro.** Tampoco clases de paleta Tailwind (`text-red-900`, `bg-blue-50`).
+4. **`style` solo para una medida calculada en runtime**, como el alto de fila de la tabla. El color no va en `style`.
+5. **Área táctil:** `min-h-11` donde el control se usa con el dedo.
+6. **Código muerto:** se borra en el mismo cambio. Los alias que ya nadie importa también.
+7. **Verificación:** `npx eslint --max-warnings 0` sobre lo tocado y `npx tsc --noEmit`.
 
-### Instalación de Dependencias
+La lógica de negocio, la sesión, las URLs y los datos simulados no se reescriben para acomodar una carpeta.
+
+---
+
+## Features
+
+| Feature | Rutas | Vista pública |
+| --- | --- | --- |
+| auth | `/login`, `/sin-acceso` | `LoginView`, `SinAccesoView` |
+| casos | `/casos`, `/casos/nuevo`, `/casos/[id]` | `ListaCasosView`, `NuevoCasoView`, `DetalleCasoView` |
+| servicios | `/mis-servicios`, `/mis-servicios/[id]/reporte` | `MisServiciosView`, `ReporteServicioView` |
+| agenda | `/agenda` | `AgendaView` |
+| administracion | `/administracion` | `AdministracionView` |
+| errores | error y no encontrado | `ErrorSistemaView`, `NoEncontradoView` |
+
+Casos no muestra tarjetas KPI ni chips de bandeja. Nuevo caso y Excel van en la misma fila que el buscador. La query `bandeja` sigue filtrando si llega en la URL.
+
+Agenda es un mes de lunes a domingo más el panel del día. Las visitas salen de `tecnicos()` y `agenda_tecnico`. La fecha viaja en `?fecha=`.
+
+Multiempresa: las consultas filtran por `empresa_id`. Solo `superadmin` cruza empresas. Un rol vale entre `desde` y `hasta`. Sin rol vigente, la entrada va a `/sin-acceso`.
+
+Modo de servicio sugerido: menos de 12 meses desde la instalación es garantía del equipo; con más de 12 meses y contrato vigente es garantía de soporte; si no, facturado. Otro modo exige motivo.
+
+---
+
+## OpenSpec
+
+Las reglas formales están en `openspec/specs/`:
+
+- `frontend-architecture`
+- `feature-module-contract`
+- `global-components-policy`
+- `code-standards`
+- `design-system`
+
+Un cambio de estructura se propone en `openspec/changes/<nombre>/` y, al cerrarse, se archiva. La guía corta está en `openspec/README.md`.
+
+---
+
+## Scripts
+
+Requiere Node.js 20 o superior.
+
 ```bash
 npm install
-```
-
-### Conexión con Supabase
-El frontend lee y escribe en Supabase (repo `rp-tech-backend`). No hay API propia: las reglas las aplica la base (RLS y funciones).
-
-1. Levanta el backend en local (en la carpeta de `rp-tech-backend`, con Docker Desktop abierto):
-   ```bash
-   npx supabase start
-   npx supabase db reset
-   npx supabase functions serve
-   ```
-   La última deja corriendo las funciones `reporte-pdf` (PDF y correo) y `usuarios` (crear usuarios).
-2. Copia `.env.example` como `.env.local` y pon la **Project URL** y la clave **Publishable** que muestra `npx supabase status`. La clave **Secret** nunca va en el frontend.
-3. Entra con los usuarios de prueba del backend (contraseña `Rptech2026!`), por ejemplo `coordinador@rptech.test` o `tecnico1@rptech.test`.
-
-Los correos que envía el sistema en local se ven en Mailpit: http://127.0.0.1:54324.
-
-**Dónde está cada cosa:**
-- `src/lib/datos/`: capa de datos real. Mismos nombres que antes (`casos_lista`, `programar_visita`, `cerrar_reporte`…), así las pantallas no cambiaron. Las pantallas importan de `@/lib/datos/actions`.
-- `src/lib/datos-simulados/`: los datos de prueba de antes. Ya no los usa ninguna pantalla; quedan los tipos (`types.ts`) y las fechas (`fecha.ts`).
-- Fotos y firmas se suben al bucket privado `reportes`; el logo, al bucket `empresas`. Para verlos se pide un enlace temporal.
-
-### Servidor de Desarrollo (Turbopack)
-```bash
 npm run dev
-```
-
-### Verificación de Tipos TypeScript
-```bash
+npm run lint
 npx tsc --noEmit
-```
-
-### Compilación para Producción
-```bash
 npm run build
 ```
 
----
-
-## Documentación Técnica Adicional
-
-- [Catálogo de Componentes UI (KIT-UI.md)](docs/KIT-UI.md)
-- [Política Global de Componentes Compartidos](docs/REGLAS-COMPONENTES-GLOBALES.md)
-- [Reglas de Arquitectura y Modularización](docs/REGLAS-ARQUITECTURA.md)
-- [Reglas de Diseño Responsive y Accesibilidad Táctil](docs/REGLAS-RESPONSIVE.md)
-- [Configuración OpenSpec](openspec/config.yaml)
+Más detalle operativo: [reglas de arquitectura](docs/REGLAS-ARQUITECTURA.md), [componentes globales](docs/REGLAS-COMPONENTES-GLOBALES.md), [kit UI](docs/KIT-UI.md) y [responsive](docs/REGLAS-RESPONSIVE.md).

@@ -1,20 +1,26 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { mis_servicios, hoyLima, obtenerUsuarioActual, type MiServicio } from '@/lib/datos/actions';
+import { mis_servicios, hoyLima, obtenerUsuarioActual, type MiServicio } from '@/lib/datos-simulados/actions';
 import Link from 'next/link';
+import { Wrench } from 'lucide-react';
+import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function MisServiciosView() {
   const [servicios, setServicios] = useState<MiServicio[]>([]);
   const [nombre, setNombre] = useState('');
+  const [hoy, setHoy] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let activo = true;
     const sesion = obtenerUsuarioActual();
+    const dia = hoyLima();
     mis_servicios().then((lista) => {
       if (!activo) return;
       setNombre(sesion?.usuario.nombre_completo ?? '');
+      setHoy(dia);
       setServicios(lista);
       setLoading(false);
     });
@@ -23,7 +29,17 @@ export function MisServiciosView() {
     };
   }, []);
 
-  const hoy = hoyLima();
+  useRegistrarTitulo('Mis servicios', nombre ? `Técnico: ${nombre}` : 'Órdenes asignadas y visitas técnicas', Wrench);
+
+  if (loading || !hoy) {
+    return (
+      <div className="space-y-3">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-28 w-full rounded-2xl" />
+        <Skeleton className="h-28 w-full rounded-2xl" />
+      </div>
+    );
+  }
 
   const serviciosHoy = servicios.filter((s) => !s.cerrado && s.fecha_programada === hoy);
   const serviciosDiasAnteriores = servicios.filter(
@@ -34,16 +50,9 @@ export function MisServiciosView() {
   );
   const serviciosCerrados = servicios.filter((s) => s.cerrado);
 
-  if (loading) {
-    return <div className="text-center py-12 text-muted-foreground">Cargando tus servicios...</div>;
-  }
-
   return (
-    <div className="p-4 max-w-md mx-auto md:max-w-3xl pb-24">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">Mis servicios</h1>
-        <p className="text-xs text-muted-foreground">Técnico: {nombre}</p>
-      </div>
+    <div className="mx-auto w-full max-w-md pb-24 md:max-w-3xl">
+      <p className="mb-6 text-xs text-muted-foreground">Técnico: {nombre}</p>
 
       {/* Día de hoy */}
       <div className="mb-8">
@@ -51,7 +60,7 @@ export function MisServiciosView() {
           Hoy ({serviciosHoy.length})
         </h2>
         {serviciosDiasAnteriores.length > 0 && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-amber-900 text-sm mb-4">
+          <div className="mb-4 rounded-lg border border-chart-3/40 bg-chart-3/15 p-3 text-sm text-foreground">
             De días anteriores, sin cerrar: {serviciosDiasAnteriores.length}
           </div>
         )}
@@ -62,7 +71,7 @@ export function MisServiciosView() {
         ) : (
           <div className="space-y-4">
             {serviciosHoy.map((servicio) => (
-              <TarjetaServicio key={servicio.id} servicio={servicio} />
+              <TarjetaServicio key={servicio.id} servicio={servicio} hoy={hoy} />
             ))}
           </div>
         )}
@@ -80,7 +89,7 @@ export function MisServiciosView() {
         ) : (
           <div className="space-y-4">
             {serviciosProximos.map((servicio) => (
-              <TarjetaServicio key={servicio.id} servicio={servicio} />
+              <TarjetaServicio key={servicio.id} servicio={servicio} hoy={hoy} />
             ))}
           </div>
         )}
@@ -98,7 +107,7 @@ export function MisServiciosView() {
         ) : (
           <div className="space-y-4">
             {serviciosCerrados.map((servicio) => (
-              <TarjetaServicio key={servicio.id} servicio={servicio} />
+              <TarjetaServicio key={servicio.id} servicio={servicio} hoy={hoy} />
             ))}
           </div>
         )}
@@ -107,9 +116,9 @@ export function MisServiciosView() {
   );
 }
 
-function TarjetaServicio({ servicio }: { servicio: MiServicio }) {
+function TarjetaServicio({ servicio, hoy }: { servicio: MiServicio; hoy: string }) {
   const enlace = `/mis-servicios/${servicio.caso_id}/reporte`;
-  const esHoy = servicio.fecha_programada === hoyLima();
+  const esHoy = servicio.fecha_programada === hoy;
   const esAdjunto = servicio.soy_adjunto;
 
   return (
@@ -138,7 +147,7 @@ function TarjetaServicio({ servicio }: { servicio: MiServicio }) {
           </span>
         )}
         {servicio.estado === 'en_atencion' && (
-          <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs font-medium">
+          <span className="rounded border border-chart-2/40 bg-chart-2/15 px-2 py-1 text-xs font-medium text-chart-2">
             En atención
           </span>
         )}

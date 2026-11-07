@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { crear_caso, programar_visita, tecnicos } from '@/lib/datos/actions';
+import { crear_caso, programar_visita, tecnicos } from '@/lib/datos-simulados/actions';
 import { nuevoCasoSchema, NuevoCasoFormValues } from '@/lib/validaciones/caso';
 import { useNuevoCasoForm } from '../hooks/useNuevoCasoForm';
 import {
@@ -14,9 +14,11 @@ import {
   BloqueEquipo,
   BloqueServicio,
 } from '../components';
-import { BloqueProgramar, type ProgramacionVisita } from '../components/BloqueProgramar';
-import { EncabezadoNuevoCaso } from '../components/EncabezadoNuevoCaso';
-import { ConfirmacionCaso, type ConfirmacionCasoDatos } from '../components/ConfirmacionCaso';
+import { BloqueProgramar, type ProgramacionVisita } from '../components/nuevo/BloqueProgramar';
+import { EncabezadoNuevoCaso } from '../components/nuevo/EncabezadoNuevoCaso';
+import { ConfirmacionCaso, type ConfirmacionCasoDatos } from '../components/nuevo/ConfirmacionCaso';
+import { PlusCircle } from 'lucide-react';
+import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -37,6 +39,7 @@ function NuevoCasoContenido() {
   const [clave, setClave] = useState(0);
   const [origenId, setOrigenId] = useState(origenInicial);
   const [confirmacion, setConfirmacion] = useState<ConfirmacionCasoDatos | null>(null);
+  useRegistrarTitulo('Nuevo caso', 'Apertura de orden técnica de atención', PlusCircle);
 
   if (confirmacion) {
     return (
@@ -154,7 +157,7 @@ function FormularioNuevoCaso({
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-5xl mx-auto overflow-x-hidden">
+    <div className="mx-auto w-full max-w-5xl overflow-x-hidden">
       <EncabezadoNuevoCaso numeroOrigen={datos.numeroOrigen} />
 
       {errorGlobal && (

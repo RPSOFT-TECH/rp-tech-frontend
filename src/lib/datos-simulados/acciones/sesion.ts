@@ -36,6 +36,18 @@ export async function login(email: string, password: string): Promise<SesionUsua
 
 let sesionCacheClave: string | null | undefined;
 let sesionCache: SesionUsuario | null = null;
+const oyentesSesion = new Set<() => void>();
+
+export function suscribirSesion(oyente: () => void): () => void {
+  oyentesSesion.add(oyente);
+  return () => {
+    oyentesSesion.delete(oyente);
+  };
+}
+
+function publicarSesion(): void {
+  oyentesSesion.forEach((oyente) => oyente());
+}
 
 function almacenamiento(): Storage | null {
   return (globalThis as { localStorage?: Storage }).localStorage ?? null;
@@ -76,17 +88,24 @@ export function guardarSesion(sesion: SesionUsuario): void {
   sesionCache = sesion;
   memoria.setItem('rptech_session_user', payload);
   doc.cookie = `rptech_session=${encodeURIComponent(payload)}; path=/; SameSite=Lax`;
+  publicarSesion();
 }
 
-export async function logout(): Promise<void> {
-  await esperar();
+export function limpiarSesion(): void {
   sesionCacheClave = null;
   sesionCache = null;
   const memoria = almacenamiento();
   const doc = documento();
-  if (!memoria || !doc) return;
-  memoria.removeItem('rptech_session_user');
-  doc.cookie = 'rptech_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+  if (memoria) memoria.removeItem('rptech_session_user');
+  if (doc) {
+    doc.cookie = 'rptech_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0';
+    doc.cookie = 'rptech_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0; SameSite=Lax';
+  }
+}
+
+export async function logout(): Promise<void> {
+  limpiarSesion();
+  publicarSesion();
 }
 
 function esperar(): Promise<void> {

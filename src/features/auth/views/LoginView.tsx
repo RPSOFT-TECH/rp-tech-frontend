@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { login, guardarSesion } from '@/lib/datos/actions';
+import { guardarAviso } from '@/components/avisos-sonner';
+import { login, guardarSesion } from '@/lib/datos-simulados/actions';
 import { pantallaInicio } from '@/lib/permisos';
 import { AuthFormWrapper } from '../components/AuthFormWrapper';
 import { LoginForm } from '../components/LoginForm';
@@ -31,7 +32,16 @@ export function LoginView() {
       }
 
       guardarSesion(sesion);
-      router.push(pantallaInicio(sesion.rolesVigentes, sesion.empresa.permisos_consulta));
+      const nombre = sesion.usuario.nombre_completo.split(' ')[0] || 'Usuario';
+      guardarAviso(
+        {
+          variant: 'success',
+          title: `Bienvenido, ${nombre}`,
+          description: 'Inicio de sesión exitoso.',
+        },
+        true,
+      );
+      router.replace(pantallaInicio(sesion.rolesVigentes, sesion.empresa.permisos_consulta));
     } catch {
       setError('Ocurrió un error inesperado. Intenta de nuevo.');
     } finally {

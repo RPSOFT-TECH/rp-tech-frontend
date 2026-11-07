@@ -4,28 +4,61 @@
 
 ### Requirement: Feature Directory Layout
 
-Each domain feature module under `src/features/<domain>/` SHALL follow a consistent, predictable layout:
+Each domain under `src/features/<domain>/` SHALL expose a public barrel and keep its screen logic in predictable folders.
+
 ```text
 src/features/<domain>/
-├── components/     # Domain-specific UI components (e.g. BloqueCliente, ChecklistReporte)
-├── hooks/          # Custom hooks handling data fetching, form state, and filter logic (no JSX)
-├── views/          # Top-level screen views mounted by App Router pages
-├── types/          # Feature-specific interfaces and DTOs (or types.ts)
-└── index.ts        # Public barrel exporting only what external callers need
+├── components/          # UI of this domain, grouped by logic when there is more than a handful
+│   └── <grupo>/         # lista, detalle, nuevo, reporte, clientes, usuarios, sistema, comun
+├── hooks/               # State and actions. No JSX
+├── views/               # Screens mounted by app routes
+├── utils/               # Pure helpers of this domain, when needed
+├── types.ts             # Or types/ when the types split
+└── index.ts             # Only the public API
 ```
 
+Folders that do not apply to a domain SHALL be omitted. `auth` keeps a flat `components/` folder because it has few files. `errores` only has `views/`.
+
 #### Scenario: Public API isolation
-- **WHEN** an external module needs functionality from a feature
-- **THEN** it SHALL import from `@/features/<domain>` (via `index.ts`) rather than deep subpaths.
+- **WHEN** a route or another feature needs a screen or a shared type
+- **THEN** it SHALL import from `@/features/<domain>`
+- **AND** it SHALL NOT import a private file of that feature
 
-### Requirement: State and Modularization Balance
+#### Scenario: Same-feature imports
+- **WHEN** a view of the same feature needs a block that is not part of the public API
+- **THEN** it MAY import that file by a relative path inside the feature
 
-To maintain readable code without unnecessary fragmentation:
-- Features SHALL maintain a balanced number of components (~4 to 8 per domain).
-- Trivial presentational fragments under ~40 lines used in only one place SHOULD be kept within the parent component.
-- Complex sections (≥ 80 lines, or with their own interactive state/modals) SHALL be extracted into modular components under `components/`.
-- Custom hooks SHALL be free of JSX and focus purely on data management, filter synchronization, and form handling (target ≤ 180 lines).
+### Requirement: Group Components by Logic
 
-### Requirement: Zero Filler Comments & Business Logic Preservation
+Files that belong to the same screen or sub-domain SHALL live in one folder. A loose file at `components/` root is allowed only when it is shared by more than one group, or when the whole domain has few components.
 
-Source code SHALL NOT contain decorative ASCII banners, separator dividers, or redundant section comments. All existing multiempresa rules, active role date checks, and simulated data integrations SHALL be strictly preserved.
+Current groups:
+
+- `casos/components/lista`, `casos/components/detalle`, `casos/components/nuevo`, `casos/components/nuevo/altas`
+- `casos/components/EstadoCaso.tsx` stays at the root because list and detail both use it
+- `administracion/components/comun`, `clientes`, `usuarios`, `sistema`
+- `servicios/components/reporte`
+- `agenda/components` plus `agenda/utils`
+
+#### Scenario: New case form files
+- **WHEN** a component only serves the new-case flow
+- **THEN** it SHALL live under `features/casos/components/nuevo`
+- **AND** a modal that creates a client, site, contact, or equipment SHALL live under `features/casos/components/nuevo/altas`
+
+#### Scenario: Small domain
+- **WHEN** a domain has about four cohesive components or fewer
+- **THEN** those files MAY stay directly in `components/` without an extra folder
+
+### Requirement: Hooks and Views
+
+- A view SHALL orchestrate hooks and section components. It SHALL stay at or under 300 lines.
+- A hook SHALL NOT return JSX.
+- A page in `src/app` SHALL mount the view and SHALL NOT own the screen state.
+
+#### Scenario: Thin route
+- **WHEN** a user opens `/casos`, `/casos/nuevo`, `/casos/[id]`, `/agenda`, `/administracion`, `/mis-servicios`, or `/login`
+- **THEN** `page.tsx` SHALL render the feature view and nothing else of the screen
+
+### Requirement: No Source Comments
+
+Source files SHALL NOT contain header comments, JSX comments, or decorative separators. Business rules for multi-company scope, role dates, and simulated data SHALL stay in force when files move.

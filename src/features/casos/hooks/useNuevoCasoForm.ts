@@ -14,7 +14,7 @@ import {
   type Sede,
   type EquipoVista,
   type SugerenciaModo,
-} from '@/lib/datos/actions';
+} from '@/lib/datos-simulados/actions';
 import { NuevoCasoFormValues } from '@/lib/validaciones/caso';
 
 const catalogosVacios: CatalogosActivos = {

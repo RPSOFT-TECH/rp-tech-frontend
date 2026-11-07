@@ -1,6 +1,11 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useRef, useState } from 'react';
+import { cn } from '@/lib/utils';
+import { DataTable as Tabla } from './data-table/DataTable';
+import { DataTablePagination } from './data-table/DataTablePagination';
+import { DataTableSkeleton } from './data-table/DataTableSkeleton';
+import { useAjustePagina } from './data-table/use-ajuste-pagina';
 
 export interface Columna<T> {
   clave: string;
@@ -18,6 +23,8 @@ interface DataTableProps<T> {
   textoVacio?: string;
   onFilaClick?: (fila: T) => void;
   className?: string;
+  porPagina?: number;
+  conservarEncabezado?: boolean;
 }
 
 function textoCelda<T>(fila: T, clave: string): ReactNode {
@@ -27,64 +34,89 @@ function textoCelda<T>(fila: T, clave: string): ReactNode {
   return '';
 }
 
+function firmaDe<T>(datos: T[], claveFila: (fila: T) => string | number): string {
+  if (datos.length === 0) return '0';
+  return `${datos.length}:${claveFila(datos[0])}:${claveFila(datos[datos.length - 1])}`;
+}
+
 export function DataTable<T>({
   columnas,
   datos,
   claveFila,
   cargando = false,
-  textoCargando = 'Cargando información...',
   textoVacio = 'No se encontraron resultados.',
   onFilaClick,
   className = '',
+  porPagina,
 }: DataTableProps<T>) {
-  if (cargando) {
-    return (
-      <div className="bg-card border border-border rounded-xl p-12 text-center text-sm text-muted-foreground shadow-xs">
-        {textoCargando}
-      </div>
-    );
+  const llena = className.includes('h-full');
+  const contenedorRef = useRef<HTMLDivElement | null>(null);
+  const ajuste = useAjustePagina(contenedorRef, llena);
+  const cupo = porPagina ?? ajuste.cupo;
+  const firma = firmaDe(datos, claveFila);
+  const [pagina, setPagina] = useState(1);
+  const [firmaPrev, setFirmaPrev] = useState(firma);
+  let paginaActual = pagina;
+  if (firma !== firmaPrev) {
+    setFirmaPrev(firma);
+    paginaActual = 1;
+    if (pagina !== 1) setPagina(1);
+  }
+  const totalPaginas = Math.max(1, Math.ceil(datos.length / cupo));
+  if (paginaActual > totalPaginas) {
+    paginaActual = totalPaginas;
+    setPagina(totalPaginas);
   }
 
-  if (datos.length === 0) {
-    return (
-      <div className="bg-card border border-border rounded-xl p-12 text-center text-sm text-muted-foreground shadow-xs">
-        {textoVacio}
-      </div>
-    );
-  }
+  const columnasTabla = columnas.map((col) => ({
+    key: col.clave,
+    header: col.encabezado,
+    render: (fila: T) => (col.render ? col.render(fila) : textoCelda(fila, col.clave)),
+  }));
+
+  const inicio = (paginaActual - 1) * cupo;
+  const visibles = datos.slice(inicio, inicio + cupo);
+  const altoCuerpo = llena ? undefined : cupo * ajuste.altoFila;
 
   return (
-    <div className={`bg-card rounded-xl shadow-xs border border-border overflow-hidden ${className}`}>
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-muted border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              {columnas.map((col) => (
-                <th key={col.clave} className={`p-4 ${col.className || ''}`}>
-                  {col.encabezado}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border text-sm">
-            {datos.map((fila) => {
-              const id = claveFila(fila);
-              return (
-                <tr
-                  key={id}
-                  onClick={() => onFilaClick && onFilaClick(fila)}
-                  className={`transition-colors hover:bg-muted/40 ${onFilaClick ? 'cursor-pointer' : ''}`}
-                >
-                  {columnas.map((col) => (
-                    <td key={col.clave} className={`p-4 ${col.className || ''}`}>
-                      {col.render ? col.render(fila) : textoCelda(fila, col.clave)}
-                    </td>
-                  ))}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+    <div
+      ref={contenedorRef}
+      className={cn(
+        'flex w-full flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm',
+        llena && 'h-full min-h-0',
+        className,
+      )}
+    >
+      {cargando ? (
+        <div data-table-scroll className="min-h-0 flex-1 overflow-hidden" style={altoCuerpo ? { minHeight: altoCuerpo } : undefined}>
+          <DataTableSkeleton
+            rows={cupo}
+            columns={Math.max(columnas.length, 1)}
+            actionButtonsCount={0}
+            className="h-full rounded-none border-0 shadow-none"
+          />
+        </div>
+      ) : (
+        <Tabla
+          className={cn('h-auto rounded-none border-0 shadow-none', llena && 'min-h-0 flex-1')}
+          columns={columnasTabla}
+          data={visibles}
+          rowKey={claveFila}
+          rowHeight={ajuste.altoFila}
+          bodyMinHeight={altoCuerpo}
+          emptyTitle={textoVacio}
+          emptyDescription="No hay datos para mostrar en este momento."
+          onRowClick={onFilaClick}
+        />
+      )}
+      <div data-pagination-footer className="shrink-0 border-t border-border/40 px-4 py-2">
+        <DataTablePagination
+          currentPage={paginaActual}
+          totalPages={totalPaginas}
+          totalItems={datos.length}
+          perPage={cupo}
+          onPageChange={setPagina}
+        />
       </div>
     </div>
   );

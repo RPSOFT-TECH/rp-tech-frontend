@@ -3,14 +3,16 @@
 import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSyncExternalStore } from 'react';
-import { leerSesionEstable } from '@/lib/datos/actions';
-import { ListaClientes } from '../components/ListaClientes';
-import { FichaCliente } from '../components/FichaCliente';
-import { UsuariosAdmin } from '../components/UsuariosAdmin';
-import { ParametrosAdmin } from '../components/ParametrosAdmin';
-import { CatalogosAdmin } from '../components/CatalogosAdmin';
-import { PermisosAdmin } from '../components/PermisosAdmin';
-import { pestanasVisibles } from '../components/pestanas';
+import { leerSesionEstable } from '@/lib/datos-simulados/actions';
+import { ShieldCheck } from 'lucide-react';
+import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
+import { ListaClientes } from '../components/clientes/ListaClientes';
+import { FichaCliente } from '../components/clientes/FichaCliente';
+import { UsuariosAdmin } from '../components/usuarios/UsuariosAdmin';
+import { ParametrosAdmin } from '../components/sistema/ParametrosAdmin';
+import { CatalogosAdmin } from '../components/sistema/CatalogosAdmin';
+import { PermisosAdmin } from '../components/sistema/PermisosAdmin';
+import { pestanasVisibles } from '../components/comun/pestanas';
 
 export function AdministracionView() {
   return (
@@ -25,6 +27,7 @@ function Contenido() {
   const params = useSearchParams();
   const sesion = useSyncExternalStore(() => () => {}, leerSesionEstable, () => null);
   const roles = sesion?.rolesVigentes ?? [];
+  useRegistrarTitulo('Administración', 'Gestión del sistema y perfiles', ShieldCheck);
   const visibles = pestanasVisibles(roles);
   const pedida = params.get('seccion') ?? 'clientes';
   const seccion = visibles.some((pestana) => pestana.id === pedida) ? pedida : (visibles[0]?.id ?? '');
@@ -35,9 +38,8 @@ function Contenido() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold text-foreground mb-4">Administración</h1>
-      <div className="flex flex-wrap gap-2 mb-6">
+    <div className="mx-auto w-full max-w-6xl">
+      <div className="mb-6 flex flex-wrap gap-2">
         {visibles.map((pestana) => (
           <button
             key={pestana.id}

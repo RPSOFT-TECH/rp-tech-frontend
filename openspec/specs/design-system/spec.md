@@ -38,4 +38,28 @@ All card containers, interactive modals, and inputs SHALL adhere to the standard
 #### Scenario: Mobile and touch usability
 - **GIVEN** interactive buttons, select inputs, and links
 - **WHEN** rendered on touch or mobile devices
-- **THEN** the minimum touch height SHALL be at least `44px` (`min-height: 44px`)
+- **THEN** the minimum touch height SHALL be at least `44px` (`min-h-11`)
+
+### Requirement: Status Colors Use Chart and Semantic Tokens
+
+Case status labels SHALL use existing theme utilities. Components SHALL NOT introduce `--success`, `--warning`, `--danger`, or `--info`, and SHALL NOT hardcode hex or OKLCH numbers. `--secondary` SHALL NOT color a status label.
+
+| Estado | Utilities |
+| --- | --- |
+| `por_programar` | `border-chart-3/50 bg-chart-3/20 text-foreground` |
+| `programado` | `border-primary/40 bg-primary/15 text-primary` |
+| `en_atencion`, `cerrado` | `border-chart-2/40 bg-chart-2/15 text-chart-2` |
+| `atendido` | `border-chart-4/40 bg-chart-4/15 text-chart-4` |
+| `en_espera` | `border-chart-5/40 bg-chart-5/15 text-chart-5` |
+| `anulado` | `border-destructive/40 bg-destructive/15 text-destructive` |
+
+`chart-3` is pale. Its badge text SHALL stay `text-foreground`.
+
+#### Scenario: Status badge is not gray
+- **WHEN** a case status is rendered
+- **THEN** `EstadoBadge` SHALL apply the row of the table above
+- **AND** it SHALL NOT use the `secondary` or `ghost` badge variant as the status color
+
+### Requirement: Libraries That Draw UI
+
+New UI SHALL be built with the libraries already adopted: Tailwind v4, shadcn primitives, Radix, Base UI buttons, lucide-react, Sonner, Recharts, and Be Vietnam Pro. PrimeReact and Ant Design stay installed for the inherited kit. New screens SHALL NOT switch the theme to PrimeReact green or replace Be Vietnam Pro with Poppins. Zod SHALL remain on the 3.x line already declared in `package.json`.

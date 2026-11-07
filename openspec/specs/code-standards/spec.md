@@ -1,42 +1,70 @@
-# Especificación: Estándares Obligatorios de Código Frontend
+# Especificación: Estándares obligatorios de código
 
 Estado: Vigente
-Aplica a: Todo el código fuente en `src/` (`.ts`, `.tsx`, `.css`)
+Aplica a: `src/**/*.ts`, `src/**/*.tsx` y `src/**/*.css`
 
 ---
 
-## 1. Cero Comentarios en el Código Fuente
+## 1. Cero comentarios en el código
 
-El código en `src/` debe estar 100% libre de comentarios:
-- Prohibidos comentarios de cabecera de archivo (`// src/...`).
-- Prohibidos comentarios descriptivos en funciones, hooks y componentes.
-- Prohibidos comentarios JSX (`{/* ... */}`).
-- Toda la documentación técnica debe residir en `docs/` o `openspec/`.
-- La autoexplicación del código se logra mediante TypeScript estricto, nombres expresivos y Zod.
+El código en `src/` no lleva comentarios:
 
----
+- Sin cabecera de archivo.
+- Sin comentarios de función, hook o componente.
+- Sin comentarios JSX (`{/* ... */}`).
+- Sin banners ni separadores decorativos.
 
-## 2. Límite de 350 Líneas de Código por Archivo
-
-- Ningún archivo `.ts` o `.tsx` debe superar las 350 líneas de longitud.
-- Todo archivo que se acerque a 300 líneas debe ser modularizado.
-- La modularización debe ser en **carpetas de lógica cohesionada** (ej. `src/lib/datos-simulados/casos/`), no en archivos sueltos desordenados.
-- Cada carpeta debe contener solo los archivos necesarios y cohesionados.
+La documentación vive en `docs/` y `openspec/`. El código se explica con nombres y tipos.
 
 ---
 
-## 3. Cero Estilos Hardcodeados (Zero Hardcode)
+## 2. Tope de 300 líneas
 
-- Todos los colores deben provenir de la paleta semántica OKLCH configurada en `src/app/globals.css`:
-  - `bg-card`, `bg-background`, `bg-muted`, `bg-primary/10`, `text-primary`, `text-foreground`, `text-muted-foreground`, `border-border`, etc.
-- Prohibido el uso de valores hexadecimales (`#...`) o RGB en componentes.
-- Prohibido el uso de estilos en línea (`style={{ ... }}`).
-- Para accesibilidad táctil de 44px, utilizar la clase de Tailwind `min-h-11` (o `h-11`).
+Ningún archivo `.ts` o `.tsx` nuevo supera las 300 líneas. El límite es un máximo, no un tamaño mínimo.
+
+- Al acercarse a 300 líneas, el archivo se parte.
+- La parte nueva entra en una carpeta de la misma lógica, no como otro archivo suelto al lado de una pila.
+- Un grupo con pocos archivos puede quedarse plano. Ejemplo: `features/auth/components`.
+- Un archivo compartido por varios grupos puede quedarse en la raíz de `components/`. Ejemplo: `EstadoCaso.tsx`.
+
+Archivos que hoy superan el tope y no se parten solo para cuadrar el número:
+
+- `src/components/ui/sidebar.tsx` (primitiva shadcn).
+- `src/lib/datos-simulados/acciones/reportes.ts`.
+- `src/lib/datos-simulados/acciones/vistas.ts`.
+- `src/features/servicios/hooks/useAccionesReporte.ts`.
+
+Esos archivos no crecen. El cambio que los toque los divide si la división cabe sin romper la primitiva o el contrato de datos.
+
+### Scenario: un formulario de alta pasa de 300 líneas
+
+- **WHEN** un bloque de `features/casos/components/nuevo` se acerca a 300 líneas
+- **THEN** se extrae a otro archivo dentro de `nuevo/` o de `nuevo/altas/`
+- **AND** la página `src/app/(app)/casos/nuevo/page.tsx` sigue siendo un montaje delgado
 
 ---
 
-## 4. Auditoría Continua y Eliminación de Código Muerto
+## 3. Color solo por tokens
 
-- Todo archivo huérfano, import sin uso, o exportación no referenciada debe eliminarse de inmediato.
-- Los alias temporales de compatibilidad deben limpiarse tan pronto como se migren las referencias.
-- Las verificaciones `npx tsc --noEmit` y `npm run build` deben ejecutarse tras cada cambio para garantizar cero errores y cero advertencias.
+Los colores salen de `src/app/globals.css`:
+
+- Utilidades: `bg-card`, `bg-background`, `bg-muted`, `bg-primary/15`, `text-primary`, `text-chart-2`, `text-foreground`, `text-muted-foreground`, `border-border`, `border-destructive/40`.
+- Prohibido escribir hex, `rgb`, `hsl` u OKLCH en un componente.
+- Prohibido usar la paleta fija de Tailwind (`text-red-900`, `bg-blue-50`, `text-amber-900`).
+- `--secondary` no se usa como color de una etiqueta de estado.
+- `style` solo expresa una medida calculada en runtime, como el alto de fila de `DataTable`. El color no va en `style`.
+- El control táctil usa `min-h-11`.
+
+### Scenario: etiqueta de estado
+
+- **WHEN** se pinta el estado de un caso
+- **THEN** se usa `EstadoBadge`
+- **AND** sus clases son las de `chart-2`, `chart-3`, `chart-4`, `chart-5`, `primary` o `destructive` definidas en la spec `design-system`
+
+---
+
+## 4. Código muerto
+
+Todo archivo, import o export sin uso se elimina en el mismo cambio. No se dejan alias de una ruta vieja después de mover el archivo.
+
+`npx eslint --max-warnings 0` sobre los archivos tocados y `npx tsc --noEmit` cierran el cambio.
