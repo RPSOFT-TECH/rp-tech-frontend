@@ -11,7 +11,7 @@ El diseño actual de las tablas y controles de paginación debe evolucionar para
 1. **Toolbar superior unificado:** Botón de acción principal redondeado (`+ Nuevo Caso` / `+ Acción`), buscador integrado con icono y esquinas suaves, y selectores limpios.
 2. **Diseño de celdas y filas enriquecidas:** Celdas de identidad con iniciales en monograma, badges de estado con indicador visual (*dot*), y columna de navegación lateral derecha con icono Chevron (`>`) interactivo.
 3. **Paginación estándar en pie de tabla:** Barra inferior integrada que indica el rango de registros visibles y controles de navegación previa/siguiente.
-4. **Cumplimiento estricto de las reglas globales:** 0 comentarios en el código, tokens semánticos OKLCH (sin colores fijos), componentes globales reutilizables y límite de 350 líneas por archivo.
+4. **Cumplimiento estricto de las reglas globales:** 0 comentarios en el código, tokens semánticos OKLCH (sin colores fijos), componentes globales reutilizables y tope de 300 líneas por archivo.
 
 ---
 
@@ -101,8 +101,8 @@ Para mantener la certificación de calidad del proyecto, cualquier código envia
   - Bordes: `border-border`
 - No usar `style={{ ... }}` salvo para propiedades estrictamente dinámicas de cálculo numérico (ej. porcentajes calculados en tiempo de ejecución). Clases de altura mínima como `min-h-11` deben ser clases de Tailwind.
 
-### 4. Límite de 350 Líneas por Archivo
-- Ningún archivo puede superar las 350 líneas de código.
+### 4. Tope de 300 líneas por archivo
+- Ningún archivo nuevo supera las 300 líneas. El número es un máximo.
 - Si una vista o tabla crece, debe dividirse en componentes cohesivos dentro de su carpeta de feature (ej. `casosTableColumns.tsx`, `CasosTable.tsx`).
 
 ---

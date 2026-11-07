@@ -8,12 +8,15 @@ Este documento establece la **regla obligatoria de uso de componentes globales**
 
 En cualquier vista, página o módulo de la aplicación donde se requiera interacción visual estándar, **es obligatorio reutilizar los componentes globales canónicos** provistos en `src/components/ui/`:
 
-1. **`DataTable` (`components/ui/data-table`):** Toda tabla de listado administrativo, casos, órdenes o reportes debe implementar `DataTable` en lugar de etiquetas `<table>` personalizadas dispersas.
-2. **`Modal` (`components/ui/modal`):** Todo diálogo emergente, confirmación de acción, modal de detalle o formulario flotante debe implementar el componente global `Modal`.
-3. **`Toast` (`components/ui/sonner`):** Toda retroalimentación de éxito, error o advertencia debe emitirse a través del servicio canónico `toast` de Sonner.
-4. **`Tooltip` (`components/ui/tooltip`):** Toda aclaración contextual, descripción de botón o ayuda flotante debe usar el componente global `Tooltip`.
-5. **`SearchInput` / Buscadores (`components/ui/search-input`):** Toda barra de búsqueda o campo de filtrado por texto debe emplear `SearchInput` para garantizar uniformidad con icono integrado, botón de limpieza y área táctil de 44px (`h-11`).
-6. **`Button` (`components/ui/button`):** Todo botón interactivo debe consumir `Button` con sus variantes canónicas (`default`, `secondary`, `destructive`, `outline`, `ghost`, `link`).
+1. **`DataTable`:** Todo listado tabular usa `DataTable` de `@/components/ui`. Pagina de 10 en 10. Con `h-full` mide el alto y no encoge el marco si hay 0 o 1 fila.
+2. **`Modal`:** Diálogos y confirmaciones usan `Modal` o `ConfirmModal`.
+3. **Sonner:** El aviso breve sale de `guardarAviso` en `@/components/avisos-sonner`. No se usa `alert()` ni `ToastItem`.
+4. **`Tooltip`:** La ayuda flotante usa `Tooltip`.
+5. **`SearchInput`:** La búsqueda escribe al teclear. No se agrega un botón Buscar.
+6. **`Button`:** La acción estándar usa `Button`.
+7. **`CustomSelect` y `SelectorFecha`:** El select y la fecha de formulario usan estos dos.
+8. **`MetricCard` y `GraficoBarras`:** El KPI reutilizable y las barras usan el kit. El listado de casos no muestra KPIs.
+9. **`EstadoBadge`:** El estado del caso usa los tokens de `globals.css`, no el gris `--secondary`.
 
 ---
 
