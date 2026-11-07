@@ -57,8 +57,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <AppSidebar sesion={sesion} menu={menu} onLogout={handleLogout} />
           <SidebarInset className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <AppHeader />
-            <main className="min-h-0 flex-1 overflow-auto">
-              <div className="w-full px-4 py-4 sm:px-6 sm:py-5">{children}</div>
+            <main className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto">
+              <div className="flex h-full min-h-0 w-full flex-col px-4 py-4 sm:px-6 sm:py-5">{children}</div>
             </main>
           </SidebarInset>
         </div>

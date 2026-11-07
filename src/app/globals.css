@@ -232,3 +232,11 @@
     bubble-sway calc(var(--duration, 15s) * 0.45) var(--delay, 0s) ease-in-out infinite;
 }
 
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+

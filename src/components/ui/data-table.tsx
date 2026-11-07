@@ -127,16 +127,24 @@ export function DataTable<T>({
   const inicio = (paginaActual - 1) * porPagina;
   const visibles = datos.slice(inicio, inicio + porPagina);
 
+  const llena = className.includes('h-full');
+
   return (
-    <div className={cn('overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm', className)}>
+    <div
+      className={cn(
+        'overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm',
+        llena && 'flex min-h-0 flex-col',
+        className,
+      )}
+    >
       <Tabla
-        className="rounded-none border-0 shadow-none"
+        className={cn('rounded-none border-0 shadow-none', llena && 'min-h-0 flex-1')}
         columns={columnasTabla}
         data={visibles}
         rowKey={claveFila}
         onRowClick={onFilaClick}
       />
-      <div className="border-t border-border/40 px-4 py-2">
+      <div className="shrink-0 border-t border-border/40 px-4 py-2">
         <DataTablePagination
           currentPage={paginaActual}
           totalPages={totalPaginas}
