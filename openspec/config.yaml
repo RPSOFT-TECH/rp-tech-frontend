@@ -8,18 +8,22 @@ context: |
   
   Architecture target: Feature-based modular frontend (espejo arquitectónico SOFI-WEB)
     - src/app/ = thin routes only (páginas delgadas de 5-15 líneas que solo montan vistas)
-    - src/features/<domain>/ = components, hooks, views, types.ts, index.ts (barrel público)
-    - src/components/shell/ = AppShell, navegación lateral y barra inferior móvil
+    - src/features/<domain>/ = views, hooks, index.ts y components agrupados por lógica
+    - Grupos actuales: casos/lista|detalle|nuevo, administracion/comun|clientes|usuarios|sistema, servicios/reporte, agenda/components+utils
+    - Un archivo suelto en components/ solo si es compartido o el feature tiene pocos archivos
+    - src/components/shell/ = AppShell. Header y sidebar en src/components/layout/
     - src/components/ui/ = componentes base de UI compartidos token-aware
     - src/lib/datos-simulados/ = infraestructura y datos mock modularizados por carpetas lógicas
     - src/lib/permisos/ + validaciones/ = lógica de autorización y esquemas Zod
     - src/app/globals.css = fuente única de verdad para tokens de diseño (OKLCH)
 
   Backend / Domain alignment map:
-    - Casos y atenciones técnicas → src/features/casos
-    - Servicios técnicos y reportes de campo → src/features/servicios
-    - Autenticación y control de acceso → src/features/auth (login, sin-acceso)
-    - Shell de aplicación → src/components/shell (AppShell)
+    - Casos → src/features/casos
+    - Servicios y reportes de campo → src/features/servicios
+    - Agenda → src/features/agenda
+    - Administración → src/features/administracion
+    - Autenticación → src/features/auth
+    - Shell → src/components/shell (AppShell)
 
   Design System Tokens & Palette (Tailwind CSS v4 inline theme):
     - Primary: oklch(0.6723 0.1606 244.9955) [Azul técnico corporativo]
@@ -40,10 +44,11 @@ context: |
 
   Strict Code Rules (Mandatory for all developers):
     - ZERO comments in code: No headers, no inline explanations, no JSX comments.
-    - Max 350 lines per file: Files exceeding 300 lines must be split into logical folders.
-    - Modularization in logical folders: No loose clutter files; only cohesive, necessary files per folder.
-    - Zero hardcoded styles: No raw hex codes (#1da1f2), no inline style={{ ... }}; use tokens and min-h-11.
-    - Global UI Components Policy: Mandatory use of shared DataTable, Modal, Toast, Tooltip, SearchInput, Button across the system. Local components are only permitted when strictly exclusive to a module's specialized UX (frontend decision).
+    - Max 300 lines per file. The number is a ceiling, not a minimum length. Split into a logic folder before crossing it.
+    - Do not grow the current exceptions: ui/sidebar.tsx, acciones/reportes.ts, acciones/vistas.ts, useAccionesReporte.ts.
+    - Group feature components by logic. Leave a file loose only when it is shared or the folder is small.
+    - Zero hardcoded colors: no hex, rgb, oklch numbers, or Tailwind palette classes. Use globals.css tokens. style is only for a runtime measurement.
+    - Global UI: Button, DataTable, Modal, Sonner via guardarAviso, Tooltip, SearchInput, CustomSelect, SelectorFecha, MetricCard, GraficoBarras, EstadoBadge.
     - Dead code audit: Continuous detection and deletion of unused imports, exports and files.
     - Preservar siempre la lógica de negocio, compatibilidad multiempresa y contratos de datos.
 
@@ -54,9 +59,9 @@ rules:
     - Call out architecture impact (features, routes, services) when structure-related
     - Ensure zero regression on existing multiempresa, roles validity and simulation data
   design:
-    - Require CSS variables and Tailwind semantic tokens; strictly prohibit raw hex or style={{ ... }}
+    - Require CSS variables and Tailwind semantic tokens. Prohibit raw hex and palette classes. style only for a runtime measurement, never for color.
     - Document folder contract, dependency rules and migration phases
-    - Enforce the 350-line file limit and logical folder structure
+    - Enforce the 300-line file ceiling and logical folder grouping
     - Enforce zero comments in source code
   tasks:
     - Order: contract/docs then one feature at a time then hygiene
@@ -71,7 +76,7 @@ operations:
       - Prefer move and thin page reexport over rewrite
       - After each feature migration run tsc --noEmit and next build
       - Keep shared shell and tokens outside features
-      - Ensure compliance with zero comments, max 350 lines, and zero hardcode
+      - Ensure compliance with zero comments, max 300 lines, and token colors
   archive:
     guidance:
       - Summarize which features were migrated and remaining legacy paths

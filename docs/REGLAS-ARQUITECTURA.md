@@ -28,12 +28,16 @@ Cada dominio de negocio debe estar encapsulado en su respectiva carpeta dentro d
 
 ```
 src/features/<dominio>/
-├── components/       # Componentes de presentación específicos del dominio
-├── hooks/            # Hooks de lógica de estado y validaciones (sin JSX)
-├── views/            # Vistas principales de página que componen componentes y hooks
-├── types.ts          # Interfaces, tipos y DTOs del dominio
-└── index.ts          # Barrel público que exporta únicamente lo necesario
+├── components/       # UI del dominio
+│   └── <grupo>/      # Carpeta por lógica: lista, detalle, nuevo, reporte, clientes...
+├── hooks/            # Estado y acciones, sin JSX
+├── views/            # Pantallas que monta la ruta
+├── utils/            # Helpers puros, si hacen falta
+├── types.ts          # Tipos del dominio
+└── index.ts          # Barrel público
 ```
+
+Si hay varios archivos de la misma pantalla, van juntos en `<grupo>/`. Un archivo queda en la raíz de `components/` solo cuando lo usan varios grupos o cuando el feature tiene pocos componentes.
 
 ### Contrato de la Carpeta de Feature
 1. **Views:** Vistas completas compuestas con `Suspense` y manejo de layout local.
@@ -43,13 +47,13 @@ src/features/<dominio>/
 
 ---
 
-## 3. Límite Estricto de Líneas: Máximo 350 Líneas por Archivo
+## 3. Límite estricto: máximo 300 líneas por archivo
 
-Ningún archivo en el repositorio debe exceder las **350 líneas de código**.
+Ningún `.ts` o `.tsx` nuevo supera las **300 líneas**. El número es un tope, no un tamaño mínimo.
 
-- Si un archivo se aproxima a las 300 líneas, debe ser descompuesto en subcomponentes lógicos o submódulos especializados.
-- La modularización debe organizarse en **carpetas lógicas**, no en archivos sueltos desordenados en la raíz.
-- Cada carpeta debe contener solo los archivos necesarios y cohesivos para su propósito.
+- Al acercarse al tope, el archivo se parte en la carpeta de su lógica.
+- No se dejan sueltos varios archivos de la misma pantalla en la raíz de `components/`.
+- Excepciones actuales, que no crecen: `src/components/ui/sidebar.tsx`, `src/lib/datos-simulados/acciones/reportes.ts`, `src/lib/datos-simulados/acciones/vistas.ts` y `src/features/servicios/hooks/useAccionesReporte.ts`.
 
 ---
 
@@ -80,7 +84,7 @@ Toda la documentación conceptual, reglas y flujos deben residir en la carpeta `
 
 ## 6. Política Global de Componentes Compartidos
 
-- **Mandato Global:** Todo requerimiento estándar de interfaz debe reutilizar los componentes globales provistos en `@/components/ui` (`DataTable`, `Modal`, `Toast`, `Tooltip`, `SearchInput`, `Button`).
+- **Mandato global:** La UI repetida usa `@/components/ui`: `Button`, `DataTable`, `Modal`, Sonner vía `guardarAviso`, `Tooltip`, `SearchInput`, `CustomSelect`, `SelectorFecha`, `MetricCard` y `GraficoBarras`. El estado de un caso usa `EstadoBadge`.
 - **Política de Excepción (Decisión de Frontend):** Únicamente cuando un componente sea **exclusivo, especializado o intrínseco a la interacción particular de un módulo o página** (ej. bloque de firmas digitales en pantalla táctil, asistente interactivo de cotización o selector dinámico de modos y garantías), el desarrollador frontend está facultado para implementar un componente local dentro de `src/features/<dominio>/components/`.
 - **Prohibición de duplicación:** Está prohibido reescribir tablas HTML genéricas, modales arbitrarios o botones sin variantes cuando el kit global ya cubre la necesidad.
 

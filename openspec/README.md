@@ -6,33 +6,41 @@ Spec-driven development con [Fission-AI/OpenSpec](https://github.com/Fission-AI/
 
 | Ruta | En git | Propósito |
 |------|--------|-----------|
-| `openspec/config.yaml` | Sí | Contexto general del stack, diseño, tokens y reglas arquitectónicas |
-| `openspec/specs/` | Sí | Especificaciones formales vigentes (`design-system`, `frontend-architecture`, `feature-module-contract`) |
-| `openspec/changes/` | Sí | Propuestas, diseños y tareas de cambios activos y archivados |
+| `openspec/config.yaml` | Sí | Contexto del stack, tokens y reglas |
+| `openspec/specs/` | Sí | Contratos vigentes |
+| `openspec/changes/` | Sí | Propuestas activas y archivo |
 
-## Convenciones de Arquitectura y Diseño
+## Specs vigentes
 
-1. **Tokens y Paleta Base (`src/app/globals.css`):**
-   - Paleta corporativa basada en **OKLCH** con primario técnico `oklch(0.6723 0.1606 244.9955)`.
-   - Modos claro y oscuro (`.dark`) consistentes.
-   - Radio de bordes base: `1.3rem`.
-   - Sistema de sombras con sutil tinte azulado (`rgba(29, 161, 242, 0.15)`).
+| Spec | Cubre |
+|------|--------|
+| `frontend-architecture` | Capas, rutas delgadas y dirección de los imports |
+| `feature-module-contract` | Carpetas del feature y agrupación por lógica |
+| `global-components-policy` | Kit de `@/components/ui` y cuándo un componente es local |
+| `code-standards` | Tope de 300 líneas, cero comentarios y tokens |
+| `design-system` | OKLCH, tipografía y color de los estados |
 
-2. **Tipografía Oficial:**
-   - **Sans:** `Be Vietnam Pro` (optimizado con Next.js Google Fonts `next/font/google`, variable `--font-sans`).
-   - **Serif:** `Georgia, serif` (variable `--font-serif`).
-   - **Mono:** `Menlo, monospace` (variable `--font-mono`).
+## Reglas que no se negocian
 
-3. **Arquitectura Feature-Based Modular (Estilo SOFI-WEB):**
-   - `src/app/**/page.tsx`: Páginas delgadas (*thin routes*), sólo componen layout y montan vistas.
-   - `src/features/<domain>/`: Módulos de dominio aislados con vistas, hooks, componentes y contratos de datos.
-   - `src/components/ui/`: Componentes atómicos base reutilizables.
-   - `src/components/app-shell.tsx`: Shell de navegación global (sidebar, cabecera de usuario).
-   - `src/lib/`: Infraestructura compartida (simulación de datos, validaciones Zod, permisos).
+1. `src/app/**/page.tsx` solo monta la vista exportada por `@/features/<dominio>`.
+2. Cada feature tiene `views/`, `index.ts` y, si hace falta, `hooks/` y `components/`.
+3. Los componentes de una misma pantalla viven en una subcarpeta (`lista`, `detalle`, `nuevo`, `reporte`, `clientes`, `usuarios`, `sistema`, `comun`). Un archivo suelto en `components/` solo se admite si lo comparten varios grupos o si el feature tiene pocos archivos.
+4. Ningún `.ts` o `.tsx` nuevo supera **300 líneas**. El número es un tope, no un tamaño mínimo.
+5. `src/` no lleva comentarios. La explicación queda en `docs/` o en estas specs.
+6. El color sale de `src/app/globals.css`. No hay hex, OKLCH ni paleta Tailwind (`red-900`, `blue-50`) en componentes.
+7. Tablas, modales, botones, avisos Sonner, tooltips, búsqueda, select y fecha usan el kit global.
+8. `components/ui` no importa features. Un feature no importa archivos internos de otro feature.
 
-## Flujo de Trabajo con OpenSpec
+## Tokens
 
-- **Proponer un cambio:** Crear propuesta con análisis de impacto y tareas.
-- **Aplicar:** Implementar modularmente respetando contratos de datos y tipado TypeScript estricto.
-- **Verificar:** Ejecución mandatoria de `npx tsc --noEmit` y `npm run build`.
-- **Archivar:** Mover la propuesta a `openspec/changes/archive/` al finalizar.
+- Primario: `oklch(0.6723 0.1606 244.9955)` en `--primary`.
+- Estados: `chart-2`, `chart-3`, `chart-4`, `chart-5`, `primary` y `destructive`. `--secondary` no pinta etiquetas de estado.
+- Tipografía: Be Vietnam Pro en `--font-sans`.
+- Radio base: `1.3rem`.
+
+## Flujo
+
+1. Proponer en `openspec/changes/<nombre>/` con `proposal.md`, `design.md` y `tasks.md`.
+2. Implementar sin cambiar la lógica de negocio salvo que la tarea lo pida.
+3. Verificar con `npx eslint --max-warnings 0` sobre lo tocado y `npx tsc --noEmit`.
+4. Archivar el change cuando el contrato ya está en `openspec/specs/`.
