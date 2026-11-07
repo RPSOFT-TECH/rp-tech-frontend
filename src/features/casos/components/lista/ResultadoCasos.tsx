@@ -162,7 +162,7 @@ export function ResultadoCasos({
         <CustomSelect label="Tipo de servicio" value={tipoServicioId} onChange={(valor) => onFiltro('tipo_servicio_id', valor)} options={tiposOpciones} />
         <CustomSelect label="Modalidad" value={modalidadId} onChange={(valor) => onFiltro('modalidad_id', valor)} options={modalidadesOpciones} />
       </div>
-      <div className="hidden min-h-0 flex-1 md:block">
+      <div className="hidden h-full min-h-0 flex-1 flex-col md:flex">
         <DataTable
           className="h-full"
           columnas={columnas}
