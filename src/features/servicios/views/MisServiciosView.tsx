@@ -3,18 +3,24 @@
 import { useEffect, useState } from 'react';
 import { mis_servicios, hoyLima, obtenerUsuarioActual, type MiServicio } from '@/lib/datos-simulados/actions';
 import Link from 'next/link';
+import { Wrench } from 'lucide-react';
+import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function MisServiciosView() {
   const [servicios, setServicios] = useState<MiServicio[]>([]);
   const [nombre, setNombre] = useState('');
+  const [hoy, setHoy] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let activo = true;
     const sesion = obtenerUsuarioActual();
+    const dia = hoyLima();
     mis_servicios().then((lista) => {
       if (!activo) return;
       setNombre(sesion?.usuario.nombre_completo ?? '');
+      setHoy(dia);
       setServicios(lista);
       setLoading(false);
     });
@@ -23,7 +29,17 @@ export function MisServiciosView() {
     };
   }, []);
 
-  const hoy = hoyLima();
+  useRegistrarTitulo('Mis servicios', nombre ? `Técnico: ${nombre}` : 'Órdenes asignadas y visitas técnicas', Wrench);
+
+  if (loading || !hoy) {
+    return (
+      <div className="space-y-3">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-28 w-full rounded-2xl" />
+        <Skeleton className="h-28 w-full rounded-2xl" />
+      </div>
+    );
+  }
 
   const serviciosHoy = servicios.filter((s) => !s.cerrado && s.fecha_programada === hoy);
   const serviciosDiasAnteriores = servicios.filter(
@@ -33,10 +49,6 @@ export function MisServiciosView() {
     (s) => !s.cerrado && s.fecha_programada !== null && s.fecha_programada > hoy,
   );
   const serviciosCerrados = servicios.filter((s) => s.cerrado);
-
-  if (loading) {
-    return <div className="text-center py-12 text-muted-foreground">Cargando tus servicios...</div>;
-  }
 
   return (
     <div className="p-4 max-w-md mx-auto md:max-w-3xl pb-24">
@@ -62,7 +74,7 @@ export function MisServiciosView() {
         ) : (
           <div className="space-y-4">
             {serviciosHoy.map((servicio) => (
-              <TarjetaServicio key={servicio.id} servicio={servicio} />
+              <TarjetaServicio key={servicio.id} servicio={servicio} hoy={hoy} />
             ))}
           </div>
         )}
@@ -80,7 +92,7 @@ export function MisServiciosView() {
         ) : (
           <div className="space-y-4">
             {serviciosProximos.map((servicio) => (
-              <TarjetaServicio key={servicio.id} servicio={servicio} />
+              <TarjetaServicio key={servicio.id} servicio={servicio} hoy={hoy} />
             ))}
           </div>
         )}
@@ -98,7 +110,7 @@ export function MisServiciosView() {
         ) : (
           <div className="space-y-4">
             {serviciosCerrados.map((servicio) => (
-              <TarjetaServicio key={servicio.id} servicio={servicio} />
+              <TarjetaServicio key={servicio.id} servicio={servicio} hoy={hoy} />
             ))}
           </div>
         )}
@@ -107,9 +119,9 @@ export function MisServiciosView() {
   );
 }
 
-function TarjetaServicio({ servicio }: { servicio: MiServicio }) {
+function TarjetaServicio({ servicio, hoy }: { servicio: MiServicio; hoy: string }) {
   const enlace = `/mis-servicios/${servicio.caso_id}/reporte`;
-  const esHoy = servicio.fecha_programada === hoyLima();
+  const esHoy = servicio.fecha_programada === hoy;
   const esAdjunto = servicio.soy_adjunto;
 
   return (

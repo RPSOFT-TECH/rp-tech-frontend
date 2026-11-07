@@ -11,7 +11,10 @@ import {
   type TecnicoLista,
   type VisitaAgenda,
 } from '@/lib/datos-simulados/actions';
+import { Calendar } from 'lucide-react';
+import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
 import { Button } from '@/components/ui';
+import { GraficoBarras } from '@/components/ui/charts/GraficoBarras';
 
 interface ColumnaAgenda {
   tecnico: TecnicoLista;
@@ -69,6 +72,8 @@ function Contenido() {
     };
   }, [fecha]);
 
+  useRegistrarTitulo('Agenda', tituloDia(fecha), Calendar);
+
   const ir = (iso: string) => {
     router.push(iso === hoy ? '/agenda' : `/agenda?fecha=${iso}`);
   };
@@ -92,6 +97,17 @@ function Contenido() {
       {columnas === null && <p className="text-sm text-muted-foreground">Cargando visitas...</p>}
       {columnas && columnas.length === 0 && (
         <p className="text-sm text-muted-foreground">No hay técnicos vigentes.</p>
+      )}
+      {columnas && columnas.length > 0 && (
+        <div className="mb-6">
+          <GraficoBarras
+            etiqueta="Visitas por técnico"
+            datos={columnas.map((columna) => ({
+              nombre: columna.tecnico.nombre_completo.split(' ')[0] || columna.tecnico.nombre_completo,
+              valor: columna.visitas.length,
+            }))}
+          />
+        </div>
       )}
       {columnas && columnas.length > 0 && (
         <div className="overflow-x-auto">

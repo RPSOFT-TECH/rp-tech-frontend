@@ -4,6 +4,8 @@ import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSyncExternalStore } from 'react';
 import { leerSesionEstable } from '@/lib/datos-simulados/actions';
+import { ShieldCheck } from 'lucide-react';
+import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
 import { ListaClientes } from '../components/ListaClientes';
 import { FichaCliente } from '../components/FichaCliente';
 import { UsuariosAdmin } from '../components/UsuariosAdmin';
@@ -25,6 +27,7 @@ function Contenido() {
   const params = useSearchParams();
   const sesion = useSyncExternalStore(() => () => {}, leerSesionEstable, () => null);
   const roles = sesion?.rolesVigentes ?? [];
+  useRegistrarTitulo('Administración', 'Gestión del sistema y perfiles', ShieldCheck);
   const visibles = pestanasVisibles(roles);
   const pedida = params.get('seccion') ?? 'clientes';
   const seccion = visibles.some((pestana) => pestana.id === pedida) ? pedida : (visibles[0]?.id ?? '');

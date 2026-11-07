@@ -14,6 +14,8 @@ import {
   type ClienteLista,
   type TecnicoLista,
 } from '@/lib/datos-simulados/actions';
+import { ClipboardList } from 'lucide-react';
+import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
 import { BandejasCasos } from '../components/lista/BandejasCasos';
 import { descargarExcel, listaFiltradaPorBandeja, puedeCrear } from '../components/lista/bandejas';
 import { FiltrosCasos } from '../components/lista/FiltrosCasos';
@@ -33,6 +35,7 @@ function ListaCasosContenido() {
 
   const sesion = useSyncExternalStore(() => () => {}, leerSesionEstable, () => null);
   const puedeCrearCaso = puedeCrear(sesion?.rolesVigentes ?? []);
+  useRegistrarTitulo('Casos', 'Listado y seguimiento de órdenes de servicio', ClipboardList);
 
   const bandeja = searchParams.get('bandeja') || 'todos';
   const estadoFiltro = searchParams.get('estado') || 'todos';

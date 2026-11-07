@@ -1,6 +1,8 @@
 'use client';
 
 import { ReactNode } from 'react';
+import { DataTable as Tabla } from './data-table/DataTable';
+import { DataTableSkeleton } from './data-table/DataTableSkeleton';
 
 export interface Columna<T> {
   clave: string;
@@ -39,53 +41,28 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   if (cargando) {
     return (
-      <div className="bg-card border border-border rounded-xl p-12 text-center text-sm text-muted-foreground shadow-xs">
-        {textoCargando}
-      </div>
-    );
-  }
-
-  if (datos.length === 0) {
-    return (
-      <div className="bg-card border border-border rounded-xl p-12 text-center text-sm text-muted-foreground shadow-xs">
-        {textoVacio}
-      </div>
+      <DataTableSkeleton
+        rows={8}
+        columns={Math.max(columnas.length, 1)}
+        actionButtonsCount={0}
+        className={className}
+      />
     );
   }
 
   return (
-    <div className={`bg-card rounded-xl shadow-xs border border-border overflow-hidden ${className}`}>
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-muted border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              {columnas.map((col) => (
-                <th key={col.clave} className={`p-4 ${col.className || ''}`}>
-                  {col.encabezado}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border text-sm">
-            {datos.map((fila) => {
-              const id = claveFila(fila);
-              return (
-                <tr
-                  key={id}
-                  onClick={() => onFilaClick && onFilaClick(fila)}
-                  className={`transition-colors hover:bg-muted/40 ${onFilaClick ? 'cursor-pointer' : ''}`}
-                >
-                  {columnas.map((col) => (
-                    <td key={col.clave} className={`p-4 ${col.className || ''}`}>
-                      {col.render ? col.render(fila) : textoCelda(fila, col.clave)}
-                    </td>
-                  ))}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <Tabla
+      className={className}
+      columns={columnas.map((col) => ({
+        key: col.clave,
+        header: col.encabezado,
+        render: (fila: T) => (col.render ? col.render(fila) : textoCelda(fila, col.clave)),
+      }))}
+      data={datos}
+      rowKey={claveFila}
+      emptyTitle={textoVacio}
+      emptyDescription={textoCargando}
+      onRowClick={onFilaClick}
+    />
   );
 }

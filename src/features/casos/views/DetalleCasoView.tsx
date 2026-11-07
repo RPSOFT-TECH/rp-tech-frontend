@@ -10,6 +10,8 @@ import {
   obtenerUsuarioActual,
   type CasoDetalle,
 } from '@/lib/datos-simulados/actions';
+import { ClipboardList } from 'lucide-react';
+import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
 import { AccionesDetalle, FormulariosAccion } from '../components/detalle/AccionesDetalle';
 import { EncabezadoDetalle, MensajesDetalle } from '../components/detalle/EncabezadoDetalle';
 import { FichaDetalle } from '../components/detalle/FichaDetalle';
@@ -30,6 +32,11 @@ function DetalleCasoContenido() {
   const [accionMensaje, setAccionMensaje] = useState<string | null>(null);
   const [plazoPorCaso, setPlazoPorCaso] = useState<{ id: string; vigente: boolean } | null>(null);
   const [esTecnicoDelCasoValor, setEsTecnicoDelCasoValor] = useState<boolean | null>(null);
+  useRegistrarTitulo(
+    caso ? `Caso ${caso.numero}` : 'Detalle de caso',
+    'Información y estado del servicio',
+    ClipboardList,
+  );
 
   useEffect(() => {
     let activo = true;

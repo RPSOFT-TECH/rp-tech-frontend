@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  leerSesionEstable,
-  logout,
-} from '@/lib/datos-simulados/actions';
+import { leerSesionEstable, logout } from '@/lib/datos-simulados/actions';
 import { menuDeRoles } from '@/lib/permisos';
-import { Sidebar } from './Sidebar';
-import { Header } from './Header';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { AppHeader } from '@/components/layout/header/AppHeader';
+import { PageTitleProvider } from '@/components/layout/header/PageTitleContext';
+import { AppSidebar } from '@/components/layout/sidebar/AppSidebar';
 
 function suscribirSesion() {
   return () => {};
@@ -17,8 +17,6 @@ function suscribirSesion() {
 export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const sesion = useSyncExternalStore(suscribirSesion, leerSesionEstable, () => null);
-  const [expanded, setExpanded] = useState(true);
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     if (!sesion || !sesion.usuario.activo || sesion.rolesVigentes.length === 0) {
@@ -31,18 +29,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     router.push('/login');
   }
 
-  function handleToggleSidebar() {
-    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-      setMobileOpen((prev) => !prev);
-    } else {
-      setExpanded((prev) => !prev);
-    }
-  }
-
   if (!sesion) {
     return (
       <div className="min-h-screen bg-background text-foreground">
-        <main className="flex-1 p-4 sm:p-6 max-w-7xl w-full mx-auto">{children}</main>
+        <main className="mx-auto w-full max-w-7xl flex-1 p-4 sm:p-6">{children}</main>
       </div>
     );
   }
@@ -50,30 +40,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const menu = menuDeRoles(sesion.rolesVigentes, sesion.empresa.permisos_consulta);
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <Sidebar
-        expanded={expanded}
-        mobileOpen={mobileOpen}
-        sesion={sesion}
-        menu={menu}
-        onNavigate={() => setMobileOpen(false)}
-        onLogout={handleLogout}
-      />
-
-      <div
-        className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${
-          expanded ? 'lg:pl-60' : 'lg:pl-18'
-        }`}
-      >
-        <Header
-          expanded={expanded}
-          onToggleSidebar={handleToggleSidebar}
-        />
-
-        <main className="flex-1 p-4 sm:p-6 max-w-7xl w-full mx-auto">
-          {children}
-        </main>
-      </div>
-    </div>
+    <TooltipProvider>
+      <SidebarProvider>
+        <PageTitleProvider>
+          <div className="flex h-screen w-full overflow-hidden bg-background text-sm lg:text-base">
+            <AppSidebar sesion={sesion} menu={menu} onLogout={handleLogout} />
+            <SidebarInset className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+              <AppHeader />
+              <main className="min-h-0 flex-1 overflow-auto">
+                <div className="mx-auto w-full max-w-7xl p-4 sm:p-6">{children}</div>
+              </main>
+            </SidebarInset>
+          </div>
+        </PageTitleProvider>
+      </SidebarProvider>
+    </TooltipProvider>
   );
 }
