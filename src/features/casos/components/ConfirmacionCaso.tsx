@@ -35,7 +35,7 @@ function fechaCorta(iso: string): string {
 
 export function ConfirmacionCaso({ datos, onOtro }: { datos: ConfirmacionCasoDatos; onOtro: () => void }) {
   return (
-    <div className="p-4 md:p-8 max-w-xl mx-auto">
+    <div className="mx-auto w-full max-w-xl">
       <div className="bg-card border border-border rounded-xl p-6 space-y-4 shadow-sm">
         <p className="text-sm text-muted-foreground">Caso registrado</p>
         <p className="text-4xl font-bold text-primary tracking-tight">{datos.numero}</p>

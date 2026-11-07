@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { crear_equipo, type EquipoVista, type Sede } from '@/lib/datos-simulados/actions';
+import { CustomSelect } from '@/components/ui/custom-select';
+import { SelectorFecha } from '@/components/ui/selector-fecha';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,8 +25,6 @@ interface ModalEquipoProps {
 }
 
 const CANTIDADES = [1, 2, 3, 4, 6, 8];
-const claseCampo = 'w-full min-h-11 rounded-lg border border-input bg-background px-3 text-sm text-foreground';
-
 export function ModalEquipo({ abierto, clienteId, sedes, lineas, cabezales, onCerrar, onCreado }: ModalEquipoProps) {
   return (
     <Modal abierto={abierto} onCerrar={onCerrar} titulo="Crear equipo" tamano="lg">
@@ -96,54 +96,44 @@ function FormularioEquipo({ clienteId, sedes, lineas, cabezales, onCerrar, onCre
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <Label htmlFor="equipo_linea">Línea</Label>
-          <select id="equipo_linea" value={lineaId} onChange={(e) => setLineaId(e.target.value)} className={claseCampo}>
-            {lineas.map((linea) => (
-              <option key={linea.id} value={linea.id}>
-                {linea.nombre}
-              </option>
-            ))}
-          </select>
+          <CustomSelect
+            id="equipo_linea"
+            label="Línea"
+            value={lineaId}
+            onChange={setLineaId}
+            options={lineas.map((linea) => ({ value: linea.id, label: linea.nombre }))}
+          />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="equipo_cabezal">Cabezal</Label>
-          <select id="equipo_cabezal" value={cabezalId} onChange={(e) => setCabezalId(e.target.value)} className={claseCampo}>
-            {cabezales.map((cabezal) => (
-              <option key={cabezal.id} value={cabezal.id}>
-                {cabezal.nombre}
-              </option>
-            ))}
-          </select>
+          <CustomSelect
+            id="equipo_cabezal"
+            label="Cabezal"
+            value={cabezalId}
+            onChange={setCabezalId}
+            options={cabezales.map((cabezal) => ({ value: cabezal.id, label: cabezal.nombre }))}
+          />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="equipo_sede">Sede</Label>
-          <select id="equipo_sede" value={sedeId} onChange={(e) => setSedeId(e.target.value)} className={claseCampo}>
-            {sedes.map((sede) => (
-              <option key={sede.id} value={sede.id}>
-                {sede.nombre}
-              </option>
-            ))}
-          </select>
+          <CustomSelect
+            id="equipo_sede"
+            label="Sede"
+            value={sedeId}
+            onChange={setSedeId}
+            options={sedes.map((sede) => ({ value: sede.id, label: sede.nombre }))}
+          />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="equipo_cantidad">Cantidad de cabezales</Label>
-          <select
+          <CustomSelect
             id="equipo_cantidad"
-            value={cantidad}
-            onChange={(e) => setCantidad(Number(e.target.value))}
-            className={claseCampo}
-          >
-            {CANTIDADES.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
+            label="Cantidad de cabezales"
+            value={String(cantidad)}
+            onChange={(valor) => setCantidad(Number(valor))}
+            options={CANTIDADES.map((item) => ({ value: String(item), label: String(item) }))}
+          />
         </div>
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="equipo_fecha">Fecha de instalación</Label>
-        <input id="equipo_fecha" type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className={claseCampo} />
+        <SelectorFecha id="equipo_fecha" label="Fecha de instalación" value={fecha} onChange={setFecha} />
       </div>
       {error && <p className="text-xs text-destructive">{error}</p>}
       <div className="flex justify-end gap-2 pt-2">

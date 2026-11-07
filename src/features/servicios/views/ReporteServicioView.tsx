@@ -39,12 +39,11 @@ function ReporteServicioContenido() {
   const avisoOk = mensaje?.includes('correctamente') || mensaje?.includes('Guardado') || mensaje?.includes('enviado');
 
   return (
-    <div className="p-4 max-w-md mx-auto md:max-w-2xl pb-24">
+    <div className="mx-auto w-full max-w-md pb-24 md:max-w-2xl">
       <div className="mb-6">
         <Link href="/mis-servicios" className="text-sm text-primary hover:underline mb-2 inline-block">
           Volver a Mis Servicios
         </Link>
-        <h1 className="text-2xl font-bold text-foreground">Reporte de Servicio</h1>
         <p className="text-xs text-muted-foreground">
           Caso {caso.numero_caso} · Visita {reporte.numero_visita} · {reporte.numero ? `Reporte ${reporte.numero}` : 'Sin número'}
         </p>

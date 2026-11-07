@@ -7,6 +7,7 @@ import { NuevoCasoFormValues } from '@/lib/validaciones/caso';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { CustomSelect } from '@/components/ui/custom-select';
 import { ModalEquipo } from './altas/ModalEquipo';
 
 interface Opcion {
@@ -25,9 +26,6 @@ interface BloqueEquipoProps {
   onEquipoChange: (idStr: string) => void;
   onEquipoCreado: (equipo: EquipoVista) => void;
 }
-
-const claseSelect =
-  'w-full min-h-11 rounded-lg border border-input bg-background px-3 text-sm text-foreground disabled:cursor-not-allowed disabled:opacity-50';
 
 function fechaCorta(iso: string | undefined): string {
   if (!iso) return '—';
@@ -64,20 +62,17 @@ export function BloqueEquipo({
       <CardContent className="space-y-4 pt-4">
         <div className="space-y-1.5">
           <Label htmlFor="equipo">Equipo</Label>
-          <select
+          <CustomSelect
             id="equipo"
             disabled={!clienteId}
-            value={watch('equipo_id')}
-            onChange={(e) => onEquipoChange(e.target.value)}
-            className={claseSelect}
-          >
-            <option value="">Selecciona un equipo...</option>
-            {equipos.map((eq) => (
-              <option key={eq.id} value={eq.id}>
-                {eq.numero_serie} — {eq.linea_nombre} ({eq.modelo})
-              </option>
-            ))}
-          </select>
+            value={watch('equipo_id') || ''}
+            onChange={onEquipoChange}
+            placeholder="Selecciona un equipo..."
+            options={equipos.map((eq) => ({
+              value: eq.id,
+              label: `${eq.numero_serie} — ${eq.linea_nombre} (${eq.modelo})`,
+            }))}
+          />
           {errors.equipo_id && <p className="text-xs text-destructive">{errors.equipo_id.message}</p>}
         </div>
 

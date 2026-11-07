@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card } from '@/components/ui';
+import { Button, Card, CustomSelect } from '@/components/ui';
 import type { FormularioReporte } from './tipo';
 
 function Opcion({
@@ -87,38 +87,32 @@ export function PasoRevision({ form }: { form: FormularioReporte }) {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-muted-foreground">Cabezales</label>
-          <select
+          <CustomSelect
+            label="Cabezales"
             value={estadoCabezales ?? ''}
-            onChange={(evento) => {
-              const valor = evento.target.value as 'bueno' | 'regular' | 'malo' | '';
-              setEstadoCabezales(valor || null);
-            }}
             disabled={!esPasoEditable}
-            className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm"
-          >
-            <option value="">Selecciona</option>
-            <option value="bueno">Bueno</option>
-            <option value="regular">Regular</option>
-            <option value="malo">Malo</option>
-          </select>
+            placeholder="Selecciona"
+            onChange={(valor) => setEstadoCabezales((valor || null) as 'bueno' | 'regular' | 'malo' | null)}
+            options={[
+              { value: 'bueno', label: 'Bueno' },
+              { value: 'regular', label: 'Regular' },
+              { value: 'malo', label: 'Malo' },
+            ]}
+          />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-muted-foreground">Protección</label>
-          <select
+          <CustomSelect
+            label="Protección"
             value={sistemaProteccion ?? ''}
-            onChange={(evento) => {
-              const valor = evento.target.value as 'estabilizador' | 'ups' | 'otro' | '';
-              setSistemaProteccion(valor || null);
-            }}
             disabled={!esPasoEditable}
-            className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm"
-          >
-            <option value="">Selecciona</option>
-            <option value="estabilizador">Estabilizador</option>
-            <option value="ups">UPS</option>
-            <option value="otro">Otro</option>
-          </select>
+            placeholder="Selecciona"
+            onChange={(valor) => setSistemaProteccion((valor || null) as 'estabilizador' | 'ups' | 'otro' | null)}
+            options={[
+              { value: 'estabilizador', label: 'Estabilizador' },
+              { value: 'ups', label: 'UPS' },
+              { value: 'otro', label: 'Otro' },
+            ]}
+          />
         </div>
       </div>
       {sistemaProteccion === 'otro' && (

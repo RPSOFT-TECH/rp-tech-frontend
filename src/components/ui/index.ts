@@ -11,3 +11,6 @@ export * from './modal';
 export * from './tooltip';
 export * from './search-input';
 export * from './sonner';
+export * from './custom-select';
+export * from './selector-fecha';
+export * from './metric-card';

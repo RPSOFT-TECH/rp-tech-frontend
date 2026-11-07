@@ -1,40 +1,34 @@
-import type { ReactNode } from 'react';
+'use client';
+
+import { CustomSelect, type OpcionSelect } from '@/components/ui/custom-select';
+import { SelectorFecha } from '@/components/ui/selector-fecha';
 
 export function FiltroSelect({
   label,
   value,
   onChange,
-  children,
+  opciones,
+  className,
 }: {
   label: string;
   value: string;
   onChange: (valor: string) => void;
-  children: ReactNode;
+  opciones: OpcionSelect[];
+  className?: string;
 }) {
-  return (
-    <div>
-      <label className="block text-xs font-semibold text-muted-foreground mb-1">{label}</label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full border border-border rounded-lg px-2.5 py-2 text-sm bg-background text-foreground min-h-11"
-      >
-        {children}
-      </select>
-    </div>
-  );
+  return <CustomSelect label={label} value={value} onChange={onChange} options={opciones} className={className} />;
 }
 
-export function FiltroFecha({ label, value, onChange }: { label: string; value: string; onChange: (valor: string) => void }) {
-  return (
-    <div>
-      <label className="block text-xs font-semibold text-muted-foreground mb-1">{label}</label>
-      <input
-        type="date"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full border border-border rounded-lg px-2 py-2 text-xs bg-background text-foreground min-h-11"
-      />
-    </div>
-  );
+export function FiltroFecha({
+  label,
+  value,
+  onChange,
+  className,
+}: {
+  label: string;
+  value: string;
+  onChange: (valor: string) => void;
+  className?: string;
+}) {
+  return <SelectorFecha label={label} value={value} onChange={onChange} className={className} />;
 }

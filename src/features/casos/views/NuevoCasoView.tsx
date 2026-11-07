@@ -157,7 +157,7 @@ function FormularioNuevoCaso({
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-5xl mx-auto overflow-x-hidden">
+    <div className="mx-auto w-full max-w-5xl overflow-x-hidden">
       <EncabezadoNuevoCaso numeroOrigen={datos.numeroOrigen} />
 
       {errorGlobal && (

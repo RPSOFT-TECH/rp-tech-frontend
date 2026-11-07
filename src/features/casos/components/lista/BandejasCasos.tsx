@@ -1,5 +1,42 @@
+import {
+  Ban,
+  CalendarCheck,
+  CalendarClock,
+  CircleCheck,
+  Clock3,
+  Headset,
+  Layers,
+  Pause,
+  Wrench,
+  type LucideIcon,
+} from 'lucide-react';
 import type { CasoLista } from '@/lib/datos-simulados/actions';
+import { MetricCard, type AcentoMetrica } from '@/components/ui';
 import { BANDEJAS, contadorBandeja } from './bandejas';
+
+const ICONO: Record<string, LucideIcon> = {
+  todos: Layers,
+  entrega_turno: CalendarClock,
+  por_programar: Clock3,
+  programado: CalendarCheck,
+  en_atencion: Wrench,
+  en_espera: Pause,
+  pendientes_posventa: Headset,
+  cerrado: CircleCheck,
+  anulado: Ban,
+};
+
+const ACENTO: Record<string, AcentoMetrica> = {
+  todos: 'primary',
+  entrega_turno: 'chart-2',
+  por_programar: 'chart-3',
+  programado: 'chart-4',
+  en_atencion: 'chart-5',
+  en_espera: 'chart-3',
+  pendientes_posventa: 'primary',
+  cerrado: 'chart-2',
+  anulado: 'destructive',
+};
 
 export function BandejasCasos({
   casos,
@@ -11,28 +48,19 @@ export function BandejasCasos({
   onSeleccionar: (clave: string) => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-2 mb-4">
+    <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
       {BANDEJAS.map((item) => {
-        const activa = item.clave === bandeja;
+        const Icono = ICONO[item.clave] ?? Layers;
         return (
-          <button
+          <MetricCard
             key={item.clave}
+            titulo={item.etiqueta}
+            valor={contadorBandeja(casos, item.clave)}
+            icono={<Icono className="size-5" />}
+            acento={ACENTO[item.clave] ?? 'primary'}
+            activo={item.clave === bandeja}
             onClick={() => onSeleccionar(item.clave)}
-            className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors min-h-9 ${
-              activa
-                ? 'bg-primary text-primary-foreground border-primary'
-                : 'bg-background text-foreground border-border hover:bg-muted'
-            }`}
-          >
-            {item.etiqueta}
-            <span
-              className={`bg-current/20 px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                activa ? 'text-primary-foreground' : 'text-current'
-              }`}
-            >
-              {contadorBandeja(casos, item.clave)}
-            </span>
-          </button>
+          />
         );
       })}
     </div>

@@ -111,27 +111,10 @@ export function AppSidebar({
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      <SidebarHeader className={cn('border-b border-sidebar-border bg-sidebar', colapsado ? 'items-center px-0 py-3' : 'px-3 py-3.5')}>
-        <div className={cn('flex items-center gap-2.5', colapsado && 'justify-center')}>
-          <div
-            className={cn(
-              'flex shrink-0 items-center justify-center rounded-full bg-primary/10 ring-2 ring-primary/15',
-              colapsado ? 'size-8' : 'size-10',
-            )}
-          >
-            <Wrench className={cn('text-primary', colapsado ? 'size-4' : 'size-5')} strokeWidth={2.2} />
-          </div>
-          {colapsado ? null : (
-            <div className="min-w-0">
-              <p className="truncate text-sm leading-none font-extrabold tracking-tight">
-                RP-<span className="text-primary">TECH</span>
-              </p>
-              <p className="mt-1 truncate text-[10px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
-                Servicio técnico
-              </p>
-            </div>
-          )}
-        </div>
+      <SidebarHeader className={cn('min-h-16 border-b border-sidebar-border bg-sidebar', colapsado ? 'items-center justify-center px-1 py-3' : 'px-4 py-4')}>
+        <p className={cn('leading-none font-extrabold tracking-tight', colapsado ? 'text-center text-[11px]' : 'text-[1.35rem]')}>
+          RP-<span className="text-primary">TECH</span>
+        </p>
       </SidebarHeader>
       <SidebarContent className={colapsado ? 'items-center px-1 py-3' : 'px-2 py-3'}>
         <SidebarGroup className="p-0">

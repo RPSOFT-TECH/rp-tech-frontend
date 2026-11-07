@@ -83,7 +83,7 @@ export function AppHeader() {
   const Icon = pagina.icon || respaldo.icon;
 
   return (
-    <header className="glass sticky top-0 z-40 flex h-16 w-full shrink-0 items-center justify-between gap-3 border-b border-border/30 px-4 md:px-5">
+    <header className="sticky top-0 z-40 flex h-16 w-full shrink-0 items-center justify-between gap-3 border-b border-border bg-card px-4 shadow-sm sm:h-[4.5rem] sm:px-6">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <Tooltip>
           <TooltipTrigger asChild>
@@ -97,13 +97,13 @@ export function AppHeader() {
           </TooltipContent>
         </Tooltip>
         <div className="flex min-w-0 items-center gap-2.5">
-          <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-            <Icon className="size-3.5 text-primary" strokeWidth={2} />
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+            <Icon className="size-5 text-primary" strokeWidth={2.2} />
           </div>
           <div className="min-w-0">
-            <p className="truncate text-[14.5px] leading-tight font-black text-foreground">{titulo}</p>
+            <p className="truncate text-base leading-tight font-black text-foreground sm:text-lg">{titulo}</p>
             {subtitulo ? (
-              <p className="hidden truncate text-[11px] leading-tight text-muted-foreground md:block">{subtitulo}</p>
+              <p className="hidden truncate text-xs leading-tight text-muted-foreground sm:block">{subtitulo}</p>
             ) : null}
           </div>
         </div>

@@ -25,8 +25,7 @@ export function EncabezadoNuevoCaso({ numeroOrigen }: { numeroOrigen: string | n
 
   return (
     <div className="mb-6 space-y-2">
-      <h1 className="text-2xl font-bold tracking-tight text-foreground">Nuevo caso</h1>
-      <div className="text-sm text-muted-foreground space-y-1">
+      <div className="space-y-1 text-sm text-muted-foreground">
         <p>N° de caso: se asigna al guardar</p>
         <p>{marca || 'Hora de Lima'}</p>
         <p>Registrado por: {sesion?.usuario.nombre_completo ?? '—'}</p>

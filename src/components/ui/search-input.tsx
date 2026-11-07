@@ -14,7 +14,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
 
     return (
       <div className={`relative flex items-center w-full ${contenedorClassName}`}>
-        <Search className="absolute left-3 w-4 h-4 text-muted-foreground pointer-events-none" />
+        <Search className="pointer-events-none absolute left-3.5 size-[18px] text-muted-foreground" />
         <input
           ref={ref}
           type="text"
@@ -22,14 +22,14 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           onChange={onChange}
           disabled={disabled}
           placeholder={placeholder}
-          className={`w-full h-11 pl-9 pr-9 text-sm bg-background text-foreground border border-border rounded-lg shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+          className={`h-12 w-full rounded-xl border border-border bg-card pr-10 pl-11 text-[15px] font-semibold text-foreground shadow-sm transition-colors outline-none focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
           {...props}
         />
         {tieneValor && onClear && !disabled && (
           <button
             type="button"
             onClick={onClear}
-            className="absolute right-3 p-0.5 text-muted-foreground hover:text-foreground rounded transition-colors"
+            className="absolute right-3 rounded p-0.5 text-muted-foreground transition-colors hover:text-foreground"
             aria-label="Limpiar búsqueda"
           >
             <X className="w-4 h-4" />

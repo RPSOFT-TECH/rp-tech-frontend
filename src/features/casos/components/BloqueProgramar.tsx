@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { agenda_tecnico, tecnicos, type TecnicoLista, type VisitaAgenda } from '@/lib/datos-simulados/actions';
+import { CustomSelect } from '@/components/ui/custom-select';
+import { SelectorFecha } from '@/components/ui/selector-fecha';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { avisoDeCruce } from './cruce-horario';
@@ -21,8 +23,6 @@ interface BloqueProgramarProps {
   mostrarInterruptor?: boolean;
   excluirReporteId?: string;
 }
-
-const claseCampo = 'w-full min-h-11 rounded-lg border border-input bg-background px-3 text-sm text-foreground';
 
 export function BloqueProgramar({
   valor,
@@ -100,44 +100,33 @@ export function BloqueProgramar({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label htmlFor="tecnico_visita">Técnico</Label>
-              <select
+              <CustomSelect
                 id="tecnico_visita"
                 value={valor.tecnicoId}
-                onChange={(e) => cambiarTecnico(e.target.value)}
-                className={claseCampo}
-              >
-                <option value="">Selecciona un técnico...</option>
-                {lista.map((tecnico) => (
-                  <option key={tecnico.id} value={tecnico.id}>
-                    {tecnico.nombre_completo}
-                  </option>
-                ))}
-              </select>
+                onChange={cambiarTecnico}
+                placeholder="Selecciona un técnico..."
+                options={lista.map((tecnico) => ({ value: tecnico.id, label: tecnico.nombre_completo }))}
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="adjunto_visita">Técnico adjunto</Label>
-              <select
+              <CustomSelect
                 id="adjunto_visita"
                 value={valor.adjuntoId}
-                onChange={(e) => onChange({ ...valor, adjuntoId: e.target.value })}
-                className={claseCampo}
-              >
-                <option value="">Sin adjunto</option>
-                {adjuntos.map((tecnico) => (
-                  <option key={tecnico.id} value={tecnico.id}>
-                    {tecnico.nombre_completo}
-                  </option>
-                ))}
-              </select>
+                onChange={(adjuntoId) => onChange({ ...valor, adjuntoId })}
+                placeholder="Sin adjunto"
+                options={[
+                  { value: '', label: 'Sin adjunto' },
+                  ...adjuntos.map((tecnico) => ({ value: tecnico.id, label: tecnico.nombre_completo })),
+                ]}
+              />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="fecha_visita">Fecha</Label>
-              <input
+              <SelectorFecha
                 id="fecha_visita"
-                type="date"
+                label="Fecha"
                 value={valor.fecha}
-                onChange={(e) => onChange({ ...valor, fecha: e.target.value })}
-                className={claseCampo}
+                onChange={(fecha) => onChange({ ...valor, fecha })}
               />
             </div>
             <div className="space-y-1.5">
@@ -147,7 +136,7 @@ export function BloqueProgramar({
                 type="time"
                 value={valor.hora}
                 onChange={(e) => onChange({ ...valor, hora: e.target.value })}
-                className={claseCampo}
+                className="h-12 w-full rounded-xl border border-border bg-card px-3 text-sm font-semibold text-foreground"
               />
             </div>
           </div>
