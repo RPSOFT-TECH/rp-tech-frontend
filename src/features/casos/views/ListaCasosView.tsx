@@ -12,7 +12,7 @@ import {
   type Catalogo,
   type ClienteLista,
   type TecnicoLista,
-} from '@/lib/datos-simulados/actions';
+} from '@/lib/datos/actions';
 import { ClipboardList } from 'lucide-react';
 import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
 import { descargarExcel, listaFiltradaPorBandeja, puedeCrear } from '../components/lista/bandejas';

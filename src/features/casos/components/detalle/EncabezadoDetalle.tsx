@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { CasoDetalle } from '@/lib/datos-simulados/actions';
+import type { CasoDetalle } from '@/lib/datos/actions';
 import { Badge } from '@/components/ui';
 import { EstadoBadge } from '../EstadoCaso';
 import { fechaHoraLima } from './formato';

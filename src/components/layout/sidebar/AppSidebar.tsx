@@ -12,7 +12,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { SesionUsuario } from '@/lib/datos-simulados/actions';
+import type { SesionUsuario } from '@/lib/datos/actions';
 import type { MenuItem } from '@/lib/permisos';
 import {
   Sidebar,

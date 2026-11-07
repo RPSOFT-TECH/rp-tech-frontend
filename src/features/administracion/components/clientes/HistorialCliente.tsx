@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { casos_lista, reportes_lista, type CasoLista, type ReporteLista } from '@/lib/datos-simulados/actions';
+import { casos_lista, reportes_lista, type CasoLista, type ReporteLista } from '@/lib/datos/actions';
 import { etiquetaEstado } from '@/features/casos';
 
 export function HistorialCliente({ clienteId }: { clienteId: string }) {

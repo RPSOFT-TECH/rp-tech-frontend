@@ -1,4 +1,4 @@
-import type { CasoDetalle } from '@/lib/datos-simulados/actions';
+import type { CasoDetalle } from '@/lib/datos/actions';
 import { Card } from '@/components/ui';
 import { valor } from './formato';
 

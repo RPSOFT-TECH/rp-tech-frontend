@@ -1,6 +1,6 @@
 'use client';
 
-import type { CasoDetalle } from '@/lib/datos-simulados/actions';
+import type { CasoDetalle } from '@/lib/datos/actions';
 import { Button, Modal, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
 import { fechaHoraLima, valor, visitaDeClave } from './formato';
 

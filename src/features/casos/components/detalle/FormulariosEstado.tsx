@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { anular_caso, poner_en_espera, reabrir_caso, registrar_posventa } from '@/lib/datos-simulados/actions';
+import { anular_caso, poner_en_espera, reabrir_caso, registrar_posventa } from '@/lib/datos/actions';
 import { Button, Card, CustomSelect } from '@/components/ui';
 import type { FormAccionProps } from './tipos';
 

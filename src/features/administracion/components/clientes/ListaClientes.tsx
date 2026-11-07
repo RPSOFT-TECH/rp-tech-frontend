@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { clientes_admin, crear_cliente, type ClienteAdmin } from '@/lib/datos-simulados/actions';
+import { clientes_admin, crear_cliente, type ClienteAdmin } from '@/lib/datos/actions';
 import { Button, DataTable, Modal, SearchInput } from '@/components/ui';
 import { claseCampo } from '../comun/clases';
 

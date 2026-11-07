@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { agenda_tecnico, tecnicos, type TecnicoLista, type VisitaAgenda } from '@/lib/datos-simulados/actions';
+import { agenda_tecnico, tecnicos, type TecnicoLista, type VisitaAgenda } from '@/lib/datos/actions';
 import { CustomSelect } from '@/components/ui/custom-select';
 import { SelectorFecha } from '@/components/ui/selector-fecha';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

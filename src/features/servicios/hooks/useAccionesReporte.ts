@@ -11,7 +11,7 @@ import {
   quitar_repuesto,
   registrar_llegada,
   reportePdf,
-} from '@/lib/datos-simulados/actions';
+} from '@/lib/datos/actions';
 import type { Reporte } from '@/lib/datos-simulados/types';
 import { faltasEnPantalla } from '../reporte/faltantes';
 import { horaLimaStr, type AdjuntoFila, type RepuestoFila } from '../reporte/pasos';

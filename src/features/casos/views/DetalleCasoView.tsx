@@ -9,7 +9,7 @@ import {
   obtener_caso_detalle,
   obtenerUsuarioActual,
   type CasoDetalle,
-} from '@/lib/datos-simulados/actions';
+} from '@/lib/datos/actions';
 import { ClipboardList } from 'lucide-react';
 import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
 import { AccionesDetalle, FormulariosAccion } from '../components/detalle/AccionesDetalle';

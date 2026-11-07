@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import type { CasoLista, Catalogo, ClienteLista, TecnicoLista } from '@/lib/datos-simulados/actions';
+import type { CasoLista, Catalogo, ClienteLista, TecnicoLista } from '@/lib/datos/actions';
 import { Badge, Card, CustomSelect, DataTable, type Columna, type OpcionSelect } from '@/components/ui';
 import { ESTADOS_FILTRO, EstadoBadge, etiquetaEstado } from '../EstadoCaso';
 import { fechaLima } from './bandejas';

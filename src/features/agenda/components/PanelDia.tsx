@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { GraficoBarras } from '@/components/ui/charts/GraficoBarras';
-import type { TecnicoLista, VisitaAgenda } from '@/lib/datos-simulados/actions';
+import type { TecnicoLista, VisitaAgenda } from '@/lib/datos/actions';
 
 export interface ColumnaAgenda {
   tecnico: TecnicoLista;

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { mis_servicios, obtener_reporte, type MiServicio } from '@/lib/datos-simulados/actions';
+import { mis_servicios, obtener_reporte, type MiServicio } from '@/lib/datos/actions';
 import type { Reporte } from '@/lib/datos-simulados/types';
 import { PASOS, puedeEditar, type AdjuntoFila, type RepuestoFila } from '../reporte/pasos';
 import { useAccionesReporte } from './useAccionesReporte';

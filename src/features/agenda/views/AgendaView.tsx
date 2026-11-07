@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { agenda_tecnico, hoyLima, tecnicos } from '@/lib/datos-simulados/actions';
+import { agenda_tecnico, hoyLima, tecnicos } from '@/lib/datos/actions';
 import { Calendar } from 'lucide-react';
 import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
 import { CuadriculaAgenda } from '../components/CuadriculaAgenda';

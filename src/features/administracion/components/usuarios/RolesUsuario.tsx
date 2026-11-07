@@ -9,7 +9,7 @@ import {
   roles_asignables,
   type RolCodigo,
   type UsuarioAdmin,
-} from '@/lib/datos-simulados/actions';
+} from '@/lib/datos/actions';
 import { Button, CustomSelect, SelectorFecha } from '@/components/ui';
 import { NOMBRE_ESTADO, NOMBRE_ROL } from '../comun/etiquetas';
 

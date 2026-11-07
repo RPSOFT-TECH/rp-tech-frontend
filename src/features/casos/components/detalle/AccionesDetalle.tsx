@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { CasoDetalle } from '@/lib/datos-simulados/actions';
+import type { CasoDetalle } from '@/lib/datos/actions';
 import { Button } from '@/components/ui';
 import { puedeCoordinador } from './formato';
 import { FormAnularCaso, FormPonerEnEspera, FormReabrirCaso, FormRegistrarPosventa } from './FormulariosEstado';

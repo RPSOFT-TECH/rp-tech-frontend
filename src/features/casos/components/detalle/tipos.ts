@@ -1,4 +1,4 @@
-import type { CasoDetalle } from '@/lib/datos-simulados/actions';
+import type { CasoDetalle } from '@/lib/datos/actions';
 
 export type EjecutarAccion = (fn: () => Promise<{ ok: boolean; error?: string }>) => void;
 

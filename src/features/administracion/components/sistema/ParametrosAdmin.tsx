@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { toast } from 'sonner';
-import { actualizar_parametros, leerSesionEstable, parametros_actuales } from '@/lib/datos-simulados/actions';
+import { actualizar_parametros, leerSesionEstable, parametros_actuales } from '@/lib/datos/actions';
 import { Button } from '@/components/ui';
 import { claseCampo } from '../comun/clases';
 

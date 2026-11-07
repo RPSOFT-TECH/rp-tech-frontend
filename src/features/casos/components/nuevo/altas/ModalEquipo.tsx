@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { crear_equipo, type EquipoVista, type Sede } from '@/lib/datos-simulados/actions';
+import { crear_equipo, type EquipoVista, type Sede } from '@/lib/datos/actions';
 import { CustomSelect } from '@/components/ui/custom-select';
 import { SelectorFecha } from '@/components/ui/selector-fecha';
 import { Button } from '@/components/ui/button';

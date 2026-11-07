@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { EquipoVista, Sede } from '@/lib/datos-simulados/actions';
+import { EquipoVista, Sede } from '@/lib/datos/actions';
 import { NuevoCasoFormValues } from '@/lib/validaciones/caso';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { programar_visita, reprogramar_visita } from '@/lib/datos-simulados/actions';
+import { programar_visita, reprogramar_visita } from '@/lib/datos/actions';
 import { Button, Card, SelectorFecha } from '@/components/ui';
 import type { FormAccionProps } from './tipos';
 

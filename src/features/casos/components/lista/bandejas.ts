@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import type { CasoLista } from '@/lib/datos-simulados/actions';
+import type { CasoLista } from '@/lib/datos/actions';
 import { etiquetaEstado } from '../EstadoCaso';
 
 export const BANDEJAS: { clave: string; etiqueta: string }[] = [

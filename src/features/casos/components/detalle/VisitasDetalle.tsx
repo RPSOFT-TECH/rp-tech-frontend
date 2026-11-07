@@ -1,6 +1,6 @@
 'use client';
 
-import type { CasoDetalle } from '@/lib/datos-simulados/actions';
+import type { CasoDetalle } from '@/lib/datos/actions';
 import { Button, Card } from '@/components/ui';
 import { EstadoBadge, etiquetaEstado } from '../EstadoCaso';
 import { fechaHoraLima, horaLima, puedeCoordinador } from './formato';

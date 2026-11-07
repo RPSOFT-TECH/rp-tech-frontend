@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { mis_servicios, hoyLima, obtenerUsuarioActual, type MiServicio } from '@/lib/datos-simulados/actions';
+import { mis_servicios, hoyLima, obtenerUsuarioActual, type MiServicio } from '@/lib/datos/actions';
 import Link from 'next/link';
 import { Wrench } from 'lucide-react';
 import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';

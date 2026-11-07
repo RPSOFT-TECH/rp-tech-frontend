@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { crear_caso, programar_visita, tecnicos } from '@/lib/datos-simulados/actions';
+import { crear_caso, programar_visita, tecnicos } from '@/lib/datos/actions';
 import { nuevoCasoSchema, NuevoCasoFormValues } from '@/lib/validaciones/caso';
 import { useNuevoCasoForm } from '../hooks/useNuevoCasoForm';
 import {

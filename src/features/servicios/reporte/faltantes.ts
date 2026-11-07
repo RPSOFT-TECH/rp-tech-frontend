@@ -1,4 +1,4 @@
-import { faltantes_cierre } from '@/lib/datos-simulados/actions';
+import { faltantes_cierre } from '@/lib/datos/actions';
 import type { Reporte } from '@/lib/datos-simulados/types';
 import type { AdjuntoFila } from './pasos';
 

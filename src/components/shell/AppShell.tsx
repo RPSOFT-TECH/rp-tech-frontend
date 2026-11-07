@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useSyncExternalStore } from 'react';
 import { guardarAviso } from '@/components/avisos-sonner';
-import { leerSesionEstable, limpiarSesion, suscribirSesion, type SesionUsuario } from '@/lib/datos-simulados/actions';
+import { leerSesionEstable, limpiarSesion, suscribirSesion, type SesionUsuario } from '@/lib/datos/actions';
 import { menuDeRoles } from '@/lib/permisos';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { AppHeader } from '@/components/layout/header/AppHeader';

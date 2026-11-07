@@ -11,7 +11,7 @@ import {
   renombrar_catalogo,
   type CodigoCatalogo,
   type ItemCatalogo,
-} from '@/lib/datos-simulados/actions';
+} from '@/lib/datos/actions';
 import { Button, CustomSelect } from '@/components/ui';
 import { claseCampo } from '../comun/clases';
 
