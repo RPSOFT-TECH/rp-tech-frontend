@@ -1,13 +1,20 @@
 import type { Metadata, Viewport } from 'next';
-import { Be_Vietnam_Pro } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 import { Providers } from '@/components/providers';
 
-const fontSans = Be_Vietnam_Pro({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
+const fontSans = localFont({
+  src: [
+    { path: './fonts/BeVietnamPro-Light.woff2', weight: '300', style: 'normal' },
+    { path: './fonts/BeVietnamPro-Regular.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/BeVietnamPro-Medium.woff2', weight: '500', style: 'normal' },
+    { path: './fonts/BeVietnamPro-SemiBold.woff2', weight: '600', style: 'normal' },
+    { path: './fonts/BeVietnamPro-Bold.woff2', weight: '700', style: 'normal' },
+    { path: './fonts/BeVietnamPro-ExtraBold.woff2', weight: '800', style: 'normal' },
+  ],
   variable: '--font-sans',
   display: 'swap',
+  declarations: [{ prop: 'font-family', value: "'Be Vietnam Pro'" }],
 });
 
 export const metadata: Metadata = {

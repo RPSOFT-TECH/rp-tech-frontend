@@ -18,7 +18,7 @@ La spec de código prohíbe comentarios en `src/`. El porqué de cada regla qued
 
 ## RPT-S2-T12. Fuente local
 
-- [ ] A
+- [x] A. Be Vietnam Pro 300–800 (subset latin, los mismos pesos de `layout.tsx`) está en `src/app/fonts/*.woff2` con `OFL.txt`. `layout.tsx` usa `next/font/local` y la variable `--font-sans`. El `@font-face` se llama `Be Vietnam Pro`, igual que el token de `globals.css`, para que la letra no cambie.
 - [ ] B
 - [ ] C
 
