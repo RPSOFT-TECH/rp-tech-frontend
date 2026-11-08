@@ -19,7 +19,7 @@ La spec de código prohíbe comentarios en `src/`. El porqué de cada regla qued
 ## RPT-S2-T12. Fuente local
 
 - [x] A. Be Vietnam Pro 300–800 (subset latin, los mismos pesos de `layout.tsx`) está en `src/app/fonts/*.woff2` con `OFL.txt`. `layout.tsx` usa `next/font/local` y la variable `--font-sans`. El `@font-face` se llama `Be Vietnam Pro`, igual que el token de `globals.css`, para que la letra no cambie.
-- [ ] B
+- [x] B. `npm run build` terminó sin errores. El CSS de producción tiene los seis `@font-face` de Be Vietnam Pro (300–800) con los `.woff2` del build, más el fallback de métricas. `.next/static` no referencia `fonts.googleapis.com` ni `fonts.gstatic.com`. El wifi se dejó encendido: cortarlo apaga la red de esta PC. La prueba equivalente es que el build ya no descarga la fuente. No hay captura de antes y después: en esta sesión no hay navegador. Los archivos son el subset latin que Google servía para esos pesos.
 - [ ] C
 
 ## RPT-S2-T13. Quitar «Cerrar reporte» del detalle del caso
