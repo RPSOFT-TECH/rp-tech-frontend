@@ -39,7 +39,7 @@ export async function registrar_llegada(p_reporte: string, p_hora?: string | nul
   return ok(reporte);
 }
 
-/** Igual que modalidades.remota en la base: la visita remota no exige fotos, firmas, voltajes, limpieza ni protección. */
+
 export function es_visita_remota(p_reporte: string): boolean {
   const reporte = db.reportes.find((item) => item.id === p_reporte);
   const caso = reporte ? db.casos.find((item) => item.id === reporte.caso_id) : undefined;
@@ -47,7 +47,7 @@ export function es_visita_remota(p_reporte: string): boolean {
   return modalidad?.remota === true;
 }
 
-/** Lo que falta para cerrar, con las mismas reglas y textos que cerrar_reporte en la base. */
+
 export function faltantes_cierre(
   reporte: Reporte,
   adjuntos: Pick<Adjunto, 'tipo'>[],
@@ -80,7 +80,7 @@ export function faltantes_cierre(
   return { revision, general };
 }
 
-/** Datos de una visita para la pantalla del reporte. Lo ven el técnico, el adjunto y la oficina de la empresa. */
+
 export async function obtener_reporte(p_reporte: string): Promise<
   Resultado<{ reporte: Reporte; repuestos: ReporteRepuesto[]; adjuntos: Adjunto[]; remota: boolean }>
 > {

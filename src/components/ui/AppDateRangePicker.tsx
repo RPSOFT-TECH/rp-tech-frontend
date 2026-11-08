@@ -22,8 +22,8 @@ addLocale("es", {
 });
 
 interface IAppDateRangePickerProps {
-    startDate?: string; // YYYY-MM-DD
-    endDate?: string;   // YYYY-MM-DD
+    startDate?: string;
+    endDate?: string;
     onChange?: (start: string, end: string) => void;
     className?: string;
 }

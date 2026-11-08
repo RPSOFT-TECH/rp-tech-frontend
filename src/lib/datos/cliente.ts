@@ -1,5 +1,5 @@
-// Cliente de Supabase del navegador. Solo usa la URL y la clave Publishable:
-// la clave Secret nunca va en el frontend. Quien protege los datos es la base (RLS).
+
+
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 const URL_SUPABASE = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';

@@ -1,5 +1,5 @@
-// Clientes, sedes, contactos y equipos: altas desde Nuevo caso y administración.
-// Nada se borra: se desactiva. Unicidad de RUC y serie la valida la base.
+
+
 import type { CabezalCantidad, Cliente, Contacto, Equipo, EquipoVista, Resultado, Sede } from '../datos-simulados/types';
 import type { AltaCliente, AltaContacto, AltaEquipo, AltaSede } from '../datos-simulados/acciones/altas';
 import type { ClienteAdmin, ClienteLista, FichaCliente } from '../datos-simulados/acciones/admin-clientes';
@@ -24,7 +24,7 @@ function leerRuc(valor: string | null | undefined): { ruc: string | null; error:
   return { ruc: limpio, error: null };
 }
 
-/** Si se marca una sede como principal, se desmarca la anterior (solo puede haber una). */
+
 async function soltarPrincipal(clienteId: string, exceptoId?: string): Promise<string | null> {
   let consulta = supabase().from('sedes').update({ principal: false }).eq('cliente_id', clienteId).eq('principal', true);
   if (exceptoId) consulta = consulta.neq('id', exceptoId);
@@ -32,9 +32,7 @@ async function soltarPrincipal(clienteId: string, exceptoId?: string): Promise<s
   return error ? mensaje(error) : null;
 }
 
-// ---------------------------------------------------------------------------
-// Altas (Nuevo caso)
-// ---------------------------------------------------------------------------
+
 export async function crear_cliente(datos: AltaCliente): Promise<Resultado<Cliente>> {
   const sesion = obtenerUsuarioActual();
   if (!sesion) return fallo('Inicia sesión para continuar.');
@@ -114,9 +112,7 @@ export async function crear_contacto(datos: AltaContacto): Promise<Resultado<Con
   return ok(data as Contacto);
 }
 
-// ---------------------------------------------------------------------------
-// Administración de clientes
-// ---------------------------------------------------------------------------
+
 const SELECT_CLIENTE_ADMIN = `*, verificador:perfiles!clientes_soporte_verificado_por_fkey(nombre_completo),
   sedes(id, activo), equipos!equipos_cliente_fk(id, activo)`;
 
@@ -181,7 +177,7 @@ export async function guardar_cliente(datos: {
   if (!razon) return fallo('Ingresa la razón social.');
   const leido = leerRuc(datos.ruc);
   if (leido.error) return fallo(leido.error);
-  // Quién y cuándo verificó el soporte lo registra la base al marcarlo.
+
   const { data, error } = await supabase()
     .from('clientes')
     .update({

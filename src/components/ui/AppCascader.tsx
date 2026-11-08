@@ -13,7 +13,7 @@ export interface CascaderOption {
 }
 
 interface AppCascaderProps {
-    value?: (string | number)[]; // Array de valores seleccionados [dept, prov, dist]
+    value?: (string | number)[];
     onChange?: (values: (string | number)[], labels: string[]) => void;
     options: CascaderOption[];
     placeholder?: string;
@@ -22,7 +22,7 @@ interface AppCascaderProps {
     className?: string;
     disabled?: boolean;
     onLevelChange?: (level: number, parentValue: string | number) => void;
-    labels?: string[]; // Labels actuales para mostrar en el trigger
+    labels?: string[];
     loading?: boolean[];
 }
 

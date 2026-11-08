@@ -1,4 +1,4 @@
-// Utilidades comunes de la capa de datos real.
+
 import type { PostgrestError } from '@supabase/supabase-js';
 import { ahoraLimaISO, horaLima, hoyLima } from '../datos-simulados/fecha';
 import type { Resultado, RolCodigo } from '../datos-simulados/types';
@@ -12,7 +12,7 @@ export function fallo<T>(error: string): Resultado<T> {
   return { ok: false, error };
 }
 
-/** Convierte un error de Supabase en un mensaje para la persona. */
+
 export function mensaje(error: Pick<PostgrestError, 'message' | 'code'> | { message: string; code?: string } | null): string {
   if (!error) return 'No se pudo completar la acción.';
   const texto = error.message ?? '';
@@ -27,7 +27,7 @@ export function mensaje(error: Pick<PostgrestError, 'message' | 'code'> | { mess
   if (codigo === '23503') return 'El registro está en uso o hace referencia a algo que no existe.';
   if (/JWT|session/i.test(texto)) return 'Tu sesión venció. Vuelve a iniciar sesión.';
   if (/Failed to fetch|NetworkError/i.test(texto)) return 'No hay conexión con el servidor. Revisa tu internet.';
-  // Los mensajes de las funciones de la base ya vienen en español.
+
   return /[.!?]$/.test(texto) ? texto : `${texto}.`;
 }
 
@@ -36,22 +36,22 @@ export function tieneRol(...codigos: RolCodigo[]): boolean {
   return !!sesion && sesion.rolesVigentes.some((rol) => codigos.includes(rol));
 }
 
-/** 'HH:MM:SS' de la base → 'HH:MM' */
+
 export function hora(valor: string | null | undefined): string | null {
   return valor ? valor.slice(0, 5) : null;
 }
 
-/** Fecha y hora de la base → ISO con hora de Lima (como en los datos simulados). */
+
 export function isoLima(valor: string | null | undefined): string | null {
   return valor ? ahoraLimaISO(new Date(valor)) : null;
 }
 
-/** Fecha y hora de la base → 'HH:MM' en hora de Lima. */
+
 export function horaDe(valor: string | null | undefined): string | null {
   return valor ? horaLima(new Date(valor)) : null;
 }
 
-/** 'HH:MM' de hoy en Lima → fecha y hora para la base. */
+
 export function marcaDeHoy(horaTexto: string | null | undefined): string | null {
   const limpio = horaTexto?.trim();
   if (!limpio) return null;
@@ -77,7 +77,7 @@ export function numero(valor: unknown): number | null {
   return Number.isNaN(n) ? null : n;
 }
 
-/** Imagen en data URL → Blob para subirla a Storage. */
+
 export async function blobDe(dataUrl: string): Promise<Blob> {
   const respuesta = await fetch(dataUrl);
   return respuesta.blob();

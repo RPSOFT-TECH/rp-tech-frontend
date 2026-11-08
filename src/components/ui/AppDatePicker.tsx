@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 dayjs.locale("es");
 
 interface IAppDatePickerProps {
-    value?: string; // Formato YYYY-MM-DD
+    value?: string;
     onChange?: (e: { target: { value: string } }) => void;
     label?: string;
     hasError?: boolean;

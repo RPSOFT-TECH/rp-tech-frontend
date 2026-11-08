@@ -1,8 +1,5 @@
-// Sesión real con Supabase Auth.
-// El token (JWT) lo guarda y renueva supabase-js. Aparte se guarda un resumen
-// del usuario (perfil, empresa y roles vigentes) para que las pantallas lo lean
-// sin esperar, igual que con los datos simulados. La cookie solo sirve para que
-// proxy.ts decida a qué pantalla mandar: los datos los protege la base (RLS).
+
+
 import { hoyLima } from '../datos-simulados/fecha';
 import type { Empresa, ParametrosEmpresa, Perfil, PermisosConsulta, RolCodigo } from '../datos-simulados/types';
 import { supabase } from './cliente';
@@ -53,7 +50,6 @@ export function rolesVigentesDe(filas: FilaRol[], dia: string = hoyLima()): RolC
   return [...new Set(codigos)];
 }
 
-/** Lee perfil, empresa y roles del usuario con sesión. */
 async function cargarResumen(userId: string, email: string): Promise<SesionUsuario | null> {
   const sb = supabase();
   const [{ data: perfil }, { data: filas }] = await Promise.all([
@@ -62,7 +58,7 @@ async function cargarResumen(userId: string, email: string): Promise<SesionUsuar
   ]);
   const roles = rolesVigentesDe((filas ?? []) as unknown as FilaRol[]);
   if (!perfil) {
-    // Sin roles vigentes la base no deja leer ni el propio perfil: queda "sin acceso".
+
     return {
       usuario: { id: userId, empresa_id: '', nombre_completo: email, email, telefono: null, activo: true },
       empresa: {
@@ -105,7 +101,6 @@ export async function login(email: string, password: string): Promise<SesionUsua
   return resumen;
 }
 
-/** Vuelve a leer perfil, empresa y roles (por ejemplo, después de cambiar parámetros). */
 export async function refrescarSesion(): Promise<SesionUsuario | null> {
   const { data } = await supabase().auth.getUser();
   if (!data.user) return null;
@@ -145,7 +140,7 @@ export function guardarSesion(sesion: SesionUsuario): void {
   sesionCacheClave = payload;
   sesionCache = sesion;
   memoria.setItem(CLAVE, payload);
-  // La cookie lleva solo lo que proxy.ts necesita (los parámetros pueden ser largos).
+
   const resumen = {
     usuario: { id: sesion.usuario.id, email: sesion.usuario.email, activo: sesion.usuario.activo },
     empresa: { id: sesion.empresa.id, nombre: sesion.empresa.nombre, permisos_consulta: sesion.empresa.permisos_consulta },
@@ -177,7 +172,6 @@ export async function logout(): Promise<void> {
   }
 }
 
-/** Si el token vence o se cierra la sesión en otra pestaña, se limpia el resumen y se vuelve al login. */
 function vigilarToken(): void {
   if (vigilando || typeof window === 'undefined') return;
   vigilando = true;
@@ -185,7 +179,7 @@ function vigilarToken(): void {
   const salir = () => {
     if (!almacenamiento()?.getItem(CLAVE)) return;
     borrarSesionLocal();
-    // Fuera de React (evento de Supabase): se recarga en el login para limpiar todo el estado.
+
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     if (!window.location.pathname.startsWith('/login')) window.location.assign('/login');
   };
