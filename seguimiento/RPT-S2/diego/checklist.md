@@ -7,7 +7,7 @@ La spec de código prohíbe comentarios en `src/`. El porqué de cada regla qued
 ## Tarea 0. Preparar
 
 - [x] `git pull` en `main`. Las pantallas de casos, servicios, agenda, administración y login importan las acciones desde `@/lib/datos/actions`.
-- [ ] Levantar el backend local y entrar con `tecnico1@rptech.test` / `Rptech2026!`. La rama `feature/conexion-supabase` no es ancestro de `main`; la capa `src/lib/datos` sí está en `main`.
+- [x] Levantar el backend local y entrar con `tecnico1@rptech.test` / `Rptech2026!`. Supabase local en `127.0.0.1:54321`. El login devolvió el perfil activo, el rol `tecnico` vigente y la empresa RP Tech Demo.
 - [x] Este checklist.
 
 ## RPT-S2-T11. Firma con el dedo
