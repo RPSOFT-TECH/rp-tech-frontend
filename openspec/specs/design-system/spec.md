@@ -21,7 +21,7 @@ The RP-TECH frontend SHALL define all color values, elevation shadows, border ra
 
 ### Requirement: Typography Hierarchy & Font Families
 
-The application SHALL use `Be Vietnam Pro` as its primary sans-serif font, loaded and optimized via `next/font/google` in `src/app/layout.tsx`. System serif (`Georgia, serif`) and monospace (`Menlo, monospace`) SHALL be available via standard CSS variables.
+The application SHALL use `Be Vietnam Pro` as its primary sans-serif font, loaded with `next/font/local` from `src/app/fonts` in `src/app/layout.tsx`, so a production build does not download the font. System serif (`Georgia, serif`) and monospace (`Menlo, monospace`) SHALL be available via standard CSS variables.
 
 #### Scenario: Body text font family
 - **WHEN** rendering standard UI text, labels, and form controls
