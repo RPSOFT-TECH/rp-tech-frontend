@@ -151,7 +151,7 @@ function DetalleCasoContenido() {
         onCerrarMensaje={() => setAccionMensaje(null)}
       />
       <FichaDetalle caso={caso} contacto={contacto} />
-      <VisitasDetalle caso={caso} roles={roles} onAbrir={setAccionAbierta} />
+      <VisitasDetalle caso={caso} onAbrir={setAccionAbierta} />
       <ModalReporteVisita caso={caso} accion={accionAbierta} onCerrar={() => setAccionAbierta(null)} />
       <FormulariosAccion
         accion={accionAbierta}

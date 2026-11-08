@@ -46,6 +46,6 @@ export function puedeGerente(roles: string[]): boolean {
 }
 
 export function visitaDeClave<T extends { id: string }>(clave: string, visitas: T[]): T {
-  const id = clave.replace(/^(ver|cerrar)-/, '');
+  const id = clave.replace(/^ver-/, '');
   return visitas.find((visita) => visita.id === id) || visitas[0];
 }

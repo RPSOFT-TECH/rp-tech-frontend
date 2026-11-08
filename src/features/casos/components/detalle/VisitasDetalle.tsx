@@ -3,15 +3,13 @@
 import type { CasoDetalle } from '@/lib/datos/actions';
 import { Button, Card } from '@/components/ui';
 import { EstadoBadge, etiquetaEstado } from '../EstadoCaso';
-import { fechaHoraLima, horaLima, puedeCoordinador } from './formato';
+import { fechaHoraLima, horaLima } from './formato';
 
 export function VisitasDetalle({
   caso,
-  roles,
   onAbrir,
 }: {
   caso: CasoDetalle;
-  roles: string[];
   onAbrir: (accion: string) => void;
 }) {
   return (
@@ -72,11 +70,6 @@ export function VisitasDetalle({
                 <Button onClick={() => onAbrir(`ver-${visita.id}`)} variant="outline" size="sm" className="px-3">
                   Ver reporte
                 </Button>
-                {!visita.cerrado && visita.hora_llegada && puedeCoordinador(roles) && (
-                  <Button onClick={() => onAbrir(`cerrar-${visita.id}`)} variant="outline" size="sm" className="px-3">
-                    Cerrar reporte
-                  </Button>
-                )}
               </div>
             </Card>
           ))}
