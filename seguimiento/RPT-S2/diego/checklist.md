@@ -26,7 +26,7 @@ La spec de código prohíbe comentarios en `src/`. El porqué de cada regla qued
 
 - [x] A. En el detalle del caso se quitó el botón «Cerrar reporte» que veían coordinador y superadmin. No había modal: `cerrar-<id>` no abría ningún formulario, y se quitó ese prefijo. El cierre sigue en el paso 7 del reporte del técnico. No se tocó `src/lib/datos`.
 - [ ] B. Entrar como coordinador con una visita en atención y confirmar que el botón no aparece. Falta el backend local y la captura.
-- [ ] C. La spec deja el cierre solo al técnico asignado. El botón del coordinador se quita; la base igual lo rechaza.
+- [x] C. Solo el técnico asignado cierra su reporte, desde el paso 7. El coordinador lo consulta en el detalle y no lo cierra ahí. La capa simulada ya rechaza a otro usuario, y la base hace lo mismo en `cerrar_reporte`. El porqué queda en este archivo: `src/` no admite comentarios.
 
 ## RPT-S2-T14. Aviso de hidratación en desarrollo
 
