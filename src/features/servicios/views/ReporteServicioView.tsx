@@ -59,11 +59,14 @@ function ReporteServicioContenido() {
         <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
           Paso {paso} de {PASOS.length}: {pasoActual.nombre}
         </div>
-        <div className="flex gap-1">
+        <div className="flex gap-1.5 py-1">
           {PASOS.map((item, indice) => (
-            <div
+            <button
+              type="button"
+              onClick={() => form.irAlPaso(indice + 1)}
+              title={`Ir al paso ${indice + 1}: ${item.nombre}`}
               key={item.clave}
-              className={`flex-1 h-1.5 rounded-full ${indice + 1 < paso ? 'bg-primary' : indice + 1 === paso ? 'bg-primary/30' : 'bg-muted'}`}
+              className={`flex-1 h-2 rounded-full transition-all cursor-pointer ${indice + 1 < paso ? 'bg-primary hover:opacity-80' : indice + 1 === paso ? 'bg-primary/40 ring-2 ring-primary ring-offset-1 ring-offset-background' : 'bg-muted hover:bg-muted-foreground/30'}`}
             />
           ))}
         </div>

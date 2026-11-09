@@ -260,6 +260,7 @@ export function useReporteServicio() {
     reporteCerrado,
     avanzarPaso,
     retrocederPaso,
+    irAlPaso: (siguiente: number) => setPaso(siguiente),
     ...acciones,
   };
 }

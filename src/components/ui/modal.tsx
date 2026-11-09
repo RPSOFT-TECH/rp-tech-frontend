@@ -31,6 +31,8 @@ export function Modal({
   return (
     <Dialog open={abierto} onOpenChange={(abiertoAhora) => { if (!abiertoAhora) onCerrar(); }}>
       <DialogContent
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
         className={cn(
           'max-h-[min(85vh,720px)] gap-5 overflow-y-auto rounded-2xl bg-card! p-6 shadow-xl ring-1 ring-border/60 backdrop-blur-none',
           TAMANOS[tamano],

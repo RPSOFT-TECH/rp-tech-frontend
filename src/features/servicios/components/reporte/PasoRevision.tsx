@@ -38,6 +38,8 @@ export function PasoRevision({ form }: { form: FormularioReporte }) {
   const {
     esPasoEditable,
     guardando,
+    avanzarPaso,
+    retrocederPaso,
     estadoEquipo,
     setEstadoEquipo,
     limpieza,
@@ -143,9 +145,21 @@ export function PasoRevision({ form }: { form: FormularioReporte }) {
           className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm"
         />
       </div>
-      <Button onClick={guardarRevision} disabled={!esPasoEditable || guardando} className="w-full min-h-11">
-        {guardando ? 'Guardando...' : 'Guardar revisión inicial'}
-      </Button>
+      <div className="flex gap-3">
+        <Button variant="outline" onClick={retrocederPaso} disabled={guardando} className="min-h-11">
+          Atrás
+        </Button>
+        <Button
+          onClick={() => {
+            if (esPasoEditable) void guardarRevision();
+            avanzarPaso();
+          }}
+          disabled={guardando}
+          className="min-h-11 flex-1"
+        >
+          {guardando ? 'Guardando...' : 'Siguiente'}
+        </Button>
+      </div>
     </Card>
   );
 }

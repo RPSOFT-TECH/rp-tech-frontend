@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { DismissableLayerBranch } from '@radix-ui/react-dismissable-layer';
 import { Check, ChevronDown, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -106,12 +107,14 @@ export function CustomSelect({
 
   const menu = abierto && pos
     ? createPortal(
-        <div
+        <DismissableLayerBranch
           ref={menuRef}
           role="listbox"
+          data-custom-select="true"
+          onPointerDown={(e) => e.stopPropagation()}
           aria-labelledby={campoId}
           style={{ top: pos.top, left: pos.left, width: pos.width }}
-          className="fixed z-[80] overflow-hidden rounded-xl border border-border bg-card p-1 shadow-xl"
+          className="fixed z-[80] pointer-events-auto overflow-hidden rounded-xl border border-border bg-card p-1 shadow-xl"
         >
           {menuTitulo ? (
             <p className="px-2.5 py-1.5 text-[10px] font-bold tracking-wide text-muted-foreground uppercase">{menuTitulo}</p>
@@ -154,7 +157,7 @@ export function CustomSelect({
               })
             )}
           </div>
-        </div>,
+        </DismissableLayerBranch>,
         document.body,
       )
     : null;

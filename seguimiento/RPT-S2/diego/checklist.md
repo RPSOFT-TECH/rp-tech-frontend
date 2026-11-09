@@ -13,7 +13,7 @@ La spec de código prohíbe comentarios en `src/`. El porqué de cada regla qued
 ## RPT-S2-T11. Firma con el dedo
 
 - [x] A. Lienzo con pointer events, `touch-none`, trazo con curva, tamaño según el contenedor y la densidad de pantalla, y botón Borrar. Al soltar se guarda un PNG `data:` con `guardar_firmas`. Operador y cliente se guardan por separado. Si ya hay firma, se muestra la imagen y «Volver a firmar». Cerrado: solo lectura. Se quitó el campo de subir imagen.
-- [ ] B. Probar en 375 px, cerrar el reporte y ver las dos firmas en el PDF de Mailpit. Falta el backend local y la captura.
+- [x] B. Probar en 375 px, cerrar el reporte y ver las dos firmas en el PDF de Mailpit. Reporte cerrado con éxito (caso OS-2026-00001, visita 1, RT-2026-00001) y confirmadas ambas firmas dibujadas en la sección Conformidad del PDF de Mailpit con su captura correspondiente.
 - [x] C. Por qué no hay comentario en el componente: pointer events cubren dedo, lápiz y mouse con la misma API. `touch-action: none` (clase `touch-none`) evita que el celular mueva la página mientras se firma. La spec de `src/` no admite comentarios.
 
 ## RPT-S2-T12. Fuente local
@@ -25,11 +25,11 @@ La spec de código prohíbe comentarios en `src/`. El porqué de cada regla qued
 ## RPT-S2-T13. Quitar «Cerrar reporte» del detalle del caso
 
 - [x] A. En el detalle del caso se quitó el botón «Cerrar reporte» que veían coordinador y superadmin. No había modal: `cerrar-<id>` no abría ningún formulario, y se quitó ese prefijo. El cierre sigue en el paso 7 del reporte del técnico. No se tocó `src/lib/datos`.
-- [ ] B. Entrar como coordinador con una visita en atención y confirmar que el botón no aparece. Falta el backend local y la captura.
+- [x] B. Entrar como coordinador con una visita en atención y confirmar que el botón no aparece. Visita en atención confirmada con el backend local (caso OS-2026-00001, visita RT-2026-00001) y captura tomada.
 - [x] C. Solo el técnico asignado cierra su reporte, desde el paso 7. El coordinador lo consulta en el detalle y no lo cierra ahí. La capa simulada ya rechaza a otro usuario, y la base hace lo mismo en `cerrar_reporte`. El porqué queda en este archivo: `src/` no admite comentarios.
 
 ## RPT-S2-T14. Aviso de hidratación en desarrollo
 
-- [ ] A
-- [ ] B
-- [ ] C. `suppressHydrationWarning` en `<html>` tapa el aviso que dejan extensiones (por ejemplo la billetera Bybit) al escribir atributos antes de React. No va comentario en `layout.tsx`.
+- [x] A. suppressHydrationWarning agregado a la etiqueta <html> en src/app/layout.tsx.
+- [x] B. Con extensiones activas el aviso no aparece en consola.
+- [x] C. `suppressHydrationWarning` en `<html>` tapa el aviso que dejan extensiones (por ejemplo la billetera Bybit) al escribir atributos antes de React. No va comentario en `layout.tsx`.

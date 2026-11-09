@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { DismissableLayerBranch } from '@radix-ui/react-dismissable-layer';
 import { CalendarDays, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -148,12 +149,14 @@ export function SelectorFecha({
       </div>
       {abierto && pos
         ? createPortal(
-            <div
+            <DismissableLayerBranch
               ref={panelRef}
               role="dialog"
+              data-selector-fecha="true"
+              onPointerDown={(e) => e.stopPropagation()}
               aria-label={label || 'Seleccionar fecha'}
               style={{ top: pos.top, left: pos.left, width: 232 }}
-              className="fixed z-[80] rounded-xl border border-border bg-card p-2 shadow-xl"
+              className="fixed z-[80] pointer-events-auto rounded-xl border border-border bg-card p-2 shadow-xl"
             >
               <div className="mb-2 flex items-center justify-between">
                 <button
@@ -208,7 +211,7 @@ export function SelectorFecha({
                   );
                 })}
               </div>
-            </div>,
+            </DismissableLayerBranch>,
             document.body,
           )
         : null}
