@@ -373,19 +373,23 @@ export async function mis_servicios(): Promise<MiServicio[]> {
   const { data } = await supabase()
     .from('reportes')
     .select(
-      `id, caso_id, numero, numero_visita, tecnico_id, fecha_programada, hora_programada, cerrado,
-       caso:casos!reportes_caso_id_fkey(numero, estado,
-         cliente:clientes!casos_cliente_id_fkey(razon_social),
-         sede:sedes!casos_sede_id_fkey(nombre, direccion, distrito, referencia),
-         equipo:equipos!casos_equipo_id_fkey(numero_serie),
-         tipo:tipos_servicio!casos_tipo_servicio_id_fkey(nombre),
-         modalidad:modalidades!casos_modalidad_id_fkey(nombre),
-         modo:modos_servicio!casos_modo_servicio_id_fkey(nombre))`,
+      `id, caso_id, numero, numero_visita, tecnico_id, tecnico_adjunto_id, fecha_programada, hora_programada, cerrado,
+        tecnico:perfiles!reportes_tecnico_id_fkey(nombre_completo),
+        adjunto:perfiles!reportes_tecnico_adjunto_id_fkey(nombre_completo),
+        caso:casos!reportes_caso_id_fkey(numero, estado,
+          cliente:clientes!casos_cliente_id_fkey(razon_social),
+          sede:sedes!casos_sede_id_fkey(nombre, direccion, distrito, referencia),
+          equipo:equipos!casos_equipo_id_fkey(numero_serie),
+          tipo:tipos_servicio!casos_tipo_servicio_id_fkey(nombre),
+          modalidad:modalidades!casos_modalidad_id_fkey(nombre),
+          modo:modos_servicio!casos_modo_servicio_id_fkey(nombre))`,
     )
     .or(`tecnico_id.eq.${yo},tecnico_adjunto_id.eq.${yo}`);
   const filas = ((data ?? []) as Record<string, unknown>[]).map((r): MiServicio => {
     const c = (r.caso ?? {}) as Record<string, unknown>;
     const sede = (c.sede ?? {}) as Record<string, string | null>;
+    const tecnico = (r.tecnico ?? {}) as { nombre_completo?: string } | null;
+    const adjunto = (r.adjunto ?? {}) as { nombre_completo?: string } | null;
     return {
       id: String(r.id),
       caso_id: String(r.caso_id),
@@ -406,6 +410,8 @@ export async function mis_servicios(): Promise<MiServicio[]> {
       numero_serie: String((c.equipo as { numero_serie?: string } | null)?.numero_serie ?? ''),
       estado: (c.estado as MiServicio['estado']) ?? 'programado',
       cerrado: !!r.cerrado,
+      tecnico_nombre: tecnico?.nombre_completo ?? '',
+      tecnico_adjunto_nombre: adjunto?.nombre_completo ?? null,
     };
   });
   return filas.sort((a, b) =>

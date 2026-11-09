@@ -77,6 +77,8 @@ export interface MiServicio {
   numero_serie: string;
   estado: EstadoCaso;
   cerrado: boolean;
+  tecnico_nombre: string;
+  tecnico_adjunto_nombre: string | null;
 }
 
 export interface VisitaAgenda {

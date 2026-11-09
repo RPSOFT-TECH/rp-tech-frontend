@@ -47,6 +47,9 @@ function ReporteServicioContenido() {
         <p className="text-xs text-muted-foreground">
           Caso {caso.numero_caso} · Visita {reporte.numero_visita} · {reporte.numero ? `Reporte ${reporte.numero}` : 'Sin número'}
         </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Técnico: {caso.tecnico_nombre}{caso.tecnico_adjunto_nombre ? ` · Adjunto: ${caso.tecnico_adjunto_nombre}` : ''}
+        </p>
       </div>
 
       {mensaje && (
