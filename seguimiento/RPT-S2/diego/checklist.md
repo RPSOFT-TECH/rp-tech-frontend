@@ -30,6 +30,6 @@ La spec de código prohíbe comentarios en `src/`. El porqué de cada regla qued
 
 ## RPT-S2-T14. Aviso de hidratación en desarrollo
 
-- [x] A. suppressHydrationWarning agregado a la etiqueta <html> en src/app/layout.tsx.
-- [x] B. Con extensiones activas el aviso no aparece en consola.
+- [x] A. `suppressHydrationWarning` agregado a la etiqueta `<html>` en `src/app/layout.tsx`.
+- [x] B. Con extensiones activas (billeteras crypto, traductores) el aviso de hidratación ya no aparece en consola de desarrollo.
 - [x] C. `suppressHydrationWarning` en `<html>` tapa el aviso que dejan extensiones (por ejemplo la billetera Bybit) al escribir atributos antes de React. No va comentario en `layout.tsx`.

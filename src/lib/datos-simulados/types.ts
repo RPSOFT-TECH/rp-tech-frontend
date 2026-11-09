@@ -265,7 +265,7 @@ export interface Catalogo {
   nombre: string;
   orden: number;
   activo: boolean;
-  /** Solo en modalidades: visita sin presencia en el equipo (no exige fotos, firmas, voltajes, limpieza ni protección). */
+  
   remota?: boolean;
 }
 

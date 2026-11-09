@@ -1,4 +1,4 @@
-// Administración: usuarios y roles, parámetros, permisos de consulta y catálogos.
+
 import { hoyLima, sumarDias } from '../datos-simulados/fecha';
 import type { ParametrosEmpresa, PermisosConsulta, Resultado, RolCodigo } from '../datos-simulados/types';
 import type { AltaUsuario, EmpresaPermisos } from '../datos-simulados/acciones/admin';
@@ -23,9 +23,7 @@ export const CODIGOS_CATALOGO = [
 
 export type CodigoCatalogo = (typeof CODIGOS_CATALOGO)[number];
 
-// ---------------------------------------------------------------------------
-// Roles de la sesión (los botones se muestran u ocultan con esto; la base vuelve a validar)
-// ---------------------------------------------------------------------------
+
 export function es_superadmin(): boolean {
   return obtenerUsuarioActual()?.rolesVigentes.includes('superadmin') ?? false;
 }
@@ -44,10 +42,8 @@ export function es_coordinador_de(p_empresa?: string): boolean {
   return (p_empresa ?? sesion.empresa.id) === sesion.empresa.id;
 }
 
-// ---------------------------------------------------------------------------
-// Usuarios
-// ---------------------------------------------------------------------------
-/** Crea el usuario con la función del servidor "usuarios" (usa la clave secreta, que no va al navegador). */
+
+
 export async function usuarios(
   entrada: AltaUsuario,
 ): Promise<Resultado<{ id: string; email: string; password_temporal: string | null }>> {
@@ -68,7 +64,7 @@ export async function usuarios(
       const cuerpo = await (error as { context?: Response }).context?.json();
       if (cuerpo?.error) texto = cuerpo.error;
     } catch {
-      /* sin cuerpo */
+      
     }
     return fallo(mensaje({ message: texto }));
   }
@@ -137,7 +133,7 @@ export async function asignar_rol(perfilId: string, codigo: RolCodigo, desde: st
   return error ? fallo(mensaje(error)) : ok(true);
 }
 
-/** Quita el rol desde hoy: si empezó hoy se borra; si no, termina ayer (queda el historial). */
+
 export async function quitar_rol(asignacionId: string): Promise<Resultado<true>> {
   const sesion = obtenerUsuarioActual();
   if (!sesion) return fallo('Inicia sesión para continuar.');
@@ -153,9 +149,7 @@ export async function quitar_rol(asignacionId: string): Promise<Resultado<true>>
   return error ? fallo(mensaje(error)) : ok(true);
 }
 
-// ---------------------------------------------------------------------------
-// Parámetros de la empresa (el logo va al bucket "empresas" en <empresa_id>/...)
-// ---------------------------------------------------------------------------
+
 async function logoComoDataUrl(ruta: string | null | undefined): Promise<string | null> {
   if (!ruta) return null;
   if (/^(data:|https?:)/.test(ruta)) return ruta;
@@ -197,7 +191,7 @@ export async function actualizar_parametros(
   const sb = supabase();
   const cambios: Record<string, unknown> = { ...p_cambios };
   if (p_cambios.pdf) {
-    // La base reemplaza "pdf" completo: se combina con lo guardado.
+
     const { data: actual } = await sb.from('empresas').select('parametros').eq('id', p_empresa).maybeSingle();
     const pdfActual = ((actual?.parametros as ParametrosEmpresa | undefined)?.pdf ?? {}) as Partial<ParametrosEmpresa['pdf']>;
     const pdf: Record<string, unknown> = { ...pdfActual, ...p_cambios.pdf };
@@ -210,7 +204,7 @@ export async function actualizar_parametros(
       if (error) return fallo(`No se pudo subir el logo: ${error.message}`);
       pdf.logo = ruta;
     } else if (logo && /^https?:/.test(logo)) {
-      pdf.logo = pdfActual.logo ?? null; // no cambió
+      pdf.logo = pdfActual.logo ?? null;
     }
     cambios.pdf = pdf;
   }
@@ -221,9 +215,7 @@ export async function actualizar_parametros(
   return ok(parametros);
 }
 
-// ---------------------------------------------------------------------------
-// Permisos del rol consulta (solo superadmin)
-// ---------------------------------------------------------------------------
+
 export async function empresas_permisos(): Promise<EmpresaPermisos[]> {
   if (!es_superadmin()) return [];
   const { data } = await supabase().from('empresas').select('id, nombre, permisos_consulta').order('nombre');
@@ -239,9 +231,7 @@ export async function definir_permisos_consulta(p_empresa: string, p_permisos: P
   return error ? fallo(mensaje(error)) : ok(data as PermisosConsulta);
 }
 
-// ---------------------------------------------------------------------------
-// Catálogos (el Gerente agrega, renombra, ordena y desactiva; no se borra nada)
-// ---------------------------------------------------------------------------
+
 function esCodigo(valor: string): valor is CodigoCatalogo {
   return (CODIGOS_CATALOGO as readonly string[]).includes(valor);
 }

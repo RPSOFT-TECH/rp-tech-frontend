@@ -1,5 +1,5 @@
-// Reporte del técnico: llegada, revisión, desarrollo, repuestos, archivos, firmas, cierre y PDF.
-// Fotos y firmas van al bucket privado "reportes" en <reporte_id>/<archivo>.
+
+
 import type { Adjunto, EnvioReporte, Nota, Reporte, ReporteRepuesto, Resultado, ResultadoReporte } from '../datos-simulados/types';
 import { supabase } from './cliente';
 import { blobDe, fallo, hora, horaDe, isoLima, marcaDeHoy, mensaje, nombreSeguro, numero, ok } from './base';
@@ -8,7 +8,7 @@ import { aAdjunto, aEnvio, aNota, aRepuesto } from './vistas';
 
 const BUCKET = 'reportes';
 
-/** Fila de la base → Reporte con las horas en 'HH:MM' (como las usa la pantalla del técnico). */
+
 export function aReporte(r: Record<string, unknown>): Reporte {
   return {
     id: String(r.id),
@@ -54,7 +54,7 @@ export async function leerReporte(id: string): Promise<Reporte | null> {
   return data ? aReporte(data) : null;
 }
 
-/** Enlace temporal (1 hora) para mostrar un archivo privado. */
+
 async function enlace(ruta: string | null): Promise<string | null> {
   if (!ruta || /^(https?:|data:|blob:)/.test(ruta)) return ruta;
   const { data } = await supabase().storage.from(BUCKET).createSignedUrl(ruta, 3600);
@@ -71,9 +71,7 @@ async function subir(reporteId: string, nombreArchivo: string, origen: string | 
   return ruta;
 }
 
-// ---------------------------------------------------------------------------
-// Lectura para la pantalla del reporte
-// ---------------------------------------------------------------------------
+
 export async function obtener_reporte(p_reporte: string): Promise<
   Resultado<{ reporte: Reporte; repuestos: ReporteRepuesto[]; adjuntos: (Adjunto & { url: string | null })[]; remota: boolean }>
 > {
@@ -85,7 +83,7 @@ export async function obtener_reporte(p_reporte: string): Promise<
     .maybeSingle();
   if (error || !data) return fallo(error ? mensaje(error) : 'La visita no existe.');
   const reporte = aReporte(data);
-  // Las firmas se muestran con un enlace temporal; al guardar, si no cambiaron, no se vuelven a subir.
+
   const [firmaOperador, firmaCliente] = await Promise.all([enlace(reporte.firma_operador), enlace(reporte.firma_cliente)]);
   const adjuntos = await Promise.all(
     ((data.adjuntos ?? []) as Record<string, unknown>[]).map(async (a) => {
@@ -102,9 +100,7 @@ export async function obtener_reporte(p_reporte: string): Promise<
   });
 }
 
-// ---------------------------------------------------------------------------
-// Llegada y cierre
-// ---------------------------------------------------------------------------
+
 export async function registrar_llegada(p_reporte: string, p_hora?: string | null): Promise<Resultado<Reporte>> {
   const { error } = await supabase().rpc('registrar_llegada', { p_reporte, p_hora: marcaDeHoy(p_hora) });
   if (error) return fallo(mensaje(error));
@@ -129,7 +125,7 @@ export async function cerrar_reporte(
   return reporte ? ok(reporte) : fallo('El reporte se cerró, pero no se pudo leer.');
 }
 
-/** Genera el PDF del reporte cerrado y lo envía al cliente (función del servidor "reporte-pdf"). */
+
 export async function reportePdf(entrada: {
   reporte_id: string;
   enviar: boolean;
@@ -145,7 +141,7 @@ export async function reportePdf(entrada: {
       const cuerpo = await (error as { context?: Response }).context?.json();
       if (cuerpo?.error) texto = cuerpo.error;
     } catch {
-      /* sin cuerpo */
+      
     }
     return fallo(mensaje({ message: texto }));
   }
@@ -159,14 +155,12 @@ export async function reportePdf(entrada: {
   });
 }
 
-/** Enlace temporal para descargar el PDF de un reporte cerrado. */
+
 export async function enlace_pdf(ruta: string | null): Promise<string | null> {
   return enlace(ruta);
 }
 
-// ---------------------------------------------------------------------------
-// Guardado por pasos (solo el técnico asignado, con el reporte abierto: lo valida la base)
-// ---------------------------------------------------------------------------
+
 async function actualizar(p_reporte: string, cambios: Record<string, unknown>): Promise<Resultado<Reporte>> {
   const limpios = Object.fromEntries(Object.entries(cambios).filter(([, v]) => v !== undefined));
   const { data, error } = await supabase().from('reportes').update(limpios).eq('id', p_reporte).select('*').maybeSingle();
@@ -227,7 +221,7 @@ export async function quitar_repuesto(p_reporteRepuestoId: string): Promise<Resu
   return error ? fallo(mensaje(error)) : ok(null);
 }
 
-/** Sube el archivo (la "ruta" que da la pantalla es un enlace local blob: o data:) y lo registra. */
+
 export async function agregar_adjunto(
   p_reporte: string,
   datos: { tipo: 'foto_ingreso' | 'foto_salida' | 'otro'; ruta: string; nombre_archivo: string; tipo_mime: string; archivo?: Blob },
@@ -270,10 +264,7 @@ export async function agregar_nota(p_reporte: string, datos: { texto: string }):
   return ok(aNota(data));
 }
 
-/**
- * Guarda las firmas. Cada firma puede venir como imagen nueva (blob: o data:), que se sube;
- * como el enlace temporal que se mostró (no cambió, no se toca), o null (se borra).
- */
+
 export async function guardar_firmas(
   p_reporte: string,
   datos: {
@@ -306,7 +297,7 @@ export async function guardar_firmas(
   }
 }
 
-/** Lo que falta para cerrar, con las mismas reglas y textos que cerrar_reporte en la base. */
+
 export function faltantes_cierre(
   reporte: Reporte,
   adjuntos: Pick<Adjunto, 'tipo'>[],

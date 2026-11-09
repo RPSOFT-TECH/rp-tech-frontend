@@ -1,4 +1,4 @@
-// Lecturas: listas, detalle y catálogos. Lo que cada usuario ve lo filtra la base (RLS).
+
 import type {
   Adjunto,
   Caso,
@@ -31,9 +31,7 @@ function normalizar(texto: string): string {
   return texto.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 }
 
-// ---------------------------------------------------------------------------
-// Casos
-// ---------------------------------------------------------------------------
+
 const SELECT_CASO = `*,
   canal:canales!casos_canal_id_fkey(nombre),
   cliente:clientes!casos_cliente_id_fkey(razon_social, ruc, telefono),
@@ -186,9 +184,7 @@ export async function casos_lista(filtros: FiltrosCasosLista = {}): Promise<Caso
   return filas;
 }
 
-// ---------------------------------------------------------------------------
-// Detalle del caso
-// ---------------------------------------------------------------------------
+
 export async function obtener_caso_detalle(casoId: string): Promise<CasoDetalle | null> {
   if (!obtenerUsuarioActual()) return null;
   const sb = supabase();
@@ -259,7 +255,7 @@ export async function obtener_caso_detalle(casoId: string): Promise<CasoDetalle 
   };
 }
 
-/** Campos del reporte con las horas como fecha y hora completas (las usa el detalle). */
+
 export function aVisitaBase(r: Record<string, unknown>): Omit<VisitaDetalle, 'tecnico_nombre' | 'tecnico_adjunto_nombre' | 'repuestos' | 'adjuntos' | 'notas'> {
   return {
     id: String(r.id),
@@ -346,9 +342,7 @@ export function aEnvio(e: Record<string, unknown>): EnvioReporte {
   };
 }
 
-// ---------------------------------------------------------------------------
-// Reportes, servicios y técnicos
-// ---------------------------------------------------------------------------
+
 export async function reportes_lista(filtros: { cliente_id?: string; equipo_id?: string } = {}): Promise<ReporteLista[]> {
   if (!obtenerUsuarioActual()) return [];
   let consulta = supabase().from('reportes_lista').select('*').order('fecha_programada', { ascending: false });
@@ -433,9 +427,7 @@ export async function tecnicos(): Promise<TecnicoLista[]> {
   }));
 }
 
-// ---------------------------------------------------------------------------
-// Clientes y sus datos (para Nuevo caso)
-// ---------------------------------------------------------------------------
+
 export async function buscar_clientes(p_texto: string): Promise<Cliente[]> {
   const sesion = obtenerUsuarioActual();
   if (!sesion || !tieneRol('superadmin', 'gerente', 'coordinador', 'consulta')) return [];
@@ -500,9 +492,7 @@ export async function obtener_equipos(clienteId: string): Promise<EquipoVista[]>
   return ((data ?? []) as Record<string, unknown>[]).map(aEquipoVista);
 }
 
-// ---------------------------------------------------------------------------
-// Catálogos
-// ---------------------------------------------------------------------------
+
 async function catalogo(tabla: string, empresaId: string, columnas = 'id, empresa_id, nombre, orden, activo'): Promise<Catalogo[]> {
   const { data } = await supabase().from(tabla).select(columnas).eq('empresa_id', empresaId).eq('activo', true).order('orden');
   return (data ?? []) as unknown as Catalogo[];
@@ -544,7 +534,7 @@ export async function obtener_catalogos(): Promise<CatalogosActivos> {
     lineas_maquina: lineas,
     modelos_cabezal: cabezales,
     motivos_espera: espera,
-    // La tabla repuestos no tiene orden: se ordena por código.
+
     repuestos: ((repuestos.data ?? []) as Omit<Repuesto, 'orden'>[]).map((r, i) => ({ ...r, codigo: r.codigo ?? '', orden: i + 1 })),
   };
 }

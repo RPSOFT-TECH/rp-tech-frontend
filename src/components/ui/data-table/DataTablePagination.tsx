@@ -18,7 +18,7 @@ function getPageNumbers(current: number, total: number): (number | "...")[] {
     if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
 
     const pages: (number | "...")[] = [];
-    const DELTA = 1; // páginas a cada lado del actual
+    const DELTA = 1;
 
     const left = Math.max(2, current - DELTA);
     const right = Math.min(total - 1, current + DELTA);

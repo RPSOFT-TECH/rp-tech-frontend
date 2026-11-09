@@ -1,5 +1,5 @@
-// Capa de datos real (Supabase). Mismos nombres y formas que lib/datos-simulados/actions,
-// para que las pantallas no cambien. Las reglas las vuelve a validar la base.
+
+
 export type {
   Caso,
   CasoLista,

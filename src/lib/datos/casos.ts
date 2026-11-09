@@ -1,5 +1,5 @@
-// Casos: registrar, sugerir modo, programar visitas y cambios de estado.
-// El estado del caso solo cambia con las funciones de la base (RPC).
+
+
 import { hoyLima, mesesEntre } from '../datos-simulados/fecha';
 import type { Caso, Reporte, Resultado, ResultadoPosventa, SugerenciaModo, VisitaAgenda } from '../datos-simulados/types';
 import type { NuevoCasoInput } from '../datos-simulados/acciones/guardar-caso';
@@ -17,7 +17,7 @@ export async function crear_caso(datos: NuevoCasoInput): Promise<Resultado<Caso>
   if (datos.modo_sugerido_id && datos.modo_servicio_id !== datos.modo_sugerido_id && !datos.motivo_cambio_modo?.trim()) {
     return fallo('Explica por qué cambias el modo.');
   }
-  // El número, el estado, la empresa y "registrado por" los pone la base.
+
   const { data, error } = await supabase()
     .from('casos')
     .insert({
@@ -75,9 +75,7 @@ export async function sugerir_modo_servicio(p_equipo: string): Promise<Resultado
   });
 }
 
-// ---------------------------------------------------------------------------
-// Visitas
-// ---------------------------------------------------------------------------
+
 export async function programar_visita(
   p_caso: string,
   p_tecnico: string,
@@ -137,9 +135,7 @@ export async function agenda_tecnico(p_tecnico: string, p_fecha: string): Promis
   });
 }
 
-// ---------------------------------------------------------------------------
-// Cambios de estado
-// ---------------------------------------------------------------------------
+
 async function llamar(funcion: string, parametros: Record<string, unknown>): Promise<Resultado<true>> {
   const { error } = await supabase().rpc(funcion, parametros);
   return error ? fallo(mensaje(error)) : ok(true);

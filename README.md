@@ -19,7 +19,7 @@
 | Framework | Next.js 16.4 App Router, `cacheComponents` y `partialPrefetching` |
 | UI | React 19 y TypeScript |
 | Estilos | Tailwind CSS v4 y tokens de `src/app/globals.css` |
-| Tipografía | Be Vietnam Pro (`next/font/google`, `--font-sans`) |
+| Tipografía | Be Vietnam Pro (`next/font/local`, `src/app/fonts`, `--font-sans`) |
 | Formularios | React Hook Form y Zod 3 |
 | Avisos | Sonner |
 | Iconos | lucide-react |
@@ -92,7 +92,8 @@ src/
 │   │       └── [id]/reporte/page.tsx
 │   ├── login/page.tsx
 │   ├── sin-acceso/page.tsx
-│   ├── layout.tsx                     # Be Vietnam Pro y Providers
+│   ├── fonts/                         # Be Vietnam Pro .woff2 y OFL.txt
+│   ├── layout.tsx                     # fuente local y Providers
 │   └── globals.css                    # Única fuente de color
 ├── features/
 │   ├── auth/components + views
@@ -221,7 +222,7 @@ Los colores viven en `src/app/globals.css`. En componentes se usan las utilidade
 | En espera | `border-chart-5/40 bg-chart-5/15 text-chart-5` |
 | Anulado | `border-destructive/40 bg-destructive/15 text-destructive` |
 
-Tipografía: Be Vietnam Pro. Números de caso y horas usan `font-mono`.
+Tipografía: Be Vietnam Pro, pesos 300 a 800, en `src/app/fonts` junto con `OFL.txt`. `src/app/layout.tsx` la carga con `next/font/local` y la misma variable `--font-sans`. Los archivos van en el repo para que `npm run build` no descargue la fuente: la entrega tiene que compilar sin internet. Números de caso y horas usan `font-mono`.
 
 ---
 

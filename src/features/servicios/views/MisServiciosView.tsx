@@ -54,7 +54,7 @@ export function MisServiciosView() {
     <div className="mx-auto w-full max-w-md pb-24 md:max-w-3xl">
       <p className="mb-6 text-xs text-muted-foreground">Técnico: {nombre}</p>
 
-      {/* Día de hoy */}
+      
       <div className="mb-8">
         <h2 className={`text-sm font-semibold uppercase tracking-wider mb-3 border-b border-border pb-1 text-primary`}>
           Hoy ({serviciosHoy.length})
@@ -77,7 +77,7 @@ export function MisServiciosView() {
         )}
       </div>
 
-      {/* Próximos */}
+      
       <div className="mb-8">
         <h2 className={`text-sm font-semibold uppercase tracking-wider mb-3 border-b border-border pb-1 text-muted-foreground`}>
           Próximos ({serviciosProximos.length})
@@ -95,7 +95,7 @@ export function MisServiciosView() {
         )}
       </div>
 
-      {/* Cerrados */}
+      
       <div>
         <h2 className={`text-sm font-semibold uppercase tracking-wider mb-3 border-b border-border pb-1 text-muted-foreground`}>
           Cerrados ({serviciosCerrados.length})
