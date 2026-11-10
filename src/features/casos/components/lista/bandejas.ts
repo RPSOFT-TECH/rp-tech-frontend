@@ -99,9 +99,5 @@ export function descargarExcel(casos: CasoLista[]) {
   const hoja = XLSX.utils.aoa_to_sheet([cabeceras, ...filas]);
   const libro = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(libro, hoja, 'Casos');
-  // Usamos .xlsx (librería xlsx) en lugar de CSV con BOM:
-  // - .xlsx abre nativo en Excel sin configuración de codificación ni separador
-  // - preserva tipos (fechas, números) y permite anchos de columna, estilos
-  // - evita problemas de ; vs , según locale y de BOM en distintas versiones de Excel
   XLSX.writeFile(libro, `casos_${hoyLima()}.xlsx`);
 }

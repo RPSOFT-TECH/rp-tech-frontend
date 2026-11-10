@@ -16,7 +16,7 @@ La spec de código prohíbe comentarios en `src/`. El porqué de cada regla qued
 - [x] A. El nombre del archivo debe llevar la fecha de Lima, no toISOString(). Usa `hoyLima()` de `@/lib/datos-simulados/fecha`.
 - [x] A. Exporta la lista filtrada, con las mismas filas que la pantalla.
 - [ ] B. Crea casos con tildes y ñ («Inspección», «Peña»), expórtalos y ábrelos con doble clic en Excel: sin caracteres extraños, cada dato en su columna. Captura.
-- [x] C. Comentario del porqué (BOM y separador). Documentado en `src/features/casos/components/lista/bandejas.ts:102-104`.
+- [x] C. El porqué queda en este checklist: `.xlsx` abre en Excel sin depender del BOM ni del separador `;`. `src/` no admite comentarios.
 
 ## RPT-S2-T16. Nombre del técnico adjunto en Mis servicios y en el reporte
 
