@@ -14,3 +14,4 @@ export * from './sonner';
 export * from './custom-select';
 export * from './selector-fecha';
 export * from './metric-card';
+export * from './switch';

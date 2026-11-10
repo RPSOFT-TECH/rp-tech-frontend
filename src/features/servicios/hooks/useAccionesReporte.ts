@@ -1,5 +1,6 @@
 'use client';
 
+import type { Dispatch, SetStateAction } from 'react';
 import {
   actualizar_desarrollo,
   actualizar_revision_inicial,
@@ -44,13 +45,13 @@ interface EstadoReporte {
   repuestoCantidad: number;
   repuestoTipo: RepuestoFila['tipo'];
   repuestos: RepuestoFila[];
-  setRepuestos: (valor: RepuestoFila[]) => void;
+  setRepuestos: Dispatch<SetStateAction<RepuestoFila[]>>;
   setRepuestoCodigo: (valor: string) => void;
   setRepuestoDescripcion: (valor: string) => void;
   setRepuestoCantidad: (valor: number) => void;
   setRepuestoTipo: (valor: RepuestoFila['tipo']) => void;
   adjuntos: AdjuntoFila[];
-  setAdjuntos: (valor: AdjuntoFila[]) => void;
+  setAdjuntos: Dispatch<SetStateAction<AdjuntoFila[]>>;
   setMensaje: (valor: string | null) => void;
   firmaOperador: string | null;
   firmaCliente: string | null;
@@ -179,8 +180,8 @@ export function useAccionesReporte(estado: EstadoReporte) {
     });
     setGuardando(false);
     if (respuesta.ok) {
-      setRepuestos([
-        ...repuestos,
+      setRepuestos((actual) => [
+        ...actual,
         {
           id: respuesta.datos.id,
           codigo: respuesta.datos.codigo,
@@ -202,27 +203,31 @@ export function useAccionesReporte(estado: EstadoReporte) {
     setGuardando(true);
     const respuesta = await quitar_repuesto(idRepuesto);
     setGuardando(false);
-    if (respuesta.ok) setRepuestos(repuestos.filter((item) => item.id !== idRepuesto));
+    if (respuesta.ok) setRepuestos((actual) => actual.filter((item) => item.id !== idRepuesto));
     else setMensaje(respuesta.error || 'Error al quitar repuesto.');
   };
 
   const agregarAdjuntoItem = async (tipo: AdjuntoFila['tipo'], archivo: File) => {
     if (!reporte) return;
     const url = URL.createObjectURL(archivo);
-    const idAdj = `temp-${Date.now()}`;
-    setAdjuntos([...adjuntos, { id: idAdj, tipo, nombre: archivo.name, url }]);
+    const idAdj = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    setAdjuntos((actual) => [...actual, { id: idAdj, tipo, nombre: archivo.name, url }]);
     setGuardando(true);
     const respuesta = await agregar_adjunto(reporte.id, {
       tipo,
       ruta: url,
       nombre_archivo: archivo.name,
       tipo_mime: archivo.type,
+      archivo,
     });
     setGuardando(false);
     if (respuesta.ok) {
-      setAdjuntos(adjuntos.map((item) => (item.id === idAdj ? { ...item, id: respuesta.datos.id } : item)));
+      const urlFinal = (respuesta.datos as { url?: string | null }).url || url;
+      setAdjuntos((actual) =>
+        actual.map((item) => (item.id === idAdj ? { ...item, id: respuesta.datos.id, url: urlFinal } : item))
+      );
     } else {
-      setAdjuntos(adjuntos.filter((item) => item.id !== idAdj));
+      setAdjuntos((actual) => actual.filter((item) => item.id !== idAdj));
       setMensaje(respuesta.error || 'Error al subir adjunto.');
     }
   };
@@ -237,17 +242,22 @@ export function useAccionesReporte(estado: EstadoReporte) {
         return;
       }
     }
-    setAdjuntos(adjuntos.filter((item) => item.id !== idAdjunto));
+    setAdjuntos((actual) => actual.filter((item) => item.id !== idAdjunto));
   };
 
-  const guardarFirmas = async (firmaOp = firmaOperador, firmaCli = firmaCliente) => {
+  const guardarFirmas = async (
+    firmaOp = firmaOperador,
+    firmaCli = firmaCliente,
+    nomOp = nombreOperadorFirma,
+    nomCli = nombreClienteFirma,
+  ) => {
     if (!reporte) return;
     setGuardando(true);
     const respuesta = await guardar_firmas(reporte.id, {
       firma_operador: firmaOp,
-      nombre_operador_firma: nombreOperadorFirma || null,
+      nombre_operador_firma: nomOp || null,
       firma_cliente: firmaCli,
-      nombre_cliente_firma: nombreClienteFirma || null,
+      nombre_cliente_firma: nomCli || null,
     });
     setGuardando(false);
     if (respuesta.ok) {

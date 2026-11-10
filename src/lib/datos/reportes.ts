@@ -225,7 +225,7 @@ export async function quitar_repuesto(p_reporteRepuestoId: string): Promise<Resu
 export async function agregar_adjunto(
   p_reporte: string,
   datos: { tipo: 'foto_ingreso' | 'foto_salida' | 'otro'; ruta: string; nombre_archivo: string; tipo_mime: string; archivo?: Blob },
-): Promise<Resultado<Adjunto>> {
+): Promise<Resultado<Adjunto & { url: string | null }>> {
   try {
     const ruta = await subir(p_reporte, datos.nombre_archivo, datos.archivo ?? datos.ruta, datos.tipo_mime);
     const { data, error } = await supabase()
@@ -237,7 +237,8 @@ export async function agregar_adjunto(
       await supabase().storage.from(BUCKET).remove([ruta]);
       return fallo(mensaje(error));
     }
-    return ok(aAdjunto(data));
+    const url = await enlace(ruta);
+    return ok({ ...aAdjunto(data), url: url ?? datos.ruta });
   } catch (e) {
     return fallo(e instanceof Error ? e.message : 'No se pudo subir el archivo.');
   }

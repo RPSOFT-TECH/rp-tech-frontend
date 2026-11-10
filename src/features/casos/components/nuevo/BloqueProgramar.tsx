@@ -6,6 +6,7 @@ import { CustomSelect } from '@/components/ui/custom-select';
 import { SelectorFecha } from '@/components/ui/selector-fecha';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { avisoDeCruce } from './cruce-horario';
 
 export interface ProgramacionVisita {
@@ -77,22 +78,17 @@ export function BloqueProgramar({
       <CardHeader className="pb-3 border-b border-border/50 flex flex-row items-center justify-between gap-3">
         <CardTitle className="text-base font-semibold">Programar visita</CardTitle>
         {mostrarInterruptor && (
-          <button
-            type="button"
-            role="switch"
-            aria-checked={activo}
-            onClick={() => onActivoChange?.(!activo)}
-            className="flex items-center gap-2 text-sm text-foreground min-h-11"
+          <label
+            htmlFor="switch-programar-ahora"
+            className="flex items-center gap-2.5 text-sm font-medium text-foreground cursor-pointer select-none"
           >
-            <span
-              className={`relative h-6 w-11 rounded-full transition-colors ${activo ? 'bg-primary' : 'bg-muted border border-border'}`}
-            >
-              <span
-                className={`absolute top-0.5 size-5 rounded-full bg-background shadow transition-transform ${activo ? 'translate-x-5' : 'translate-x-0.5'}`}
-              />
-            </span>
-            Programar ahora
-          </button>
+            <Switch
+              id="switch-programar-ahora"
+              checked={activo}
+              onCheckedChange={onActivoChange}
+            />
+            <span>Programar ahora</span>
+          </label>
         )}
       </CardHeader>
       {visible && (

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { mis_servicios, obtener_reporte, type MiServicio } from '@/lib/datos/actions';
+import { mis_servicios, obtener_reporte, parametros_actuales, type MiServicio } from '@/lib/datos/actions';
 import type { Reporte } from '@/lib/datos-simulados/types';
 import { PASOS, puedeEditar, type AdjuntoFila, type RepuestoFila } from '../reporte/pasos';
 import { useAccionesReporte } from './useAccionesReporte';
@@ -56,7 +56,7 @@ export function useReporteServicio() {
   const [firmaOperador, setFirmaOperador] = useState<string | null>(null);
   const [nombreClienteFirma, setNombreClienteFirma] = useState('');
   const [firmaCliente, setFirmaCliente] = useState<string | null>(null);
-  const [textoConformidad] = useState('');
+  const [textoConformidad, setTextoConformidad] = useState('');
   const [resultado, setResultado] = useState<'resuelto' | 'pendiente' | null>(null);
   const [requerimiento, setRequerimiento] = useState('');
   const [horaSalida, setHoraSalida] = useState('');
@@ -79,8 +79,16 @@ export function useReporteServicio() {
         return;
       }
       setCaso(encontrado);
-      const respuesta = await obtener_reporte(encontrado.id);
+      const [respuesta, params] = await Promise.all([
+        obtener_reporte(encontrado.id),
+        parametros_actuales(),
+      ]);
       if (!activo) return;
+      if (params?.texto_conformidad) {
+        setTextoConformidad((actual) => actual || params.texto_conformidad);
+      } else {
+        setTextoConformidad((actual) => actual || 'Confirmo que el servicio se realizó y el equipo quedó en el estado descrito en este reporte.');
+      }
       const reporteData = respuesta.ok ? respuesta.datos.reporte : null;
       setReporte(reporteData);
       setRemota(respuesta.ok ? respuesta.datos.remota : false);
@@ -123,7 +131,7 @@ export function useReporteServicio() {
           id: item.id,
           tipo: item.tipo,
           nombre: item.nombre_archivo,
-          url: item.ruta,
+          url: item.url || item.ruta,
         })),
       );
     };
@@ -250,6 +258,7 @@ export function useReporteServicio() {
     firmaCliente,
     setFirmaCliente,
     textoConformidad,
+    setTextoConformidad,
     resultado,
     setResultado,
     requerimiento,

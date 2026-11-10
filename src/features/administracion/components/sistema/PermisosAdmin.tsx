@@ -8,7 +8,7 @@ import {
   type EmpresaPermisos,
   type PermisosConsulta,
 } from '@/lib/datos/actions';
-import { DataTable } from '@/components/ui';
+import { DataTable, Switch } from '@/components/ui';
 
 const CAMPOS: { clave: keyof PermisosConsulta; label: string }[] = [
   { clave: 'casos', label: 'Casos' },
@@ -54,22 +54,13 @@ export function PermisosAdmin() {
           clave: campo.clave,
           encabezado: campo.label,
           render: (fila: EmpresaPermisos) => (
-            <button
-              type="button"
-              role="switch"
-              aria-checked={fila.permisos_consulta[campo.clave]}
-              aria-label={campo.label}
-              onClick={() => void cambiar(fila, campo.clave, !fila.permisos_consulta[campo.clave])}
-              className={`relative h-6 w-11 rounded-full min-h-11 min-w-11 ${
-                fila.permisos_consulta[campo.clave] ? 'bg-primary' : 'bg-muted'
-              }`}
-            >
-              <span
-                className={`absolute top-1/2 -translate-y-1/2 block size-5 rounded-full bg-background ${
-                  fila.permisos_consulta[campo.clave] ? 'left-5' : 'left-0.5'
-                }`}
+            <div className="flex items-center">
+              <Switch
+                checked={fila.permisos_consulta[campo.clave]}
+                aria-label={campo.label}
+                onCheckedChange={(checked) => void cambiar(fila, campo.clave, checked)}
               />
-            </button>
+            </div>
           ),
         })),
       ]}

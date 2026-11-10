@@ -9,6 +9,7 @@ export function PasoConformidad({ form }: { form: FormularioReporte }) {
     esPasoEditable,
     guardando,
     textoConformidad,
+    setTextoConformidad,
     nombreOperadorFirma,
     setNombreOperadorFirma,
     firmaOperador,
@@ -28,7 +29,14 @@ export function PasoConformidad({ form }: { form: FormularioReporte }) {
       {!esPasoEditable && <p className="text-xs text-muted-foreground mb-4">Modo lectura.</p>}
       <div className="mb-4">
         <label className="text-xs font-semibold text-muted-foreground block mb-1">Texto de conformidad</label>
-        <textarea value={textoConformidad} readOnly rows={3} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-muted" />
+        <textarea
+          value={textoConformidad}
+          onChange={(e) => setTextoConformidad(e.target.value)}
+          disabled={!esPasoEditable || guardando}
+          rows={3}
+          placeholder="Escribe el texto de conformidad..."
+          className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-card text-foreground focus:outline-hidden focus:ring-2 focus:ring-primary/40 disabled:opacity-50"
+        />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <LienzoFirma
@@ -39,11 +47,11 @@ export function PasoConformidad({ form }: { form: FormularioReporte }) {
           editable={esPasoEditable && !guardando}
           onFirma={(imagen) => {
             setFirmaOperador(imagen);
-            void guardarFirmas(imagen, firmaCliente);
+            void guardarFirmas(imagen, firmaCliente, nombreOperadorFirma, nombreClienteFirma);
           }}
           onBorrar={() => {
             setFirmaOperador(null);
-            void guardarFirmas(null, firmaCliente);
+            void guardarFirmas(null, firmaCliente, nombreOperadorFirma, nombreClienteFirma);
           }}
         />
         <LienzoFirma
@@ -54,11 +62,11 @@ export function PasoConformidad({ form }: { form: FormularioReporte }) {
           editable={esPasoEditable && !guardando}
           onFirma={(imagen) => {
             setFirmaCliente(imagen);
-            void guardarFirmas(firmaOperador, imagen);
+            void guardarFirmas(firmaOperador, imagen, nombreOperadorFirma, nombreClienteFirma);
           }}
           onBorrar={() => {
             setFirmaCliente(null);
-            void guardarFirmas(firmaOperador, null);
+            void guardarFirmas(firmaOperador, null, nombreOperadorFirma, nombreClienteFirma);
           }}
         />
       </div>
