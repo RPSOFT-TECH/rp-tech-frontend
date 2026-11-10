@@ -113,6 +113,8 @@ export async function mis_servicios(): Promise<MiServicio[]> {
       const caso = db.casos.find((item) => item.id === reporte.caso_id);
       const cliente = caso ? db.clientes.find((item) => item.id === caso.cliente_id) : undefined;
       const sede = caso ? db.sedes.find((item) => item.id === caso.sede_id) : undefined;
+      const perfilTecnico = db.perfiles.find((p) => p.id === reporte.tecnico_id);
+      const perfilAdjunto = reporte.tecnico_adjunto_id ? db.perfiles.find((p) => p.id === reporte.tecnico_adjunto_id) : undefined;
       const equipo = caso ? db.equipos.find((item) => item.id === caso.equipo_id) : undefined;
       const fila: MiServicio = {
         id: reporte.id,
@@ -134,6 +136,8 @@ export async function mis_servicios(): Promise<MiServicio[]> {
         numero_serie: equipo?.numero_serie ?? '',
         estado: caso?.estado ?? 'programado',
         cerrado: reporte.cerrado,
+        tecnico_nombre: perfilTecnico?.nombre_completo ?? '',
+        tecnico_adjunto_nombre: perfilAdjunto?.nombre_completo ?? null,
       };
       return fila;
     })
