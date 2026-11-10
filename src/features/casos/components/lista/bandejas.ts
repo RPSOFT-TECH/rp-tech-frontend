@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx';
 import type { CasoLista } from '@/lib/datos/actions';
 import { etiquetaEstado } from '../EstadoCaso';
+import { hoyLima } from '@/lib/datos-simulados/fecha';
 
 export const BANDEJAS: { clave: string; etiqueta: string }[] = [
   { clave: 'todos', etiqueta: 'Todos' },
@@ -98,5 +99,5 @@ export function descargarExcel(casos: CasoLista[]) {
   const hoja = XLSX.utils.aoa_to_sheet([cabeceras, ...filas]);
   const libro = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(libro, hoja, 'Casos');
-  XLSX.writeFile(libro, `casos_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  XLSX.writeFile(libro, `casos_${hoyLima()}.xlsx`);
 }

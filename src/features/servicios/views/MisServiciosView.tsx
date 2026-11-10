@@ -141,7 +141,17 @@ function TarjetaServicio({ servicio, hoy }: { servicio: MiServicio; hoy: string 
         <span className="bg-muted px-2 py-1 rounded">Tipo: {servicio.tipo_servicio_nombre}</span>
         <span className="bg-muted px-2 py-1 rounded">Modalidad: {servicio.modalidad_nombre}</span>
         <span className="bg-muted px-2 py-1 rounded font-mono">Serie: {servicio.numero_serie}</span>
-        {esAdjunto && (
+        {esAdjunto && servicio.tecnico_nombre && (
+          <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-medium">
+            Vas con {servicio.tecnico_nombre}
+          </span>
+        )}
+        {!esAdjunto && servicio.tecnico_adjunto_nombre && (
+          <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-medium">
+            Con {servicio.tecnico_adjunto_nombre}
+          </span>
+        )}
+        {esAdjunto && !servicio.tecnico_nombre && (
           <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-medium">
             Vas como adjunto
           </span>
