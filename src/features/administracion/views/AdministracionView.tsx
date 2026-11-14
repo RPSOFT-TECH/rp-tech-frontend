@@ -10,6 +10,7 @@ import { ListaClientes } from '../components/clientes/ListaClientes';
 import { FichaCliente } from '../components/clientes/FichaCliente';
 import { UsuariosAdmin } from '../components/usuarios/UsuariosAdmin';
 import { ParametrosAdmin } from '../components/sistema/ParametrosAdmin';
+import { CorreoAdmin } from '../components/sistema/CorreoAdmin';
 import { CatalogosAdmin } from '../components/sistema/CatalogosAdmin';
 import { PermisosAdmin } from '../components/sistema/PermisosAdmin';
 import { pestanasVisibles } from '../components/comun/pestanas';
@@ -62,7 +63,12 @@ function Contenido() {
         <FichaCliente clienteId={clienteId} onVolver={() => ir('clientes')} />
       )}
       {seccion === 'catalogos' && <CatalogosAdmin />}
-      {seccion === 'parametros' && <ParametrosAdmin />}
+      {seccion === 'parametros' && (
+        <div className="space-y-6">
+          <ParametrosAdmin />
+          <CorreoAdmin />
+        </div>
+      )}
       {seccion === 'usuarios' && <UsuariosAdmin />}
       {seccion === 'permisos' && <PermisosAdmin />}
     </div>

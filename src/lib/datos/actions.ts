@@ -1,6 +1,9 @@
 
 
 export type {
+  ConfigCorreo,
+  GuardarCorreo,
+  PruebaCorreo,
   Caso,
   CasoLista,
   Catalogo,
@@ -87,6 +90,10 @@ export {
 export {
   actualizar_parametros,
   asignar_rol,
+  correo_config,
+  guardar_correo_config,
+  probar_correo,
+  quitar_correo_config,
   cambiar_activo_catalogo,
   CODIGOS_CATALOGO,
   crear_valor_catalogo,

@@ -33,6 +33,34 @@ export interface PdfEmpresa {
   color?: string | null;
 }
 
+// Servidor de correo de la empresa. La contraseña nunca vuelve a la app.
+export interface ConfigCorreo {
+  host: string;
+  puerto: number;
+  usuario: string | null;
+  remitente: string;
+  copia: string | null;
+  tiene_clave: boolean;
+  actualizado_en: string | null;
+}
+
+export interface GuardarCorreo {
+  host: string;
+  puerto: number;
+  usuario: string;
+  remitente: string;
+  copia: string;
+  // null: conservar la guardada; '': borrarla.
+  clave: string | null;
+}
+
+export interface PruebaCorreo {
+  estado: 'enviado' | 'error' | 'no_configurado';
+  destino: string | null;
+  detalle: string | null;
+  origen: 'empresa' | 'supabase' | null;
+}
+
 export interface ParametrosEmpresa {
   formato_caso: string;
   formato_reporte: string;

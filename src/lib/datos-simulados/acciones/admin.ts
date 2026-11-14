@@ -1,5 +1,5 @@
 import { db, claves, nuevoId } from '../store';
-import type { Empresa, ParametrosEmpresa, Perfil, PermisosConsulta, Resultado, RolCodigo } from '../types';
+import type { ConfigCorreo, Empresa, GuardarCorreo, ParametrosEmpresa, Perfil, PermisosConsulta, PruebaCorreo, Resultado, RolCodigo } from '../types';
 import { exigirRol, fallo, ok } from './comun';
 import { obtenerUsuarioActual } from './sesion';
 
@@ -91,6 +91,54 @@ export interface EmpresaPermisos {
   id: string;
   nombre: string;
   permisos_consulta: PermisosConsulta;
+}
+
+// Correo de envío (simulado en memoria; la contraseña no se devuelve nunca).
+const correos = new Map<string, ConfigCorreo & { clave: string | null }>();
+
+function puedeConfigurarCorreo(empresa: string): boolean {
+  const sesion = obtenerUsuarioActual();
+  if (!sesion) return false;
+  return sesion.rolesVigentes.includes('superadmin') || (sesion.empresa.id === empresa && sesion.rolesVigentes.includes('gerente'));
+}
+
+function publico(c: ConfigCorreo & { clave: string | null }): ConfigCorreo {
+  return { host: c.host, puerto: c.puerto, usuario: c.usuario, remitente: c.remitente, copia: c.copia, tiene_clave: !!c.clave, actualizado_en: c.actualizado_en };
+}
+
+export async function correo_config(p_empresa: string): Promise<Resultado<ConfigCorreo | null>> {
+  if (!puedeConfigurarCorreo(p_empresa)) return fallo('Solo el Gerente configura el correo de su empresa');
+  const c = correos.get(p_empresa);
+  return ok(c ? publico(c) : null);
+}
+
+export async function guardar_correo_config(p_empresa: string, datos: GuardarCorreo): Promise<Resultado<ConfigCorreo>> {
+  if (!puedeConfigurarCorreo(p_empresa)) return fallo('Solo el Gerente configura el correo de su empresa');
+  if (!datos.host.trim()) return fallo('Indica el servidor de correo (por ejemplo smtp.gmail.com)');
+  if (!/[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+/.test(datos.remitente)) return fallo('El remitente debe incluir un correo válido, por ejemplo: Empresa <reportes@empresa.com>');
+  const antes = correos.get(p_empresa);
+  const clave = datos.clave === null ? (antes?.clave ?? null) : datos.clave || null;
+  const nueva = {
+    host: datos.host.trim(), puerto: datos.puerto, usuario: datos.usuario.trim() || null, remitente: datos.remitente.trim(),
+    copia: datos.copia.trim() || null, tiene_clave: !!clave, actualizado_en: new Date().toISOString(), clave,
+  };
+  correos.set(p_empresa, nueva);
+  return ok(publico(nueva));
+}
+
+export async function quitar_correo_config(p_empresa: string): Promise<Resultado<true>> {
+  if (!puedeConfigurarCorreo(p_empresa)) return fallo('Solo el Gerente configura el correo de su empresa');
+  correos.delete(p_empresa);
+  return ok(true);
+}
+
+export async function probar_correo(p_empresa: string, para?: string): Promise<Resultado<PruebaCorreo>> {
+  if (!puedeConfigurarCorreo(p_empresa)) return fallo('Solo el Gerente prueba el correo de su empresa');
+  const destino = para?.trim() || obtenerUsuarioActual()?.usuario.email || null;
+  const c = correos.get(p_empresa);
+  if (!c) return ok({ estado: 'no_configurado', destino, detalle: 'Falta configurar el correo de envío', origen: null });
+  if (c.usuario && !c.clave) return ok({ estado: 'error', destino, detalle: 'El servidor rechazó el usuario o la contraseña.', origen: 'empresa' });
+  return ok({ estado: 'enviado', destino, detalle: null, origen: 'empresa' });
 }
 
 export async function empresas_permisos(): Promise<EmpresaPermisos[]> {

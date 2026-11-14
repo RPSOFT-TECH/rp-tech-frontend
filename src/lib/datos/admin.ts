@@ -1,6 +1,6 @@
 
 import { hoyLima, sumarDias } from '../datos-simulados/fecha';
-import type { ParametrosEmpresa, PermisosConsulta, Resultado, RolCodigo } from '../datos-simulados/types';
+import type { ConfigCorreo, GuardarCorreo, ParametrosEmpresa, PermisosConsulta, PruebaCorreo, Resultado, RolCodigo } from '../datos-simulados/types';
 import type { AltaUsuario, EmpresaPermisos } from '../datos-simulados/acciones/admin';
 import type { EstadoRol, RolUsuario, UsuarioAdmin } from '../datos-simulados/acciones/admin-usuarios';
 import type { ItemCatalogo } from '../datos-simulados/acciones/admin-catalogos';
@@ -236,6 +236,52 @@ export async function actualizar_parametros(
   return ok(parametros);
 }
 
+
+// ---- Correo de envío de la empresa ----
+
+async function errorDeFuncion(error: { message: string }): Promise<string> {
+  let texto = error.message;
+  try {
+    const cuerpo = await (error as { context?: Response }).context?.json();
+    if (cuerpo?.error) texto = cuerpo.error;
+  } catch {
+    // respuesta sin cuerpo JSON
+  }
+  return mensaje({ message: texto });
+}
+
+export async function correo_config(p_empresa: string): Promise<Resultado<ConfigCorreo | null>> {
+  const { data, error } = await supabase().rpc('correo_config', { p_empresa });
+  if (error) return fallo(mensaje(error));
+  return ok((data as ConfigCorreo | null) ?? null);
+}
+
+export async function guardar_correo_config(p_empresa: string, datos: GuardarCorreo): Promise<Resultado<ConfigCorreo>> {
+  const { data, error } = await supabase().rpc('guardar_correo_config', {
+    p_empresa,
+    p_host: datos.host.trim(),
+    p_puerto: datos.puerto,
+    p_usuario: datos.usuario.trim(),
+    p_remitente: datos.remitente.trim(),
+    p_copia: datos.copia.trim(),
+    p_clave: datos.clave,
+  });
+  if (error) return fallo(mensaje(error));
+  return ok(data as ConfigCorreo);
+}
+
+export async function quitar_correo_config(p_empresa: string): Promise<Resultado<true>> {
+  const { error } = await supabase().rpc('quitar_correo_config', { p_empresa });
+  return error ? fallo(mensaje(error)) : ok(true);
+}
+
+export async function probar_correo(p_empresa: string, para?: string): Promise<Resultado<PruebaCorreo>> {
+  const { data, error } = await supabase().functions.invoke('correo-prueba', {
+    body: { empresa_id: p_empresa, para: para?.trim() || undefined },
+  });
+  if (error) return fallo(await errorDeFuncion(error));
+  return ok(data as PruebaCorreo);
+}
 
 export async function empresas_permisos(): Promise<EmpresaPermisos[]> {
   if (!es_superadmin()) return [];

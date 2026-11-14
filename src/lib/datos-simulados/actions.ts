@@ -1,4 +1,7 @@
 export type {
+  ConfigCorreo,
+  GuardarCorreo,
+  PruebaCorreo,
   Caso,
   CasoLista,
   Catalogo,
@@ -76,7 +79,7 @@ export {
   usuarios,
 } from './acciones/admin';
 export type { AltaUsuario } from './acciones/admin';
-export { empresas_permisos, parametros_actuales } from './acciones/admin';
+export { correo_config, empresas_permisos, guardar_correo_config, parametros_actuales, probar_correo, quitar_correo_config } from './acciones/admin';
 export type { EmpresaPermisos } from './acciones/admin';
 export {
   clientes_admin,
