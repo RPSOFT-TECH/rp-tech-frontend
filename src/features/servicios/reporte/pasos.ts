@@ -5,10 +5,19 @@ export const PASOS = [
   { clave: 'revision', nombre: 'Revisión inicial' },
   { clave: 'desarrollo', nombre: 'Desarrollo' },
   { clave: 'repuestos', nombre: 'Repuestos' },
-  { clave: 'fotos', nombre: 'Fotos y adjuntos' },
   { clave: 'conformidad', nombre: 'Conformidad' },
   { clave: 'cierre', nombre: 'Cierre' },
 ];
+
+// A qué paso lleva cada cosa que falta para cerrar (textos de faltantes_cierre).
+export function pasoDeFalta(falta: string): number {
+  const texto = falta.toLowerCase();
+  if (texto.startsWith('llegada') || texto.includes('ingreso')) return 1;
+  if (texto.startsWith('revisión')) return 2;
+  if (texto.startsWith('procedimiento') || texto.startsWith('conclusión')) return 3;
+  if (texto.includes('firma')) return 5;
+  return 6;
+}
 
 export function horaLimaStr(): string {
   return new Date().toLocaleTimeString('es-PE', {

@@ -142,11 +142,15 @@ export function useReporteServicio() {
   }, [id]);
 
   const esPasoEditable = puedeEditarReporte && !reporteCerrado;
+  const irAlPaso = (siguiente: number) => {
+    setPaso(Math.min(Math.max(siguiente, 1), PASOS.length));
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0 });
+  };
   const avanzarPaso = () => {
-    if (paso < PASOS.length) setPaso(paso + 1);
+    if (paso < PASOS.length) irAlPaso(paso + 1);
   };
   const retrocederPaso = () => {
-    if (paso > 1) setPaso(paso - 1);
+    if (paso > 1) irAlPaso(paso - 1);
   };
   const guardarAviso = useCallback((texto: string) => {
     setMensaje(texto);
@@ -269,7 +273,8 @@ export function useReporteServicio() {
     reporteCerrado,
     avanzarPaso,
     retrocederPaso,
-    irAlPaso: (siguiente: number) => setPaso(siguiente),
+    irAlPaso,
+    remota,
     ...acciones,
   };
 }

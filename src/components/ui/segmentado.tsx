@@ -47,7 +47,7 @@ export function Segmentado<T extends string>({
             disabled={disabled}
             onClick={() => onChange(opcion.value)}
             className={cn(
-              'flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-md px-2 text-sm transition-colors outline-none',
+              'flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-md px-1 text-sm transition-colors outline-none',
               'focus-visible:ring-3 focus-visible:ring-ring/40 disabled:cursor-not-allowed [&_svg]:size-4 [&_svg]:shrink-0',
               tamano === 'grande' ? 'h-11' : 'h-9 md:h-8',
               marcada

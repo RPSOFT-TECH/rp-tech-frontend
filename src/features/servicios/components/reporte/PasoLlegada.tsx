@@ -1,36 +1,46 @@
 'use client';
 
-import { Button, Card } from '@/components/ui';
+import { BloqueAdjuntos } from './PasoFotos';
+import { SeccionReporte } from './SeccionReporte';
 import type { FormularioReporte } from './tipo';
 
 export function PasoLlegada({ form }: { form: FormularioReporte }) {
-  const { reporte, esPasoEditable, guardando, registrarLlegada, avanzarPaso } = form;
+  const { reporte, remota } = form;
   if (!reporte) return null;
+  const llego = Boolean(reporte.hora_llegada);
+
   return (
-    <Card className="p-6">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-primary mb-4">1. Llegada</h3>
-      <div className="text-sm text-card-foreground">
-        {reporte.hora_llegada ? (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="font-mono font-bold text-primary">{reporte.hora_llegada}</span>
-              <span className="rounded border border-chart-2/40 bg-chart-2/15 px-2 py-0.5 text-xs text-chart-2">Registrado</span>
+    <>
+      <SeccionReporte>
+        {llego ? (
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs text-muted-foreground">Hora de llegada</p>
+              <p className="font-mono text-3xl font-bold tracking-tight text-foreground tabular-nums">{reporte.hora_llegada?.slice(0, 5)}</p>
             </div>
-            <Button onClick={avanzarPaso} className="w-full min-h-11">
-              Siguiente
-            </Button>
+            <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+              Registrada
+            </span>
           </div>
         ) : (
-          <>
-            <p className="text-muted-foreground mb-4">
-              Registra tu llegada para generar el número de reporte y habilitar los siguientes pasos.
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-foreground">Aún no registras tu llegada</p>
+            <p className="text-sm text-muted-foreground">
+              Al llegar donde el cliente pulsa <b className="text-foreground">Registrar llegada</b>. Se guarda la hora de Lima y se crea el número de reporte.
             </p>
-            <Button onClick={registrarLlegada} disabled={!esPasoEditable || guardando} className="w-full min-h-11">
-              {guardando ? 'Registrando...' : 'Registrar llegada'}
-            </Button>
-          </>
+          </div>
         )}
-      </div>
-    </Card>
+      </SeccionReporte>
+
+      {llego && (
+        <BloqueAdjuntos
+          form={form}
+          tipo="foto_ingreso"
+          titulo="Foto de ingreso"
+          ayuda="Cómo encontraste la máquina al llegar."
+          obligatorio={!remota}
+        />
+      )}
+    </>
   );
 }

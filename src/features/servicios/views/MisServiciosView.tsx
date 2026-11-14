@@ -3,15 +3,18 @@
 import { useEffect, useState } from 'react';
 import { mis_servicios, hoyLima, obtenerUsuarioActual, type MiServicio } from '@/lib/datos/actions';
 import Link from 'next/link';
-import { Wrench } from 'lucide-react';
+import { MapPin, Wrench } from 'lucide-react';
 import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Segmentado } from '@/components/ui/segmentado';
+import { cn } from '@/lib/utils';
 
 export function MisServiciosView() {
   const [servicios, setServicios] = useState<MiServicio[]>([]);
   const [nombre, setNombre] = useState('');
   const [hoy, setHoy] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pestana, setPestana] = useState<Pestana>('hoy');
 
   useEffect(() => {
     let activo = true;
@@ -41,135 +44,126 @@ export function MisServiciosView() {
     );
   }
 
-  const serviciosHoy = servicios.filter((s) => !s.cerrado && s.fecha_programada === hoy);
-  const serviciosDiasAnteriores = servicios.filter(
-    (s) => !s.cerrado && s.fecha_programada !== null && s.fecha_programada < hoy,
-  );
-  const serviciosProximos = servicios.filter(
-    (s) => !s.cerrado && s.fecha_programada !== null && s.fecha_programada > hoy,
-  );
-  const serviciosCerrados = servicios.filter((s) => s.cerrado);
+  const pendientes = servicios.filter((s) => !s.cerrado);
+  const grupos: Record<Pestana, MiServicio[]> = {
+    hoy: pendientes.filter((s) => s.fecha_programada !== null && s.fecha_programada <= hoy),
+    proximos: pendientes.filter((s) => s.fecha_programada === null || s.fecha_programada > hoy),
+    cerrados: servicios.filter((s) => s.cerrado),
+  };
+  const lista = grupos[pestana];
+  const vacio = {
+    hoy: 'No tienes visitas para hoy.',
+    proximos: 'No tienes visitas programadas.',
+    cerrados: 'Todavía no tienes reportes cerrados.',
+  }[pestana];
 
   return (
-    <div className="mx-auto w-full max-w-md pb-24 md:max-w-3xl">
-      <p className="mb-6 text-xs text-muted-foreground">Técnico: {nombre}</p>
-
-      
-      <div className="mb-8">
-        <h2 className={`text-sm font-semibold uppercase tracking-wider mb-3 border-b border-border pb-1 text-primary`}>
-          Hoy ({serviciosHoy.length})
-        </h2>
-        {serviciosDiasAnteriores.length > 0 && (
-          <div className="mb-4 rounded-lg border border-chart-3/40 bg-chart-3/15 p-3 text-sm text-foreground">
-            De días anteriores, sin cerrar: {serviciosDiasAnteriores.length}
-          </div>
-        )}
-        {serviciosHoy.length === 0 ? (
-          <p className="text-sm text-muted-foreground bg-card p-4 rounded-xl border border-border">
-            No tienes servicios para hoy.
-          </p>
-        ) : (
-          <div className="space-y-4">
-            {serviciosHoy.map((servicio) => (
-              <TarjetaServicio key={servicio.id} servicio={servicio} hoy={hoy} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      
-      <div className="mb-8">
-        <h2 className={`text-sm font-semibold uppercase tracking-wider mb-3 border-b border-border pb-1 text-muted-foreground`}>
-          Próximos ({serviciosProximos.length})
-        </h2>
-        {serviciosProximos.length === 0 ? (
-          <p className="text-sm text-muted-foreground bg-card p-4 rounded-xl border border-border">
-            No tienes servicios programados.
-          </p>
-        ) : (
-          <div className="space-y-4">
-            {serviciosProximos.map((servicio) => (
-              <TarjetaServicio key={servicio.id} servicio={servicio} hoy={hoy} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      
-      <div>
-        <h2 className={`text-sm font-semibold uppercase tracking-wider mb-3 border-b border-border pb-1 text-muted-foreground`}>
-          Cerrados ({serviciosCerrados.length})
-        </h2>
-        {serviciosCerrados.length === 0 ? (
-          <p className="text-sm text-muted-foreground bg-card p-4 rounded-xl border border-border">
-            No tienes reportes cerrados.
-          </p>
-        ) : (
-          <div className="space-y-4">
-            {serviciosCerrados.map((servicio) => (
-              <TarjetaServicio key={servicio.id} servicio={servicio} hoy={hoy} />
-            ))}
-          </div>
-        )}
-      </div>
+    <div className="mx-auto w-full max-w-md space-y-4 pb-24 md:max-w-3xl">
+      <Segmentado
+        tamano="grande"
+        ariaLabel="Qué servicios ver"
+        value={pestana}
+        onChange={setPestana}
+        opciones={[
+          { value: 'hoy', label: `Hoy · ${grupos.hoy.length}` },
+          { value: 'proximos', label: `Próximos · ${grupos.proximos.length}` },
+          { value: 'cerrados', label: `Cerrados · ${grupos.cerrados.length}` },
+        ]}
+      />
+      {lista.length === 0 ? (
+        <p className="rounded-xl border border-dashed border-border bg-card p-6 text-center text-sm text-muted-foreground">{vacio}</p>
+      ) : (
+        <div className="grid gap-3 md:grid-cols-2">
+          {lista.map((servicio) => (
+            <TarjetaServicio key={servicio.id} servicio={servicio} hoy={hoy} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
+type Pestana = 'hoy' | 'proximos' | 'cerrados';
+
+function fechaCorta(iso: string | null): string {
+  if (!iso) return 'Sin fecha';
+  const [a, m, d] = iso.split('-');
+  return `${d}/${m}/${a}`;
+}
+
 function TarjetaServicio({ servicio, hoy }: { servicio: MiServicio; hoy: string }) {
   const enlace = `/mis-servicios/${servicio.caso_id}/reporte`;
-  const esHoy = servicio.fecha_programada === hoy;
-  const esAdjunto = servicio.soy_adjunto;
+  const atrasado = !servicio.cerrado && servicio.fecha_programada !== null && servicio.fecha_programada < hoy;
+  const enAtencion = servicio.estado === 'en_atencion';
+  const direccion = [servicio.sede_direccion, servicio.sede_distrito].filter(Boolean).join(', ');
+  const mapa = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccion)}`;
+  const companero = servicio.soy_adjunto
+    ? servicio.tecnico_nombre
+      ? `Vas como adjunto de ${servicio.tecnico_nombre}`
+      : 'Vas como adjunto'
+    : servicio.tecnico_adjunto_nombre
+      ? `Con ${servicio.tecnico_adjunto_nombre}`
+      : null;
+
+  let estado = { texto: 'Programado', clase: 'bg-muted text-muted-foreground' };
+  if (servicio.cerrado) estado = { texto: 'Cerrado', clase: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' };
+  else if (atrasado) estado = { texto: 'De días anteriores', clase: 'bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300' };
+  else if (enAtencion) estado = { texto: 'En atención', clase: 'bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300' };
+
+  const accion = servicio.cerrado ? 'Ver reporte' : enAtencion ? 'Continuar reporte' : 'Abrir reporte';
 
   return (
-    <Link
-      href={enlace}
-      className="block bg-card border border-border rounded-xl p-4 shadow-sm hover:border-primary/50 transition-all min-h-11"
-    >
-      <div className="flex justify-between items-center mb-2">
-        <span className="text-lg font-mono font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-lg">
-          {servicio.hora_programada || '—'}
-        </span>
-        <span className="font-bold text-card-foreground text-sm">{servicio.numero_caso}</span>
-      </div>
-      <div className="text-sm font-medium text-card-foreground mb-1">{servicio.cliente_razon_social}</div>
-      <div className="text-xs text-muted-foreground mb-2">
-        {servicio.sede_direccion}, {servicio.sede_distrito}
-        {servicio.sede_referencia && ` · ${servicio.sede_referencia}`}
-      </div>
-      <div className="flex flex-wrap gap-2 text-xs text-muted-foreground border-t border-border pt-2 mt-2">
-        <span className="bg-muted px-2 py-1 rounded">Tipo: {servicio.tipo_servicio_nombre}</span>
-        <span className="bg-muted px-2 py-1 rounded">Modalidad: {servicio.modalidad_nombre}</span>
-        <span className="bg-muted px-2 py-1 rounded font-mono">Serie: {servicio.numero_serie}</span>
-        {esAdjunto && servicio.tecnico_nombre && (
-          <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-medium">
-            Vas con {servicio.tecnico_nombre}
-          </span>
-        )}
-        {!esAdjunto && servicio.tecnico_adjunto_nombre && (
-          <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-medium">
-            Con {servicio.tecnico_adjunto_nombre}
-          </span>
-        )}
-        {esAdjunto && !servicio.tecnico_nombre && (
-          <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-medium">
-            Vas como adjunto
-          </span>
-        )}
-        {servicio.estado === 'en_atencion' && (
-          <span className="rounded border border-chart-2/40 bg-chart-2/15 px-2 py-1 text-xs font-medium text-chart-2">
-            En atención
-          </span>
-        )}
-        {!esHoy && servicio.fecha_programada && (
-          <span className="bg-muted px-2 py-1 rounded">Visita {servicio.numero_visita}</span>
-        )}
-      </div>
-      {!esHoy && servicio.fecha_programada && (
-        <div className="text-xs text-muted-foreground mt-2 border-t border-border pt-2">
-          Fecha: {servicio.fecha_programada}
-        </div>
+    <article
+      className={cn(
+        'flex flex-col gap-3 rounded-xl border bg-card p-4',
+        enAtencion && !servicio.cerrado ? 'border-primary ring-1 ring-primary' : 'border-border',
       )}
-    </Link>
+    >
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-baseline gap-2">
+          <span className="font-mono text-xl font-bold text-foreground tabular-nums">{servicio.hora_programada?.slice(0, 5) || '—'}</span>
+          {servicio.fecha_programada !== hoy && <span className="text-xs text-muted-foreground">{fechaCorta(servicio.fecha_programada)}</span>}
+        </div>
+        <span className={cn('rounded-full px-2 py-0.5 text-xs font-semibold', estado.clase)}>{estado.texto}</span>
+      </div>
+      <div className="space-y-0.5">
+        <p className="font-semibold text-foreground">{servicio.cliente_razon_social}</p>
+        <p className="text-sm text-muted-foreground">
+          {servicio.sede_nombre} · {direccion}
+          {servicio.sede_referencia ? ` · ${servicio.sede_referencia}` : ''}
+        </p>
+      </div>
+      <p className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+        <span className="font-mono">{servicio.numero_serie}</span>
+        <span>{servicio.tipo_servicio_nombre}</span>
+        <span>{servicio.modalidad_nombre}</span>
+        <span>
+          {servicio.numero_caso} · Visita {servicio.numero_visita}
+        </span>
+      </p>
+      {companero && <p className="text-xs font-medium text-primary">{companero}</p>}
+      <div className="flex gap-2">
+        {!servicio.cerrado && direccion && (
+          <a
+            href={mapa}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-11 items-center justify-center gap-1.5 rounded-lg border border-input px-3 text-sm font-medium text-foreground hover:bg-muted"
+          >
+            <MapPin className="size-4" />
+            Cómo llegar
+          </a>
+        )}
+        <Link
+          href={enlace}
+          className={cn(
+            'inline-flex h-11 flex-1 items-center justify-center rounded-lg px-3 text-sm font-semibold',
+            servicio.cerrado ? 'border border-input text-foreground hover:bg-muted' : 'bg-primary text-primary-foreground hover:bg-primary/85',
+          )}
+        >
+          {accion}
+        </Link>
+      </div>
+    </article>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui';
+import { Input } from '@/components/ui/input';
 import { Check, PenTool, RotateCcw } from 'lucide-react';
 
 interface LienzoFirmaProps {
@@ -163,18 +164,11 @@ export function LienzoFirma({ titulo, nombre, onNombre, firma, editable, onFirma
   const muestraImagen = Boolean(firma) && (modo === 'ver' || !editable);
 
   return (
-    <div className="flex flex-col gap-2">
-      <label className="text-xs font-semibold text-muted-foreground" htmlFor={`nombre-${titulo}`}>
+    <section className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4">
+      <h3 className="text-sm font-semibold text-foreground">
         {titulo}
-      </label>
-      <input
-        id={`nombre-${titulo}`}
-        value={nombre}
-        onChange={(evento) => onNombre(evento.target.value)}
-        placeholder="Nombre"
-        disabled={!editable}
-        className="min-h-11 border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground"
-      />
+        <span aria-hidden className="text-destructive">*</span>
+      </h3>
       {muestraImagen && firma ? (
         <div className="relative h-36 w-full rounded-lg border border-border bg-card flex items-center justify-center p-2 overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -201,11 +195,23 @@ export function LienzoFirma({ titulo, nombre, onNombre, firma, editable, onFirma
           )}
         </div>
       )}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium text-foreground" htmlFor={`nombre-${titulo}`}>
+          Nombre de quien firma
+        </label>
+        <Input
+          id={`nombre-${titulo}`}
+          value={nombre}
+          onChange={(evento) => onNombre(evento.target.value)}
+          placeholder="Nombre y apellido"
+          disabled={!editable}
+        />
+      </div>
       {editable && (
-        <div className="flex flex-wrap gap-2 pt-1">
+        <div className="flex flex-wrap gap-2">
           {muestraImagen ? (
             <>
-              <Button type="button" variant="outline" className="min-h-11 flex items-center gap-1.5" onClick={volverAFirmar}>
+              <Button type="button" variant="outline" className="h-11 flex items-center gap-1.5" onClick={volverAFirmar}>
                 <PenTool className="size-4" />
                 Volver a firmar
               </Button>
@@ -251,6 +257,6 @@ export function LienzoFirma({ titulo, nombre, onNombre, firma, editable, onFirma
           )}
         </div>
       )}
-    </div>
+    </section>
   );
 }
