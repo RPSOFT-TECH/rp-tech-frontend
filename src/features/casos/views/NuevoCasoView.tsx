@@ -156,58 +156,76 @@ function FormularioNuevoCaso({
     });
   };
 
+  const idsCampo: Partial<Record<keyof NuevoCasoFormValues, string>> = {
+    cliente_id: 'empresa',
+    sede_id: 'sede',
+    contacto_id: 'contacto',
+    equipo_id: 'equipo',
+  };
+  const irAlPrimerError = (errores: Partial<Record<keyof NuevoCasoFormValues, unknown>>) => {
+    const orden: (keyof NuevoCasoFormValues)[] = [
+      'canal_id', 'cliente_id', 'sede_id', 'contacto_id', 'telefono', 'equipo_id',
+      'tipo_servicio_id', 'modalidad_id', 'modo_servicio_id', 'motivo_cambio_modo', 'incidencia',
+    ];
+    const primero = orden.find((campo) => errores[campo]);
+    if (!primero) return;
+    const nodo = document.getElementById(idsCampo[primero] ?? primero);
+    nodo?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    nodo?.focus({ preventScroll: true });
+  };
+
   return (
-    <div className="mx-auto w-full max-w-5xl overflow-x-hidden">
+    <div className="mx-auto w-full max-w-5xl pb-28 md:pb-0">
       <EncabezadoNuevoCaso numeroOrigen={datos.numeroOrigen} />
 
       {errorGlobal && (
-        <Alert variant="destructive" className="mb-6">
+        <Alert variant="destructive" className="mb-4">
           <AlertDescription>{errorGlobal}</AlertDescription>
         </Alert>
       )}
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="md:col-span-2">
+      <form onSubmit={form.handleSubmit(onSubmit, irAlPrimerError)} noValidate>
+        <div className="rounded-xl border border-border bg-card">
+          <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-12 md:gap-x-4 md:gap-y-4 md:p-6">
             <BloqueSolicitud form={form} canales={datos.catalogos.canales} />
+            <BloqueCliente
+              form={form}
+              queryCliente={datos.queryCliente}
+              setQueryCliente={datos.setQueryCliente}
+              clienteSeleccionado={datos.clienteSeleccionado}
+              clientesResultados={datos.clientesResultados}
+              buscando={datos.buscando}
+              sedes={datos.sedes}
+              contactos={datos.contactos}
+              onSeleccionarCliente={datos.handleSeleccionarCliente}
+              onCambiarCliente={datos.handleCambiarCliente}
+              onContactoChange={datos.handleContactoChange}
+              onSedeCreada={datos.registrarSede}
+              onContactoCreado={datos.registrarContacto}
+            />
+            <BloqueEquipo
+              form={form}
+              clienteId={datos.clienteSeleccionado?.id ?? null}
+              equipos={datos.equipos}
+              equipoSeleccionado={datos.equipoSeleccionado}
+              sedes={datos.sedes}
+              lineas={datos.catalogos.lineas_maquina}
+              cabezales={datos.catalogos.modelos_cabezal}
+              onEquipoChange={datos.handleEquipoChange}
+              onEquipoCreado={datos.registrarEquipo}
+            />
+            <BloqueServicio form={form} catalogos={datos.catalogos} sugerencia={datos.sugerencia} />
+            <BloqueProgramar valor={programacion} onChange={setProgramacion} activo={programar} onActivoChange={setProgramar} />
           </div>
-          <BloqueCliente
-            form={form}
-            queryCliente={datos.queryCliente}
-            setQueryCliente={datos.setQueryCliente}
-            clienteSeleccionado={datos.clienteSeleccionado}
-            clientesResultados={datos.clientesResultados}
-            buscando={datos.buscando}
-            sedes={datos.sedes}
-            contactos={datos.contactos}
-            onSeleccionarCliente={datos.handleSeleccionarCliente}
-            onCambiarCliente={datos.handleCambiarCliente}
-            onContactoChange={datos.handleContactoChange}
-            onSedeCreada={datos.registrarSede}
-            onContactoCreado={datos.registrarContacto}
-          />
-          <BloqueEquipo
-            form={form}
-            clienteId={datos.clienteSeleccionado?.id ?? null}
-            equipos={datos.equipos}
-            equipoSeleccionado={datos.equipoSeleccionado}
-            sedes={datos.sedes}
-            lineas={datos.catalogos.lineas_maquina}
-            cabezales={datos.catalogos.modelos_cabezal}
-            onEquipoChange={datos.handleEquipoChange}
-            onEquipoCreado={datos.registrarEquipo}
-          />
-          <BloqueServicio form={form} catalogos={datos.catalogos} sugerencia={datos.sugerencia} />
-          <BloqueProgramar valor={programacion} onChange={setProgramacion} activo={programar} onActivoChange={setProgramar} />
-        </div>
 
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
-          <Button type="button" variant="outline" className="min-h-11" onClick={() => router.back()} disabled={guardando}>
-            Cancelar
-          </Button>
-          <Button type="submit" className="min-h-11" disabled={guardando}>
-            {guardando ? 'Guardando...' : 'Registrar caso'}
-          </Button>
+          <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-end gap-3 border-t border-border bg-card/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur md:static md:rounded-b-xl md:bg-muted/40 md:px-6 md:py-3 md:backdrop-blur-none">
+            <Button type="button" variant="outline" className="h-11 px-4 md:h-10" onClick={() => router.back()} disabled={guardando}>
+              Cancelar
+            </Button>
+            <Button type="submit" className="h-11 flex-1 px-5 md:h-10 md:flex-none" disabled={guardando}>
+              {guardando ? 'Guardando...' : 'Registrar caso'}
+            </Button>
+          </div>
         </div>
       </form>
     </div>

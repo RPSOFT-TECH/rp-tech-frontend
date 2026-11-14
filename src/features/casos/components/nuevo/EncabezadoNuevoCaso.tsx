@@ -24,14 +24,12 @@ export function EncabezadoNuevoCaso({ numeroOrigen }: { numeroOrigen: string | n
   }, []);
 
   return (
-    <div className="mb-6 space-y-2">
-      <div className="space-y-1 text-sm text-muted-foreground">
-        <p>N° de caso: se asigna al guardar</p>
-        <p>{marca || 'Hora de Lima'}</p>
-        <p>Registrado por: {sesion?.usuario.nombre_completo ?? '—'}</p>
-      </div>
+    <div className="mb-4 space-y-2">
+      <p className="text-xs text-muted-foreground">
+        El número se asigna al guardar · {marca || 'Hora de Lima'} · Registra {sesion?.usuario.nombre_completo ?? '—'}
+      </p>
       {numeroOrigen && (
-        <p className="text-sm font-medium text-primary bg-primary/10 border border-border rounded-lg px-3 py-2">
+        <p className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm font-medium text-primary">
           Caso nuevo vinculado al caso {numeroOrigen}
         </p>
       )}

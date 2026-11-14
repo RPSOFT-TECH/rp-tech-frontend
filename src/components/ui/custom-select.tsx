@@ -192,7 +192,7 @@ export function CustomSelect({
   return (
     <div className={cn('flex w-full flex-col gap-1', className)}>
       {label ? (
-        <label htmlFor={campoId} className="text-xs font-semibold text-muted-foreground">
+        <label htmlFor={campoId} className="text-sm font-medium text-foreground">
           {label}
         </label>
       ) : null}
@@ -204,14 +204,13 @@ export function CustomSelect({
         aria-expanded={abierto}
         onClick={alternar}
         className={cn(
-          'flex h-12 w-full items-center gap-2 rounded-xl border px-3.5 text-left text-[15px] font-semibold transition-colors outline-none',
-          'disabled:cursor-not-allowed disabled:opacity-50',
-          abierto && 'border-primary bg-primary/15 ring-2 ring-primary/20',
-          !abierto && activo && 'border-primary/50 bg-primary/10 text-foreground shadow-sm',
-          !abierto && !activo && 'border-border bg-card text-foreground hover:border-primary/40 hover:bg-muted/40',
+          'flex h-11 w-full items-center gap-2 rounded-lg border bg-card px-3 text-left text-sm font-medium text-foreground transition-colors outline-none md:h-10',
+          'focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30',
+          'disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground',
+          abierto ? 'border-primary ring-3 ring-primary/20' : 'border-input hover:border-primary/50',
         )}
       >
-        <span className={cn('min-w-0 flex-1 truncate', value === '' && 'text-muted-foreground')}>
+        <span className={cn('min-w-0 flex-1 truncate', value === '' && 'font-normal text-muted-foreground')}>
           {value === '' ? placeholder : elegido?.label || placeholder}
         </span>
         <ChevronDown className={cn('size-4 shrink-0 text-muted-foreground transition-transform', abierto && 'rotate-180')} />
