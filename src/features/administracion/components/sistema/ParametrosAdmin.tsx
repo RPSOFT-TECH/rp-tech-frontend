@@ -34,6 +34,8 @@ export function ParametrosAdmin() {
   const [telefonos, setTelefonos] = useState('');
   const [correos, setCorreos] = useState('');
   const [redes, setRedes] = useState('');
+  const [marcas, setMarcas] = useState<(string | null)[]>([null, null]);
+  const [colorPdf, setColorPdf] = useState('#8a3d8f');
 
   useEffect(() => {
     let vigente = true;
@@ -56,6 +58,8 @@ export function ParametrosAdmin() {
       setTelefonos(unir(datos.pdf.telefonos));
       setCorreos(unir(datos.pdf.correos));
       setRedes(unir(datos.pdf.redes));
+      setMarcas([datos.pdf.marcas?.[0] ?? null, datos.pdf.marcas?.[1] ?? null]);
+      if (datos.pdf.color) setColorPdf(datos.pdf.color);
       setListo(true);
     });
     return () => {
@@ -63,14 +67,17 @@ export function ParametrosAdmin() {
     };
   }, []);
 
-  const leerLogo = (archivo: File | undefined) => {
+  const leerImagen = (archivo: File | undefined, guardarEn: (valor: string) => void) => {
     if (!archivo) return;
     const lector = new FileReader();
     lector.onload = () => {
-      if (typeof lector.result === 'string') setLogo(lector.result);
+      if (typeof lector.result === 'string') guardarEn(lector.result);
     };
     lector.readAsDataURL(archivo);
   };
+  const leerLogo = (archivo: File | undefined) => leerImagen(archivo, setLogo);
+  const cambiarMarca = (indice: number, valor: string | null) =>
+    setMarcas((actual) => actual.map((m, i) => (i === indice ? valor : m)));
 
   const guardar = async () => {
     const empresaId = leerSesionEstable()?.empresa.id;
@@ -100,6 +107,8 @@ export function ParametrosAdmin() {
         telefonos: partir(telefonos),
         correos: partir(correos),
         redes: partir(redes),
+        marcas,
+        color: /^#[0-9a-f]{6}$/i.test(colorPdf) ? colorPdf : null,
       },
     });
     if (!resultado.ok) {
@@ -150,6 +159,35 @@ export function ParametrosAdmin() {
             Quitar logo
           </Button>
         )}
+        {[0, 1].map((indice) => (
+          <div key={indice} className="space-y-2">
+            <label className="block space-y-1 text-sm" htmlFor={`marcas-${indice}`}>
+              <span className="font-medium text-foreground">
+                Logos de marcas ({indice === 0 ? 'a la izquierda' : 'a la derecha'} del logo)
+              </span>
+              <input
+                id={`marcas-${indice}`}
+                type="file"
+                accept="image/png,image/jpeg"
+                onChange={(e) => leerImagen(e.target.files?.[0], (valor) => cambiarMarca(indice, valor))}
+                className={claseCampo}
+              />
+            </label>
+            {marcas[indice] && (
+              <div className="flex flex-wrap items-center gap-3">
+                <Image src={marcas[indice] as string} alt="Vista previa de las marcas" width={280} height={48} className="h-12 w-auto object-contain" />
+                <Button type="button" variant="outline" className="min-h-11" onClick={() => cambiarMarca(indice, null)}>
+                  Quitar
+                </Button>
+              </div>
+            )}
+          </div>
+        ))}
+        <label className="flex items-center gap-3 text-sm" htmlFor="color-pdf">
+          <span className="font-medium text-foreground">Color del PDF</span>
+          <input id="color-pdf" type="color" value={colorPdf} onChange={(e) => setColorPdf(e.target.value)} className="h-10 w-14 cursor-pointer rounded border border-input bg-card" />
+          <span className="font-mono text-xs text-muted-foreground">{colorPdf}</span>
+        </label>
         <Campo id="direccion" label="Dirección" value={direccion} onChange={setDireccion} />
         <Campo id="telefonos" label="Teléfonos" value={telefonos} onChange={setTelefonos} placeholder="Separados por coma" />
         <Campo id="correos" label="Correos" value={correos} onChange={setCorreos} placeholder="Separados por coma" />

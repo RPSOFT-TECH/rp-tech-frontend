@@ -178,8 +178,28 @@ export async function parametros_actuales(): Promise<ParametrosEmpresa | null> {
       telefonos: [...(pdf.telefonos ?? [])],
       correos: [...(pdf.correos ?? [])],
       redes: [...(pdf.redes ?? [])],
+      marcas: await Promise.all([0, 1].map((i) => logoComoDataUrl(pdf.marcas?.[i]))),
+      color: pdf.color ?? null,
     },
   };
+}
+
+// Sube una imagen elegida en pantalla (data:) al bucket "empresas" y devuelve su ruta.
+async function rutaImagen(
+  valor: string | null | undefined,
+  actual: string | null | undefined,
+  empresa: string,
+  nombre: string,
+): Promise<{ ruta: string | null } | { error: string }> {
+  if (!valor) return { ruta: null };
+  if (/^https?:/.test(valor)) return { ruta: actual ?? null };
+  if (!/^(data:|blob:)/.test(valor)) return { ruta: valor };
+  const archivo = await blobDe(valor);
+  const extension = archivo.type === 'image/jpeg' ? 'jpg' : 'png';
+  const ruta = `${empresa}/${nombre}-${Date.now()}.${extension}`;
+  const { error } = await supabase().storage.from('empresas').upload(ruta, archivo, { contentType: archivo.type || 'image/png' });
+  if (error) return { error: error.message };
+  return { ruta };
 }
 
 export async function actualizar_parametros(
@@ -195,16 +215,17 @@ export async function actualizar_parametros(
     const { data: actual } = await sb.from('empresas').select('parametros').eq('id', p_empresa).maybeSingle();
     const pdfActual = ((actual?.parametros as ParametrosEmpresa | undefined)?.pdf ?? {}) as Partial<ParametrosEmpresa['pdf']>;
     const pdf: Record<string, unknown> = { ...pdfActual, ...p_cambios.pdf };
-    const logo = p_cambios.pdf.logo;
-    if (logo && /^(data:|blob:)/.test(logo)) {
-      const archivo = await blobDe(logo);
-      const extension = archivo.type === 'image/jpeg' ? 'jpg' : 'png';
-      const ruta = `${p_empresa}/logo-${Date.now()}.${extension}`;
-      const { error } = await sb.storage.from('empresas').upload(ruta, archivo, { contentType: archivo.type || 'image/png' });
-      if (error) return fallo(`No se pudo subir el logo: ${error.message}`);
-      pdf.logo = ruta;
-    } else if (logo && /^https?:/.test(logo)) {
-      pdf.logo = pdfActual.logo ?? null;
+    const logo = await rutaImagen(p_cambios.pdf.logo, pdfActual.logo, p_empresa, 'logo');
+    if ('error' in logo) return fallo(`No se pudo subir el logo: ${logo.error}`);
+    pdf.logo = logo.ruta;
+    if (p_cambios.pdf.marcas) {
+      const marcas: (string | null)[] = [];
+      for (const [i, valor] of p_cambios.pdf.marcas.slice(0, 2).entries()) {
+        const subida = await rutaImagen(valor, pdfActual.marcas?.[i], p_empresa, `marcas-${i + 1}`);
+        if ('error' in subida) return fallo(`No se pudo subir la imagen de marcas: ${subida.error}`);
+        marcas.push(subida.ruta);
+      }
+      pdf.marcas = marcas;
     }
     cambios.pdf = pdf;
   }

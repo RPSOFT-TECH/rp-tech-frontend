@@ -27,6 +27,10 @@ export interface PdfEmpresa {
   telefonos: string[];
   correos: string[];
   redes: string[];
+  // Logos de marcas para el encabezado del PDF: [izquierda, derecha].
+  marcas?: (string | null)[];
+  // Color de acento del PDF en hexadecimal (#8a3d8f).
+  color?: string | null;
 }
 
 export interface ParametrosEmpresa {
