@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import {
+import { Archive,
   Bell,
   Calendar,
   ClipboardList,
@@ -48,6 +48,11 @@ const RUTAS_META: Record<string, RutaMeta> = {
     descripcion: 'Visitas del día por técnico',
     icon: Calendar,
   },
+  '/historico': {
+    titulo: 'Histórico',
+    descripcion: 'Reportes en papel digitalizados',
+    icon: Archive,
+  },
 };
 
 function resolverRuta(pathname: string): RutaMeta {
@@ -57,6 +62,9 @@ function resolverRuta(pathname: string): RutaMeta {
       descripcion: 'Informe de atención técnica, repuestos y firmas',
       icon: FileText,
     };
+  }
+  if (pathname.startsWith('/historico/')) {
+    return { titulo: 'Reporte en papel', descripcion: 'Reporte histórico digitalizado por SIREP', icon: Archive };
   }
   if (pathname.startsWith('/casos/') && pathname !== '/casos/nuevo') {
     return {

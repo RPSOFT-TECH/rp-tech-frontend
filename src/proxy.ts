@@ -9,7 +9,7 @@ interface SesionPayload {
   rolesVigentes: RolCodigo[];
 }
 
-const RUTAS_PRIVADAS = ['/casos', '/mis-servicios', '/administracion', '/agenda'];
+const RUTAS_PRIVADAS = ['/casos', '/mis-servicios', '/administracion', '/agenda', '/historico'];
 
 function esRutaPrivada(pathname: string): boolean {
   return RUTAS_PRIVADAS.some((ruta) => pathname === ruta || pathname.startsWith(`${ruta}/`));

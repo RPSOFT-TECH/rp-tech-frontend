@@ -114,6 +114,17 @@ export {
 } from './admin';
 export type { AltaUsuario, CodigoCatalogo, EmpresaPermisos, EstadoRol, ItemCatalogo, RolUsuario, UsuarioAdmin } from './admin';
 
+export { historico_detalle, historico_lista, historial_unificado, sugerir_vinculo, vincular_historico } from './historico';
+export type {
+  FiltrosHistorico,
+  HistorialFila,
+  HistoricoDetalle,
+  HistoricoLista,
+  RepuestoHistorico,
+  SugerenciaVinculo,
+  TipoVinculo,
+} from './historico';
+
 import { reportePdf } from './reportes';
 import { usuarios } from './admin';
 
