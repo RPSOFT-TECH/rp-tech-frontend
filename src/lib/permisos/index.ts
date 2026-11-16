@@ -13,6 +13,8 @@ const PERMISOS: { prefijo: string; roles: RolCodigo[] }[] = [
   { prefijo: '/mis-servicios', roles: ['tecnico'] },
   { prefijo: '/administracion', roles: ['superadmin', 'gerente', 'coordinador'] },
   { prefijo: '/agenda', roles: [...OFICINA] },
+  // Reportes en papel (SIREP): misma regla que los reportes del sistema para Consulta.
+  { prefijo: '/historico', roles: [...OFICINA, 'consulta'] },
 ];
 
 export function puedeAcceder(
@@ -26,6 +28,7 @@ export function puedeAcceder(
       if (concedidos.length === 0) return false;
       if (concedidos.every((rol) => rol === 'consulta')) {
         if (prefijo === '/casos') return permisos.casos;
+        if (prefijo === '/historico') return permisos.reportes;
         return false;
       }
       return true;
@@ -58,6 +61,7 @@ export function menuDeRoles(
   agregar('/casos', 'Casos');
   agregar('/casos/nuevo', 'Nuevo caso');
   agregar('/agenda', 'Agenda');
+  agregar('/historico', 'Histórico');
   agregar('/mis-servicios', 'Mis servicios');
   agregar('/administracion', 'Administración');
   return items;

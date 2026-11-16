@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
+  Archive,
   Calendar,
   ClipboardList,
   LogOut,
@@ -33,6 +34,7 @@ const ICONOS: Record<string, LucideIcon> = {
   '/mis-servicios': Wrench,
   '/administracion': ShieldCheck,
   '/agenda': Calendar,
+  '/historico': Archive,
 };
 
 function hrefActivo(menu: MenuItem[], pathname: string): string | null {
