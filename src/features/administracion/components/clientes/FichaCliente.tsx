@@ -3,7 +3,10 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { ficha_cliente, guardar_cliente, type FichaCliente as DatosFicha } from '@/lib/datos/actions';
+import { ChevronLeft, Pencil } from 'lucide-react';
+import { AvatarIniciales } from '@/components/ui';
 import { Button } from '@/components/ui/button';
+import { Etiqueta } from '../comun/ListaEditable';
 import { claseCampo } from '../comun/clases';
 import { EditorSedes } from './EditorSedes';
 import { EditorContactos } from './EditorContactos';
@@ -24,6 +27,7 @@ export function FichaCliente({ clienteId, onVolver }: { clienteId: string; onVol
   const [pestana, setPestana] = useState<Pestana>('sedes');
   const [marca, setMarca] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [editando, setEditando] = useState(false);
 
   useEffect(() => {
     let vigente = true;
@@ -61,53 +65,97 @@ export function FichaCliente({ clienteId, onVolver }: { clienteId: string; onVol
       return;
     }
     toast.success('Cliente actualizado');
+    setEditando(false);
     setMarca((valor) => valor + 1);
   };
 
   return (
     <div className="space-y-4">
-      <Button type="button" variant="ghost" className="min-h-11" onClick={onVolver}>
-        Volver a clientes
+      <Button type="button" variant="ghost" className="h-9 gap-1 px-2 text-muted-foreground lg:hidden" onClick={onVolver}>
+        <ChevronLeft className="size-4" />
+        Clientes
       </Button>
-      <form key={marca} onSubmit={(e) => void guardar(e)} className="bg-card border border-border rounded-xl p-4 space-y-3">
-        <h2 className="text-lg font-semibold text-foreground">{cliente.razon_social}</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Campo nombre="razon_social" label="Razón social" valor={cliente.razon_social} />
-          <Campo nombre="ruc" label="RUC" valor={cliente.ruc ?? ''} />
-          <Campo nombre="telefono" label="Teléfono" valor={cliente.telefono ?? ''} />
-          <Campo nombre="email" label="Correo" valor={cliente.email ?? ''} />
+      <section className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
+        <div className="flex flex-wrap items-start gap-3">
+          <AvatarIniciales nombre={cliente.razon_social} className="size-12 rounded-xl text-base" />
+          <div className="min-w-0 flex-1">
+            <h2 className="text-lg font-bold text-foreground">{cliente.razon_social}</h2>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <span className="font-mono text-xs text-muted-foreground">{cliente.ruc ? `RUC ${cliente.ruc}` : 'Sin RUC'}</span>
+              <Etiqueta tono={cliente.activo ? 'verde' : 'neutro'}>{cliente.activo ? 'Activo' : 'Inactivo'}</Etiqueta>
+              {cliente.soporte_vigente && <Etiqueta tono="azul">Soporte vigente</Etiqueta>}
+            </div>
+          </div>
+          {!editando && (
+            <Button type="button" variant="outline" className="h-10 gap-2 px-4 shadow-xs" onClick={() => setEditando(true)}>
+              <Pencil className="size-4" />
+              Editar datos
+            </Button>
+          )}
         </div>
-        <label className="flex items-center gap-2 min-h-11 text-sm">
-          <input type="checkbox" name="soporte_vigente" defaultChecked={cliente.soporte_vigente} className="size-4" />
-          Soporte vigente
-        </label>
-        {cliente.soporte_vigente && cliente.soporte_verificado_nombre && (
-          <p className="text-xs text-muted-foreground">
-            Verificado por {cliente.soporte_verificado_nombre}
-            {cliente.soporte_verificado_en ? ` el ${cliente.soporte_verificado_en.slice(0, 16).replace('T', ' ')}` : ''}
-          </p>
+        {!editando ? (
+          <dl className="mt-4 grid grid-cols-[6.5rem_1fr] gap-x-4 gap-y-2 border-t border-border pt-4 text-sm sm:grid-cols-[6.5rem_1fr_6.5rem_1fr]">
+            <dt className="text-muted-foreground">Teléfono</dt>
+            <dd className="font-medium tabular-nums">{cliente.telefono || '—'}</dd>
+            <dt className="text-muted-foreground">Correo</dt>
+            <dd className="min-w-0 truncate font-medium">{cliente.email || '—'}</dd>
+            <dt className="text-muted-foreground">Soporte</dt>
+            <dd className="font-medium sm:col-span-3">
+              {cliente.soporte_vigente
+                ? `Vigente${cliente.soporte_verificado_nombre ? ` · verificado por ${cliente.soporte_verificado_nombre}` : ''}${
+                    cliente.soporte_verificado_en ? ` el ${cliente.soporte_verificado_en.slice(0, 10).split('-').reverse().join('/')}` : ''
+                  }`
+                : 'Sin soporte vigente'}
+            </dd>
+          </dl>
+        ) : (
+          <form key={marca} onSubmit={(e) => void guardar(e)} className="mt-4 space-y-3 border-t border-border pt-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <Campo nombre="razon_social" label="Razón social" valor={cliente.razon_social} />
+              <Campo nombre="ruc" label="RUC" valor={cliente.ruc ?? ''} />
+              <Campo nombre="telefono" label="Teléfono" valor={cliente.telefono ?? ''} />
+              <Campo nombre="email" label="Correo" valor={cliente.email ?? ''} />
+            </div>
+            <div className="flex flex-wrap gap-6">
+              <label className="flex min-h-10 items-center gap-2 text-sm">
+                <input type="checkbox" name="soporte_vigente" defaultChecked={cliente.soporte_vigente} className="size-4 accent-primary" />
+                Soporte vigente
+              </label>
+              <label className="flex min-h-10 items-center gap-2 text-sm">
+                <input type="checkbox" name="activo" defaultChecked={cliente.activo} className="size-4 accent-primary" />
+                Cliente activo
+              </label>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" className="h-10" onClick={() => setEditando(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit" className="h-10">
+                Guardar datos
+              </Button>
+            </div>
+          </form>
         )}
-        <label className="flex items-center gap-2 min-h-11 text-sm">
-          <input type="checkbox" name="activo" defaultChecked={cliente.activo} className="size-4" />
-          Activo
-        </label>
-        <Button type="submit" className="min-h-11">
-          Guardar datos
-        </Button>
-      </form>
-      <div className="flex flex-wrap gap-2">
-        {PESTANAS.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => setPestana(item.id)}
-            className={`min-h-11 px-3 rounded-lg text-sm border ${
-              pestana === item.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-background border-border'
-            }`}
-          >
-            {item.label}
-          </button>
-        ))}
+      </section>
+      <div role="tablist" className="no-scrollbar flex gap-6 overflow-x-auto border-b border-border">
+        {PESTANAS.map((item) => {
+          const total = item.id === 'sedes' ? datos.sedes.length : item.id === 'contactos' ? datos.contactos.length : item.id === 'equipos' ? datos.equipos.length : null;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              role="tab"
+              aria-selected={pestana === item.id}
+              onClick={() => setPestana(item.id)}
+              className={`-mb-px flex shrink-0 items-center gap-2 border-b-2 pb-2.5 text-sm whitespace-nowrap ${
+                pestana === item.id ? 'border-primary font-semibold text-foreground' : 'border-transparent font-medium text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {item.label}
+              {total !== null && <span className="rounded-full bg-card px-1.5 text-xs leading-5 text-muted-foreground tabular-nums">{total}</span>}
+            </button>
+          );
+        })}
       </div>
       {pestana === 'sedes' && <EditorSedes clienteId={clienteId} sedes={datos.sedes} onCambio={() => setMarca((v) => v + 1)} />}
       {pestana === 'contactos' && (
@@ -123,7 +171,7 @@ export function FichaCliente({ clienteId, onVolver }: { clienteId: string; onVol
 
 function Campo({ nombre, label, valor }: { nombre: string; label: string; valor: string }) {
   return (
-    <label className="block space-y-1 text-sm">
+    <label className="block space-y-1.5 text-sm">
       <span className="font-medium">{label}</span>
       <input name={nombre} defaultValue={valor} className={claseCampo} />
     </label>

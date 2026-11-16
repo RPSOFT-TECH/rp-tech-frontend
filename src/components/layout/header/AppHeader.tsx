@@ -83,12 +83,12 @@ export function AppHeader() {
   const Icon = pagina.icon || respaldo.icon;
 
   return (
-    <header className="sticky top-0 z-40 flex h-12 w-full shrink-0 items-center justify-between gap-2 border-b border-border bg-card px-3">
-      <div className="flex min-w-0 flex-1 items-center gap-2">
+    <header className="sticky top-0 z-40 flex h-16 w-full shrink-0 items-center justify-between gap-3 border-b border-sidebar-border bg-sidebar px-3 text-sidebar-foreground sm:border-border sm:bg-card sm:px-6 sm:text-foreground">
+      <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
         <Tooltip>
           <TooltipTrigger asChild>
             <SidebarTrigger
-              className="size-8 shrink-0 rounded-lg text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+              className="size-9 shrink-0 rounded-lg text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground sm:text-muted-foreground sm:hover:bg-muted sm:hover:text-foreground"
               aria-label={etiquetaMenu}
             />
           </TooltipTrigger>
@@ -96,28 +96,21 @@ export function AppHeader() {
             {etiquetaMenu}
           </TooltipContent>
         </Tooltip>
-        <div className="flex min-w-0 items-center gap-2">
-          <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary/10">
-            <Icon className="size-3.5 text-primary" strokeWidth={2.2} />
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-[13px] leading-tight font-semibold text-foreground">{titulo}</p>
-            {subtitulo ? (
-              <p className="hidden truncate text-[11px] leading-tight text-muted-foreground sm:block">{subtitulo}</p>
-            ) : null}
-          </div>
+        <Icon className="size-5 shrink-0 text-sidebar-primary sm:hidden" strokeWidth={2.2} />
+        <div className="min-w-0">
+          {subtitulo ? <p className="hidden truncate text-xs leading-tight text-muted-foreground sm:block">{subtitulo}</p> : null}
+          <h1 className="truncate text-base leading-tight font-bold tracking-tight text-sidebar-foreground sm:text-lg sm:text-foreground">{titulo}</h1>
         </div>
       </div>
-      <div className="flex shrink-0 items-center gap-1.5">
+      <div className="flex shrink-0 items-center gap-2">
         <Tooltip>
           <TooltipTrigger asChild>
             <button
               type="button"
-              className="relative inline-flex size-8 items-center justify-center rounded-lg border border-border bg-card text-foreground shadow-2xs hover:bg-muted"
+              className="relative inline-flex size-9 items-center justify-center rounded-lg border border-sidebar-border bg-sidebar-accent text-sidebar-foreground/80 shadow-xs hover:text-sidebar-foreground sm:border-input sm:bg-card sm:text-muted-foreground sm:hover:bg-muted sm:hover:text-foreground"
               aria-label="Notificaciones"
             >
-              <Bell className="size-4 text-muted-foreground" />
-              <span className="absolute top-2 right-2 size-2 rounded-full bg-primary ring-2 ring-card" />
+              <Bell className="size-4" />
             </button>
           </TooltipTrigger>
           <TooltipContent className="text-xs font-semibold">Notificaciones</TooltipContent>

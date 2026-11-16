@@ -43,17 +43,18 @@ function ReporteServicioContenido() {
 
   return (
     <div className="mx-auto w-full max-w-md pb-32 md:max-w-2xl md:pb-0">
-      <header className="mb-4 flex items-start gap-2">
+      <div className="-mx-4 -mt-4 mb-4 bg-sidebar px-4 pt-3 pb-1 text-sidebar-foreground sm:mx-0 sm:mt-0 sm:bg-transparent sm:p-0 sm:text-foreground">
+      <header className="mb-3 flex items-start gap-2 sm:mb-4">
         <Link
           href="/mis-servicios"
           aria-label="Volver a Mis servicios"
-          className="-ml-2 inline-flex size-10 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="-ml-2 inline-flex size-10 shrink-0 items-center justify-center rounded-lg text-sidebar-foreground/80 sm:text-muted-foreground hover:bg-sidebar-accent sm:hover:bg-muted hover:text-foreground"
         >
           <ChevronLeft className="size-5" />
         </Link>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-foreground">{caso.cliente_razon_social}</p>
-          <p className="truncate text-xs text-muted-foreground">
+          <p className="truncate text-sm font-semibold text-sidebar-foreground sm:text-foreground">{caso.cliente_razon_social}</p>
+          <p className="truncate text-xs text-sidebar-foreground/70 sm:text-muted-foreground">
             {caso.sede_nombre} · <span className="font-mono">{caso.numero_serie}</span> · Caso {caso.numero_caso}
             {reporte.numero ? ` · ${reporte.numero}` : ''}
           </p>
@@ -61,7 +62,7 @@ function ReporteServicioContenido() {
         {reporte.numero && (
           <Button
             variant="outline"
-            className="h-10 shrink-0 gap-1.5"
+            className="h-10 shrink-0 gap-1.5 border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-foreground sm:border-input sm:bg-card sm:text-foreground sm:hover:bg-muted"
             onClick={() => (reporte.cerrado ? void form.abrirPdf() : setBorradorAbierto(true))}
           >
             <FileText className="size-4" />
@@ -72,8 +73,8 @@ function ReporteServicioContenido() {
 
       <nav aria-label="Pasos del reporte" className="mb-4 space-y-2">
         <div className="flex items-baseline justify-between">
-          <h2 className="text-lg font-semibold text-foreground">{pasoActual.nombre}</h2>
-          <span className="text-sm text-muted-foreground tabular-nums">
+          <h2 className="text-lg font-semibold text-sidebar-foreground sm:text-foreground">{pasoActual.nombre}</h2>
+          <span className="text-sm text-sidebar-foreground/70 tabular-nums sm:text-muted-foreground">
             {paso} de {PASOS.length}
           </span>
         </div>
@@ -91,14 +92,15 @@ function ReporteServicioContenido() {
                 className={cn(
                   'h-1.5 w-full rounded-full transition-colors',
                   indice + 1 < paso && 'bg-emerald-500 group-hover:bg-emerald-600',
-                  indice + 1 === paso && 'bg-primary',
-                  indice + 1 > paso && 'bg-border group-hover:bg-muted-foreground/40',
+                  indice + 1 === paso && 'bg-sidebar-primary sm:bg-primary',
+                  indice + 1 > paso && 'bg-sidebar-accent group-hover:bg-sidebar-border sm:bg-border sm:group-hover:bg-muted-foreground/40',
                 )}
               />
             </button>
           ))}
         </div>
       </nav>
+      </div>
 
       {mensaje && (
         <div

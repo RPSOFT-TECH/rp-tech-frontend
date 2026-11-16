@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { crear_sede, guardar_sede, type Sede } from '@/lib/datos/actions';
 import { Button, Modal } from '@/components/ui';
 import { claseCampo } from '../comun/clases';
+import { Etiqueta, FilaEditable, ListaEditable } from '../comun/ListaEditable';
 
 export function EditorSedes({ clienteId, sedes, onCambio }: { clienteId: string; sedes: Sede[]; onCambio: () => void }) {
   const [abierto, setAbierto] = useState(false);
@@ -20,31 +21,20 @@ export function EditorSedes({ clienteId, sedes, onCambio }: { clienteId: string;
   };
 
   return (
-    <div className="space-y-3">
-      <Button type="button" className="min-h-11" onClick={() => { setEditando(null); setAbierto(true); }}>
-        + Crear
-      </Button>
-      {sedes.map((sede) => (
-        <div key={sede.id} className="bg-card border border-border rounded-xl p-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:justify-between">
-          <div>
-            <p className="font-medium text-foreground">
-              {sede.nombre} {sede.principal ? '· Principal' : ''} {!sede.activo && '· Inactiva'}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {sede.direccion}, {sede.distrito}
-              {sede.referencia ? ` · ${sede.referencia}` : ''}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" className="min-h-11" onClick={() => { setEditando(sede); setAbierto(true); }}>
-              Editar
-            </Button>
-            <Button type="button" variant="ghost" className="min-h-11" onClick={() => void desactivar(sede)}>
-              {sede.activo ? 'Desactivar' : 'Activar'}
-            </Button>
-          </div>
-        </div>
-      ))}
+    <>
+      <ListaEditable titulo={`Sedes (${sedes.length})`} accion="Nueva sede" vacio="Este cliente aún no tiene sedes." onNuevo={() => { setEditando(null); setAbierto(true); }}>
+        {sedes.map((sede) => (
+          <FilaEditable
+            key={sede.id}
+            titulo={sede.nombre}
+            etiquetas={sede.principal ? <Etiqueta tono="azul">Principal</Etiqueta> : null}
+            detalle={`${sede.direccion}, ${sede.distrito}${sede.referencia ? ` · ${sede.referencia}` : ''}`}
+            activo={sede.activo}
+            onActivo={() => void desactivar(sede)}
+            onEditar={() => { setEditando(sede); setAbierto(true); }}
+          />
+        ))}
+      </ListaEditable>
       <Modal abierto={abierto} onCerrar={() => setAbierto(false)} titulo={editando ? 'Editar sede' : 'Crear sede'}>
         {abierto ? (
           <FormularioSede
@@ -57,7 +47,7 @@ export function EditorSedes({ clienteId, sedes, onCambio }: { clienteId: string;
           />
         ) : null}
       </Modal>
-    </div>
+    </>
   );
 }
 

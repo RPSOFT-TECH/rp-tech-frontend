@@ -44,26 +44,36 @@ export function PermisosAdmin() {
   };
 
   return (
+    <div className="max-w-4xl space-y-4">
+      <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+        <p className="font-semibold">Qué ve el rol Consulta</p>
+        <p className="text-sm text-muted-foreground">Solo lectura. Elige por empresa qué secciones puede ver. Los cambios se guardan al instante.</p>
+      </div>
     <DataTable
+        className="h-auto"
       datos={filas}
       claveFila={(fila) => fila.id}
       textoVacio="No hay empresas para configurar."
       columnas={[
-        { clave: 'nombre', encabezado: 'Empresa' },
+        { clave: 'nombre', encabezado: 'Empresa', render: (fila: EmpresaPermisos) => <span className="font-semibold">{fila.nombre}</span> },
         ...CAMPOS.map((campo) => ({
           clave: campo.clave,
           encabezado: campo.label,
           render: (fila: EmpresaPermisos) => (
-            <div className="flex items-center">
+            <label className="flex cursor-pointer items-center gap-2">
               <Switch
                 checked={fila.permisos_consulta[campo.clave]}
                 aria-label={campo.label}
                 onCheckedChange={(checked) => void cambiar(fila, campo.clave, checked)}
               />
-            </div>
+              <span className={fila.permisos_consulta[campo.clave] ? '' : 'text-muted-foreground'}>
+                {fila.permisos_consulta[campo.clave] ? 'Puede ver' : 'Oculto'}
+              </span>
+            </label>
           ),
         })),
       ]}
     />
+    </div>
   );
 }

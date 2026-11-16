@@ -15,3 +15,4 @@ export * from './custom-select';
 export * from './selector-fecha';
 export * from './metric-card';
 export * from './switch';
+export * from './avatar-iniciales';

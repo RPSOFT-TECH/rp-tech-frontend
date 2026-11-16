@@ -130,7 +130,7 @@ export function CorreoAdmin() {
 
   return (
     <form
-      className="space-y-5 rounded-xl border border-border bg-card p-4"
+      className="space-y-5 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5"
       onSubmit={(e) => {
         e.preventDefault();
         void guardar();

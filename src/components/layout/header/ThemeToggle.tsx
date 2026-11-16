@@ -19,9 +19,9 @@ export function ThemeToggle() {
       <Tooltip>
         <TooltipTrigger asChild>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative size-8 rounded-lg" aria-label="Cambiar tema">
-              <Sun className="size-4 scale-100 rotate-0 text-primary transition-all dark:scale-0 dark:-rotate-90" />
-              <Moon className="absolute size-4 scale-0 rotate-90 text-primary transition-all dark:scale-100 dark:rotate-0" />
+            <Button variant="ghost" size="icon" className="relative size-8 rounded-lg hover:bg-sidebar-accent sm:hover:bg-accent" aria-label="Cambiar tema">
+              <Sun className="size-4 scale-100 rotate-0 text-sidebar-primary transition-all sm:text-primary dark:scale-0 dark:-rotate-90" />
+              <Moon className="absolute size-4 scale-0 rotate-90 text-sidebar-primary transition-all sm:text-primary dark:scale-100 dark:rotate-0" />
             </Button>
           </DropdownMenuTrigger>
         </TooltipTrigger>

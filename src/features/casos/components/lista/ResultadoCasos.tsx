@@ -3,9 +3,10 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import type { CasoLista, Catalogo, ClienteLista, TecnicoLista } from '@/lib/datos/actions';
-import { Badge, Card, CustomSelect, DataTable, type Columna, type OpcionSelect } from '@/components/ui';
+import { ChevronDown, ChevronRight } from 'lucide-react';
+import { AvatarIniciales, Badge, Card, CustomSelect, DataTable, type Columna, type OpcionSelect } from '@/components/ui';
 import { ESTADOS_FILTRO, EstadoBadge, etiquetaEstado } from '../EstadoCaso';
-import { fechaLima } from './bandejas';
+import { diaLegible, registroCorto } from './bandejas';
 
 function EstadoCaso({ caso }: { caso: CasoLista }) {
   return (
@@ -84,17 +85,21 @@ export function ResultadoCasos({
     ...modalidades.map((modalidad) => ({ value: modalidad.id, label: modalidad.nombre })),
   ];
 
+  const activos = [estado, tecnicoId, clienteId, tipoServicioId, modalidadId].filter((v) => v && v !== 'todos').length;
+
   const columnas: Columna<CasoLista>[] = [
     {
       clave: 'numero',
       encabezado: 'N° de caso',
       render: (caso) => (
-        <Link href={urlDetalle(caso.id)} className="font-medium text-primary hover:underline">
-          {caso.numero}
-        </Link>
+        <span className="flex flex-col">
+          <Link href={urlDetalle(caso.id)} onClick={(e) => e.stopPropagation()} className="font-bold whitespace-nowrap text-accent-foreground tabular-nums hover:underline">
+            {caso.numero}
+          </Link>
+          <span className="text-xs text-muted-foreground tabular-nums">Reg. {registroCorto(caso.creado_en)}</span>
+        </span>
       ),
     },
-    { clave: 'registro', encabezado: 'Registro', render: (caso) => fechaLima(caso.creado_en) },
     {
       clave: 'cliente',
       encabezado: tituloFiltrado(
@@ -102,13 +107,22 @@ export function ResultadoCasos({
         <CustomSelect variante="columna" menuTitulo="Cliente" value={clienteId} onChange={(valor) => onFiltro('cliente_id', valor)} options={clientesOpciones} />,
       ),
       render: (caso) => (
-        <span>
-          {caso.cliente_razon_social}
-          {caso.sede_nombre ? <span className="mt-0.5 block text-xs text-muted-foreground">{caso.sede_nombre}</span> : null}
+        <span className="flex flex-col">
+          <span className="font-semibold">{caso.cliente_razon_social}</span>
+          {caso.sede_nombre ? <span className="text-xs text-muted-foreground">{caso.sede_nombre}</span> : null}
         </span>
       ),
     },
-    { clave: 'equipo', encabezado: 'Equipo', render: (caso) => <span className="font-mono text-xs">{caso.equipo_serie}</span> },
+    {
+      clave: 'equipo',
+      encabezado: 'Equipo',
+      render: (caso) => (
+        <span className="flex flex-col">
+          <span className="font-mono text-xs whitespace-nowrap">{caso.equipo_serie}</span>
+          <span className="text-xs text-muted-foreground">{caso.equipo_modelo}</span>
+        </span>
+      ),
+    },
     {
       clave: 'servicio',
       encabezado: tituloFiltrado(
@@ -119,9 +133,11 @@ export function ResultadoCasos({
         </>,
       ),
       render: (caso) => (
-        <span>
-          {caso.tipo_servicio_nombre}
-          <span className="block text-xs text-muted-foreground">{caso.modalidad_nombre} · {caso.modo_servicio_nombre}</span>
+        <span className="flex flex-col">
+          <span className="font-medium">{caso.tipo_servicio_nombre}</span>
+          <span className="text-xs text-muted-foreground">
+            {caso.modalidad_nombre} · {caso.modo_servicio_nombre}
+          </span>
         </span>
       ),
     },
@@ -131,17 +147,31 @@ export function ResultadoCasos({
         'Técnico',
         <CustomSelect variante="columna" menuTitulo="Técnico" value={tecnicoId} onChange={(valor) => onFiltro('tecnico_id', valor)} options={tecnicosOpciones} />,
       ),
-      render: (caso) => (
-        <span>
-          {caso.tecnico_nombre || 'Sin asignar'}
-          {caso.tecnico_adjunto_nombre ? <span className="mt-0.5 block text-xs text-muted-foreground">Adj: {caso.tecnico_adjunto_nombre}</span> : null}
-        </span>
-      ),
+      render: (caso) =>
+        caso.tecnico_nombre ? (
+          <span className="flex items-center gap-2 whitespace-nowrap">
+            <AvatarIniciales nombre={caso.tecnico_nombre} />
+            <span className="flex flex-col">
+              <span className="font-medium">{caso.tecnico_nombre}</span>
+              {caso.tecnico_adjunto_nombre ? <span className="text-xs text-muted-foreground">+ {caso.tecnico_adjunto_nombre}</span> : null}
+            </span>
+          </span>
+        ) : (
+          <span className="text-muted-foreground">Sin asignar</span>
+        ),
     },
     {
       clave: 'visita',
       encabezado: 'Visita',
-      render: (caso) => `${caso.fecha_programada || '—'} ${caso.hora_programada || ''}`,
+      render: (caso) =>
+        caso.fecha_programada ? (
+          <span className="flex flex-col whitespace-nowrap">
+            <span className="font-semibold">{diaLegible(caso.fecha_programada)}</span>
+            <span className="text-xs text-muted-foreground tabular-nums">{caso.hora_programada?.slice(0, 5) || ''}</span>
+          </span>
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        ),
     },
     {
       clave: 'estado',
@@ -151,17 +181,27 @@ export function ResultadoCasos({
       ),
       render: (caso) => <EstadoCaso caso={caso} />,
     },
+    { clave: 'ir', encabezado: '', render: () => <ChevronRight className="size-4 text-muted-foreground" /> },
   ];
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="mb-3 grid shrink-0 grid-cols-1 gap-3 sm:grid-cols-2 md:hidden">
+      <details className="group mb-3 shrink-0 rounded-xl border border-border bg-card shadow-sm md:hidden">
+        <summary className="flex h-11 cursor-pointer list-none items-center justify-between px-4 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+          <span>
+            Más filtros
+            {activos > 0 && <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">{activos}</span>}
+          </span>
+          <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+        </summary>
+      <div className="grid grid-cols-1 gap-3 border-t border-border p-3 sm:grid-cols-2">
         <CustomSelect label="Estado" value={estado} onChange={(valor) => onFiltro('estado', valor)} options={estados} />
         <CustomSelect label="Técnico" value={tecnicoId} onChange={(valor) => onFiltro('tecnico_id', valor)} options={tecnicosOpciones} />
         <CustomSelect label="Cliente" value={clienteId} onChange={(valor) => onFiltro('cliente_id', valor)} options={clientesOpciones} />
         <CustomSelect label="Tipo de servicio" value={tipoServicioId} onChange={(valor) => onFiltro('tipo_servicio_id', valor)} options={tiposOpciones} />
         <CustomSelect label="Modalidad" value={modalidadId} onChange={(valor) => onFiltro('modalidad_id', valor)} options={modalidadesOpciones} />
       </div>
+      </details>
       <div className="hidden h-full min-h-0 flex-1 flex-col md:flex">
         <DataTable
           className="h-full"
@@ -179,24 +219,27 @@ export function ResultadoCasos({
           {casos.map((caso) => (
             <Card
               key={caso.id}
-              className="cursor-pointer border border-border p-4 shadow-sm transition-all hover:border-primary/50"
+              className="cursor-pointer gap-2 p-4 transition-colors hover:border-primary/50"
               onClick={() => onAbrir(caso.id)}
             >
-              <div className="mb-2 flex items-center justify-between">
-                <span className="font-bold text-primary">{caso.numero}</span>
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-bold text-accent-foreground tabular-nums">{caso.numero}</span>
                 <EstadoCaso caso={caso} />
               </div>
-              <div className="mb-1 text-sm font-semibold text-card-foreground">{caso.cliente_razon_social}</div>
-              <div className="mb-1 font-mono text-xs text-muted-foreground">Serie: {caso.equipo_serie}</div>
-              <div className="mb-1 text-xs text-muted-foreground">
-                {caso.tipo_servicio_nombre} · {caso.modalidad_nombre}
+              <div>
+                <div className="font-semibold text-card-foreground">{caso.cliente_razon_social}</div>
+                <div className="text-xs text-muted-foreground">
+                  {caso.sede_nombre} · <span className="font-mono">{caso.equipo_serie}</span>
+                </div>
               </div>
-              <div className="mb-2 text-xs text-muted-foreground">
-                Técnico: {caso.tecnico_nombre || 'Sin asignar'}
-                {caso.tecnico_adjunto_nombre ? ` (adj: ${caso.tecnico_adjunto_nombre})` : ''}
-              </div>
-              <div className="mt-2 border-t border-border pt-2 text-xs text-muted-foreground">
-                Visita: {caso.fecha_programada || '—'} {caso.hora_programada || ''}
+              <div className="flex items-center justify-between gap-2 border-t border-border pt-2 text-xs">
+                <span className="flex items-center gap-2">
+                  {caso.tecnico_nombre ? <AvatarIniciales nombre={caso.tecnico_nombre} className="size-6 text-[10px]" /> : null}
+                  {caso.tecnico_nombre || 'Sin asignar'}
+                </span>
+                <span className="font-semibold">
+                  {diaLegible(caso.fecha_programada)} {caso.hora_programada?.slice(0, 5) || ''}
+                </span>
               </div>
             </Card>
           ))}
