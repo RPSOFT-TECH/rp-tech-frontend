@@ -17,22 +17,24 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
-const PROVEEDORES = [
-  { id: 'gmail', nombre: 'Gmail', host: 'smtp.gmail.com', puerto: 465 },
-  { id: 'outlook', nombre: 'Outlook / Microsoft 365', host: 'smtp.office365.com', puerto: 587 },
-  { id: 'otro', nombre: 'Otro', host: '', puerto: 465 },
-] as const;
+// Solo Gmail: siempre el mismo servidor y puerto.
+const GMAIL = { host: 'smtp.gmail.com', puerto: 465 };
+const esCorreo = (texto: string) => /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(texto.trim());
+
+// "GO Service <reportes@x.com>" -> "GO Service"
+function nombreDe(remitente: string | null | undefined): string {
+  const m = /^\s*"?([^"<]*?)"?\s*<[^>]+>\s*$/.exec(remitente ?? '');
+  return m ? m[1].trim() : '';
+}
 
 export function CorreoAdmin() {
   const [empresaId] = useState<string | null>(() => leerSesionEstable()?.empresa.id ?? null);
   const [listo, setListo] = useState(() => !empresaId);
   const [guardado, setGuardado] = useState<ConfigCorreo | null>(null);
-  const [host, setHost] = useState('');
-  const [puerto, setPuerto] = useState('465');
   const [usuario, setUsuario] = useState('');
   const [clave, setClave] = useState('');
   const [borrarClave, setBorrarClave] = useState(false);
-  const [remitente, setRemitente] = useState('');
+  const [nombre, setNombre] = useState('');
   const [copia, setCopia] = useState('');
   const [para, setPara] = useState(() => leerSesionEstable()?.usuario.email ?? '');
   const [ocupado, setOcupado] = useState<'guardar' | 'probar' | 'quitar' | null>(null);
@@ -40,10 +42,8 @@ export function CorreoAdmin() {
 
   const cargarEn = (c: ConfigCorreo | null) => {
     setGuardado(c);
-    setHost(c?.host ?? '');
-    setPuerto(String(c?.puerto ?? 465));
     setUsuario(c?.usuario ?? '');
-    setRemitente(c?.remitente ?? '');
+    setNombre(nombreDe(c?.remitente));
     setCopia(c?.copia ?? '');
     setClave('');
     setBorrarClave(false);
@@ -63,23 +63,28 @@ export function CorreoAdmin() {
     };
   }, [empresaId]);
 
-  const proveedor = PROVEEDORES.find((p) => p.host && p.host === host.trim())?.id ?? (host ? 'otro' : null);
-  const elegirProveedor = (id: (typeof PROVEEDORES)[number]['id']) => {
-    const p = PROVEEDORES.find((x) => x.id === id)!;
-    setHost(p.host);
-    setPuerto(String(p.puerto));
-  };
+  const correo = usuario.trim();
+  const remitente = nombre.trim() ? `${nombre.trim().replace(/[<>"]/g, '')} <${correo}>` : correo;
+  const otroServidor = guardado && guardado.host !== GMAIL.host;
 
   const guardar = async () => {
     if (!empresaId) return;
+    if (!esCorreo(correo)) {
+      toast.error('Escribe el correo de Gmail desde el que se enviarán los reportes.');
+      return;
+    }
+    if (!guardado?.tiene_clave && !clave.trim()) {
+      toast.error('Escribe la contraseña de aplicación de Gmail.');
+      return;
+    }
     setOcupado('guardar');
     const r = await guardar_correo_config(empresaId, {
-      host,
-      puerto: Number(puerto),
-      usuario,
+      host: GMAIL.host,
+      puerto: GMAIL.puerto,
+      usuario: correo,
       remitente,
       copia,
-      clave: borrarClave ? '' : clave ? clave : null,
+      clave: borrarClave ? '' : clave.trim() ? clave.replace(/\s+/g, '') : null,
     });
     setOcupado(null);
     if (!r.ok) {
@@ -120,9 +125,8 @@ export function CorreoAdmin() {
 
   if (!listo) return <p className="text-sm text-muted-foreground">Cargando correo de envío...</p>;
 
-  const cambios = Boolean(clave) || borrarClave ||
-    host !== (guardado?.host ?? '') || puerto !== String(guardado?.puerto ?? 465) || usuario !== (guardado?.usuario ?? '') ||
-    remitente !== (guardado?.remitente ?? '') || copia !== (guardado?.copia ?? '');
+  const cambios = Boolean(clave) || borrarClave || Boolean(otroServidor) ||
+    correo !== (guardado?.usuario ?? '') || nombre.trim() !== nombreDe(guardado?.remitente) || copia !== (guardado?.copia ?? '');
 
   return (
     <form
@@ -152,49 +156,32 @@ export function CorreoAdmin() {
         </span>
       </header>
 
-      <div className="space-y-1.5">
-        <Label>Proveedor</Label>
-        <div className="flex flex-wrap gap-2">
-          {PROVEEDORES.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => elegirProveedor(p.id)}
-              className={cn(
-                'h-10 rounded-lg border px-3 text-sm font-medium transition-colors',
-                proveedor === p.id ? 'border-primary bg-primary/10 text-primary' : 'border-input bg-card hover:bg-muted',
-              )}
-            >
-              {p.nombre}
-            </button>
-          ))}
-        </div>
-        {proveedor === 'gmail' && (
-          <p className="rounded-lg bg-amber-50 p-3 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-            Gmail no acepta la contraseña normal de la cuenta. Activa la verificación en dos pasos y crea una{' '}
-            <b>contraseña de aplicación</b> en la cuenta de Google (Seguridad → Contraseñas de aplicaciones). Usa esa clave de 16 letras aquí.
-          </p>
-        )}
+      <div className="rounded-lg bg-muted/60 p-3 text-xs text-muted-foreground">
+        Se envía con <b className="text-foreground">Gmail</b>. Gmail no acepta la contraseña normal de la cuenta: activa la verificación en dos
+        pasos y crea una <b className="text-foreground">contraseña de aplicación</b> en la cuenta de Google (Seguridad → Contraseñas de
+        aplicaciones). Pega aquí esa clave de 16 letras.
       </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_8rem]">
-        <div className="space-y-1.5">
-          <Label htmlFor="smtp-host">Servidor</Label>
-          <Input id="smtp-host" value={host} onChange={(e) => setHost(e.target.value)} placeholder="smtp.gmail.com" autoComplete="off" />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="smtp-puerto">Puerto</Label>
-          <Input id="smtp-puerto" type="number" inputMode="numeric" value={puerto} onChange={(e) => setPuerto(e.target.value)} />
-        </div>
-      </div>
+      {otroServidor && (
+        <p className="rounded-lg bg-amber-50 p-3 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+          Ahora está guardado otro servidor ({guardado?.host}). Al guardar se cambiará a Gmail.
+        </p>
+      )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="smtp-usuario">Usuario</Label>
-          <Input id="smtp-usuario" value={usuario} onChange={(e) => setUsuario(e.target.value)} placeholder="reportes@tuempresa.com" autoComplete="off" />
+          <Label htmlFor="smtp-usuario">Correo de Gmail</Label>
+          <Input
+            id="smtp-usuario"
+            type="email"
+            inputMode="email"
+            value={usuario}
+            onChange={(e) => setUsuario(e.target.value)}
+            placeholder="reportes@gmail.com"
+            autoComplete="off"
+          />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="smtp-clave">Contraseña</Label>
+          <Label htmlFor="smtp-clave">Contraseña de aplicación</Label>
           <Input
             id="smtp-clave"
             type="password"
@@ -203,7 +190,7 @@ export function CorreoAdmin() {
               setClave(e.target.value);
               setBorrarClave(false);
             }}
-            placeholder={guardado?.tiene_clave && !borrarClave ? 'Guardada · escribe para cambiarla' : 'Contraseña o clave de aplicación'}
+            placeholder={guardado?.tiene_clave && !borrarClave ? 'Guardada · escribe para cambiarla' : 'xxxx xxxx xxxx xxxx'}
             autoComplete="new-password"
           />
           {guardado?.tiene_clave && !clave && (
@@ -219,14 +206,11 @@ export function CorreoAdmin() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="smtp-remitente">Remitente</Label>
-          <Input
-            id="smtp-remitente"
-            value={remitente}
-            onChange={(e) => setRemitente(e.target.value)}
-            placeholder="GO Service <reportes@tuempresa.com>"
-          />
-          <p className="text-xs text-muted-foreground">Nombre y correo que verá el cliente. En Gmail debe ser el mismo correo del usuario.</p>
+          <Label htmlFor="smtp-nombre">
+            Nombre que verá el cliente <span className="font-normal text-muted-foreground">(opcional)</span>
+          </Label>
+          <Input id="smtp-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="GO Service" />
+          {correo && <p className="text-xs text-muted-foreground">El cliente verá: {remitente}</p>}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="smtp-copia">
