@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useTransition } from 'react';
+import { Suspense, useLayoutEffect, useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -40,6 +40,18 @@ function NuevoCasoContenido() {
   const [origenId, setOrigenId] = useState(origenInicial);
   const [confirmacion, setConfirmacion] = useState<ConfirmacionCasoDatos | null>(null);
   useRegistrarTitulo('Nuevo caso', 'Apertura de orden técnica de atención', PlusCircle);
+
+  // Next.js deja la pantalla oculta (no la desmonta) al navegar a otra ruta.
+  // Si se sale después de registrar, al volver se muestra el formulario vacío
+  // y no la confirmación anterior. Un borrador a medio llenar sí se conserva.
+  useLayoutEffect(() => {
+    if (!confirmacion) return;
+    return () => {
+      setConfirmacion(null);
+      setOrigenId(null);
+      setClave((valor) => valor + 1);
+    };
+  }, [confirmacion]);
 
   if (confirmacion) {
     return (
