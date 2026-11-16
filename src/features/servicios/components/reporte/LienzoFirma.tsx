@@ -29,12 +29,8 @@ export function LienzoFirma({ titulo, nombre, onNombre, firma, editable, onFirma
     setModo(firma ? 'ver' : 'firmar');
   }, [firma]);
 
-  const obtenerColorTrazo = () => {
-    if (typeof document !== 'undefined' && document.documentElement.classList.contains('dark')) {
-      return '#ffffff';
-    }
-    return '#0f172a';
-  };
+  // Tinta oscura siempre, aun en modo oscuro: la firma va en un PDF de fondo blanco.
+  const obtenerColorTrazo = () => '#0f172a';
 
   const aplicarEstiloTrazo = (ctx: CanvasRenderingContext2D) => {
     const color = obtenerColorTrazo();
@@ -170,7 +166,7 @@ export function LienzoFirma({ titulo, nombre, onNombre, firma, editable, onFirma
         <span aria-hidden className="text-destructive">*</span>
       </h3>
       {muestraImagen && firma ? (
-        <div className="relative h-36 w-full rounded-lg border border-border bg-card flex items-center justify-center p-2 overflow-hidden">
+        <div className="relative flex h-36 w-full items-center justify-center overflow-hidden rounded-lg border border-border bg-white p-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={firma}
@@ -179,7 +175,7 @@ export function LienzoFirma({ titulo, nombre, onNombre, firma, editable, onFirma
           />
         </div>
       ) : (
-        <div ref={marco} className="relative h-36 w-full rounded-lg border border-border bg-card overflow-hidden">
+        <div ref={marco} className="relative h-36 w-full overflow-hidden rounded-lg border border-border bg-white">
           <canvas
             ref={lienzo}
             className="h-full w-full touch-none cursor-crosshair text-foreground"
@@ -189,7 +185,7 @@ export function LienzoFirma({ titulo, nombre, onNombre, firma, editable, onFirma
             onPointerCancel={soltar}
           />
           {!hayTrazos && (
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs text-muted-foreground/50 select-none">
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs text-slate-400 select-none">
               Dibuja la firma aquí
             </div>
           )}

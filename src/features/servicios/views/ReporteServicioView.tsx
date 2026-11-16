@@ -6,9 +6,7 @@ import { ChevronLeft, FileText, Send } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui/input';
 import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
-import { VistaPreviaPdf } from '@/components/pdf/VistaPreviaPdf';
 import { cn } from '@/lib/utils';
-import { HojaReporte } from '../components/reporte/HojaReporte';
 import { AvisoCierre, PasoCierre } from '../components/reporte/PasoCierre';
 import { PasoConformidad } from '../components/reporte/PasoConformidad';
 import { PasoDesarrollo } from '../components/reporte/PasoDesarrollo';
@@ -22,8 +20,7 @@ import { PASOS } from '../reporte/pasos';
 
 function ReporteServicioContenido() {
   const form = useReporteServicio();
-  const { loading, reporte, caso, mensaje, paso } = form;
-  const [borradorAbierto, setBorradorAbierto] = useState(false);
+  const { loading, reporte, caso, paso } = form;
   useRegistrarTitulo(
     'Reporte de servicio',
     caso ? `Caso ${caso.numero_caso}` : 'Informe de atención técnica, repuestos y firmas',
@@ -39,7 +36,6 @@ function ReporteServicioContenido() {
   }
 
   const pasoActual = PASOS[paso - 1];
-  const avisoError = mensaje ? /error|no se pudo|no se envió|falta|indica/i.test(mensaje) : false;
 
   return (
     <div className="mx-auto w-full max-w-md pb-32 md:max-w-2xl md:pb-0">
@@ -59,16 +55,6 @@ function ReporteServicioContenido() {
             {reporte.numero ? ` · ${reporte.numero}` : ''}
           </p>
         </div>
-        {reporte.numero && (
-          <Button
-            variant="outline"
-            className="h-10 shrink-0 gap-1.5 border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-foreground sm:border-input sm:bg-card sm:text-foreground sm:hover:bg-muted"
-            onClick={() => (reporte.cerrado ? void form.abrirPdf() : setBorradorAbierto(true))}
-          >
-            <FileText className="size-4" />
-            PDF
-          </Button>
-        )}
       </header>
 
       <nav aria-label="Pasos del reporte" className="mb-4 space-y-2">
@@ -102,20 +88,6 @@ function ReporteServicioContenido() {
       </nav>
       </div>
 
-      {mensaje && (
-        <div
-          role="status"
-          className={cn(
-            'mb-4 rounded-lg border p-3 text-sm',
-            avisoError
-              ? 'border-destructive/30 bg-destructive/10 text-destructive'
-              : 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300',
-          )}
-        >
-          {mensaje}
-        </div>
-      )}
-
       <div className="space-y-4">
         <AvisoCierre form={form} />
         {paso === 1 && <PasoLlegada form={form} />}
@@ -129,16 +101,6 @@ function ReporteServicioContenido() {
 
       <BarraPasos form={form} />
 
-      {reporte.numero && !reporte.cerrado ? (
-        <VistaPreviaPdf
-          abierto={borradorAbierto}
-          onCerrar={() => setBorradorAbierto(false)}
-          titulo="Borrador del reporte (el PDF oficial se genera al cerrar)"
-          nombreArchivo={`borrador-${reporte.numero}`}
-        >
-          <HojaReporte numeroCaso={caso.numero_caso} reporte={reporte} />
-        </VistaPreviaPdf>
-      ) : null}
     </div>
   );
 }
@@ -185,7 +147,7 @@ function BarraPasos({ form }: { form: FormularioReporte }) {
         if (esPasoEditable && paso === 3) void guardarDesarrollo();
         avanzarPaso();
       },
-      ayuda: esPasoEditable && (paso === 2 || paso === 3) ? 'Se guarda al pulsar Siguiente' : undefined,
+      ayuda: esPasoEditable && (paso === 2 || paso === 3) ? (form.guardadoA ? `Guardado ${form.guardadoA}` : 'Se guarda al pulsar Siguiente') : undefined,
     };
   }
 

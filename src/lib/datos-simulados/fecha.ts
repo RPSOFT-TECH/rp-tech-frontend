@@ -41,7 +41,7 @@ export function ahoraLimaISO(fecha: Date = new Date()): string {
     second: '2-digit',
     hourCycle: 'h23',
   }).formatToParts(fecha);
-  const segundo = partes.find((p) => p.type === 'second')?.value ?? '00';
+  const segundo = (partes.find((p) => p.type === 'second')?.value ?? '0').padStart(2, '0');
   return `${hoyLima(fecha)}T${horaLima(fecha)}:${segundo}-05:00`;
 }
 

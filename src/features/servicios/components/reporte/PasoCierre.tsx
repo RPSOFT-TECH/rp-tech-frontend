@@ -16,8 +16,7 @@ export function PasoCierre({ form }: { form: FormularioReporte }) {
     setResultado,
     requerimiento,
     setRequerimiento,
-    horaSalida,
-    setHoraSalida,
+    reporte,
     calcularFaltas,
     irAlPaso,
     reporteCerrado,
@@ -36,9 +35,19 @@ export function PasoCierre({ form }: { form: FormularioReporte }) {
       />
 
       <SeccionReporte titulo="Cierre de la visita">
-        <CampoReporte etiqueta="Hora de salida" htmlFor="hora_salida">
-          <Input id="hora_salida" type="time" value={horaSalida} onChange={(e) => setHoraSalida(e.target.value)} disabled={bloqueado} />
-        </CampoReporte>
+        <div className="flex items-center justify-between gap-3 rounded-lg bg-muted/60 px-3 py-2.5">
+          <div>
+            <p className="text-sm font-medium text-foreground">Hora de salida</p>
+            <p className="text-xs text-muted-foreground">
+              {reporteCerrado ? 'Registrada al cerrar el reporte.' : 'Se registra sola al pulsar Cerrar reporte.'}
+            </p>
+          </div>
+          {reporte?.hora_salida ? (
+            <span className="shrink-0 font-mono text-2xl font-semibold tabular-nums">{reporte.hora_salida}</span>
+          ) : (
+            <span className="shrink-0 rounded-full bg-card px-2.5 py-1 text-xs font-semibold text-muted-foreground">Automática</span>
+          )}
+        </div>
         <CampoReporte etiqueta={<>Resultado<span aria-hidden className="text-destructive">*</span></>}>
           <Segmentado
             tamano="grande"

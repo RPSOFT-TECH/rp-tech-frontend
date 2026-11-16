@@ -108,7 +108,6 @@ export function useAccionesReporte(estado: EstadoReporte) {
     nombreClienteFirma,
     resultado,
     requerimiento,
-    horaSalida,
     remota,
   } = estado;
 
@@ -303,7 +302,7 @@ export function useAccionesReporte(estado: EstadoReporte) {
       return;
     }
     setGuardando(true);
-    const respuesta = await cerrar_reporte(reporte.id, resultado, requerimiento || null, horaSalida || undefined);
+    const respuesta = await cerrar_reporte(reporte.id, resultado, requerimiento || null);
     setGuardando(false);
     if (respuesta.ok) {
       setReporte(respuesta.datos);

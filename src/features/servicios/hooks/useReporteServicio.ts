@@ -1,5 +1,6 @@
 'use client';
 
+import { toast } from 'sonner';
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { mis_servicios, obtener_reporte, parametros_actuales, type MiServicio } from '@/lib/datos/actions';
@@ -28,7 +29,13 @@ export function useReporteServicio() {
   const [caso, setCaso] = useState<MiServicio | null>(null);
   const [loading, setLoading] = useState(true);
   const [paso, setPaso] = useState(1);
-  const [mensaje, setMensaje] = useState<string | null>(null);
+  const [guardadoA, setGuardadoA] = useState<string | null>(null);
+  // Avisos como notificación flotante: no empujan el contenido de la pantalla.
+  const setMensaje = useCallback((texto: string | null) => {
+    if (!texto) return;
+    if (/error|no se pudo|no se envió|falta|indica/i.test(texto)) toast.error(texto);
+    else toast.success(texto);
+  }, []);
   const [guardando, setGuardando] = useState(false);
   const [horaLlegada, setHoraLlegada] = useState('');
   const [estadoEquipo, setEstadoEquipo] = useState<'operativo' | 'inoperativo' | null>(null);
@@ -152,9 +159,9 @@ export function useReporteServicio() {
   const retrocederPaso = () => {
     if (paso > 1) irAlPaso(paso - 1);
   };
+  // "Guardado HH:MM" se muestra en silencio bajo el botón Siguiente.
   const guardarAviso = useCallback((texto: string) => {
-    setMensaje(texto);
-    setTimeout(() => setMensaje(null), 2000);
+    setGuardadoA(texto.replace(/^Guardado\s*/, ''));
   }, []);
 
   const acciones = useAccionesReporte({
@@ -209,7 +216,7 @@ export function useReporteServicio() {
     caso,
     loading,
     paso,
-    mensaje,
+    guardadoA,
     setMensaje,
     guardando,
     horaLlegada,

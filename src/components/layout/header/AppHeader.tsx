@@ -2,7 +2,6 @@
 
 import { usePathname } from 'next/navigation';
 import { Archive,
-  Bell,
   Calendar,
   ClipboardList,
   FileText,
@@ -111,18 +110,6 @@ export function AppHeader() {
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-2">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              type="button"
-              className="relative inline-flex size-9 items-center justify-center rounded-lg border border-sidebar-border bg-sidebar-accent text-sidebar-foreground/80 shadow-xs hover:text-sidebar-foreground sm:border-input sm:bg-card sm:text-muted-foreground sm:hover:bg-muted sm:hover:text-foreground"
-              aria-label="Notificaciones"
-            >
-              <Bell className="size-4" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent className="text-xs font-semibold">Notificaciones</TooltipContent>
-        </Tooltip>
         <ThemeToggle />
       </div>
     </header>
