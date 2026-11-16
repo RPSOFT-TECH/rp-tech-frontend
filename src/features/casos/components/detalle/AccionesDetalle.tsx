@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import type { CasoDetalle } from '@/lib/datos/actions';
+import { CalendarClock, CalendarPlus, CirclePause } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { buttonVariants } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { puedeCoordinador } from './formato';
 import { FormAnularCaso, FormPonerEnEspera, FormReabrirCaso, FormRegistrarPosventa } from './FormulariosEstado';
 import { FormProgramarVisita, FormReprogramarVisita } from './FormulariosVisita';
@@ -39,59 +42,57 @@ export function AccionesDetalle({
   onAbrir: (accion: string) => void;
   onCerrarMensaje: () => void;
 }) {
+  const boton = 'h-10 gap-2 px-4 font-semibold';
   return (
-    <div className="mb-6">
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-        Acciones disponibles
-      </h2>
-      <div className="flex flex-wrap gap-3">
-        {puedeProgramar && (caso.estado === 'por_programar' || caso.estado === 'en_espera') && !visitaAbierta && (
-          <Button onClick={() => onAbrir('programar')} className="min-h-11">
-            Programar visita
-          </Button>
-        )}
-        {puedeProgramar && reporteAbierto && ultimaVisita && !ultimaVisita.cerrado && (
-          <Button onClick={() => onAbrir('reprogramar')} className="min-h-11">
-            Reprogramar visita
-          </Button>
-        )}
-        {puedeCoordinador(roles) && ['por_programar', 'programado', 'en_atencion'].includes(caso.estado) && !visitaAbierta && (
-          <Button onClick={() => onAbrir('espera')} variant="outline" className="min-h-11">
-            Poner en espera
-          </Button>
-        )}
-        {puedePosventa && caso.estado === 'atendido' && !esTecnicoDelCaso && (
-          <Button onClick={() => onAbrir('posventa')} className="min-h-11">
-            Registrar posventa
-          </Button>
-        )}
-        {puedeReabrir && caso.estado === 'cerrado' && plazoVigente === true && (
-          <Button onClick={() => onAbrir('reabrir')} className="min-h-11">
-            Reabrir por misma falla
-          </Button>
-        )}
-        {puedeAnular && caso.estado !== 'cerrado' && caso.estado !== 'anulado' && !visitaAbierta && (
-          <Button variant="destructive" onClick={() => onAbrir('anular')} className="min-h-11">
-            Anular caso
-          </Button>
-        )}
-        {puedeCoordinador(roles) && caso.estado === 'cerrado' && (
-          <Link
-            href={`/casos/nuevo?origen=${caso.id}`}
-            className="min-h-11 inline-flex items-center justify-center bg-primary text-primary-foreground px-3 rounded-md text-sm font-medium"
-          >
-            Nuevo caso vinculado
-          </Link>
-        )}
-        {accionAbierta === null && accionMensaje && (
-          <Button variant="outline" onClick={onCerrarMensaje} className="min-h-11">
-            Cerrar mensaje
-          </Button>
-        )}
-      </div>
+    <div className="flex flex-wrap items-center gap-2">
+      {puedeProgramar && (caso.estado === 'por_programar' || caso.estado === 'en_espera') && !visitaAbierta && (
+        <Button onClick={() => onAbrir('programar')} className={`${boton} shadow-sm`}>
+          <CalendarPlus className="size-4" />
+          Programar visita
+        </Button>
+      )}
+      {puedeProgramar && reporteAbierto && ultimaVisita && !ultimaVisita.cerrado && (
+        <Button onClick={() => onAbrir('reprogramar')} className={`${boton} shadow-sm`}>
+          <CalendarClock className="size-4" />
+          Reprogramar visita
+        </Button>
+      )}
+      {puedeCoordinador(roles) && ['por_programar', 'programado', 'en_atencion'].includes(caso.estado) && !visitaAbierta && (
+        <Button onClick={() => onAbrir('espera')} variant="outline" className={`${boton} shadow-xs`}>
+          <CirclePause className="size-4" />
+          Poner en espera
+        </Button>
+      )}
+      {puedePosventa && caso.estado === 'atendido' && !esTecnicoDelCaso && (
+        <Button onClick={() => onAbrir('posventa')} className={`${boton} shadow-sm`}>
+          Registrar posventa
+        </Button>
+      )}
+      {puedeReabrir && caso.estado === 'cerrado' && plazoVigente === true && (
+        <Button onClick={() => onAbrir('reabrir')} className={`${boton} shadow-sm`}>
+          Reabrir por misma falla
+        </Button>
+      )}
+      {puedeCoordinador(roles) && caso.estado === 'cerrado' && (
+        <Link href={`/casos/nuevo?origen=${caso.id}`} className={buttonVariants({ className: `${boton} shadow-sm` })}>
+          Nuevo caso vinculado
+        </Link>
+      )}
+      {puedeAnular && caso.estado !== 'cerrado' && caso.estado !== 'anulado' && !visitaAbierta && (
+        <Button variant="outline" onClick={() => onAbrir('anular')} className={`${boton} text-destructive shadow-xs hover:bg-destructive/10 hover:text-destructive`}>
+          Anular caso
+        </Button>
+      )}
+      {accionAbierta === null && accionMensaje && (
+        <Button variant="ghost" onClick={onCerrarMensaje} className="h-10 px-3 text-muted-foreground">
+          Cerrar mensaje
+        </Button>
+      )}
     </div>
   );
 }
+
+const FORMULARIOS = ['programar', 'reprogramar', 'espera', 'posventa', 'reabrir', 'anular'];
 
 export function FormulariosAccion({
   accion,
@@ -104,11 +105,21 @@ export function FormulariosAccion({
   onEjecutar: EjecutarAccion;
   onCerrar: () => void;
 }) {
-  if (accion === 'programar') return <FormProgramarVisita caso={caso} onEjecutar={onEjecutar} onCerrar={onCerrar} />;
-  if (accion === 'reprogramar') return <FormReprogramarVisita caso={caso} onEjecutar={onEjecutar} onCerrar={onCerrar} />;
-  if (accion === 'espera') return <FormPonerEnEspera caso={caso} onEjecutar={onEjecutar} onCerrar={onCerrar} />;
-  if (accion === 'posventa') return <FormRegistrarPosventa caso={caso} onEjecutar={onEjecutar} onCerrar={onCerrar} />;
-  if (accion === 'reabrir') return <FormReabrirCaso caso={caso} onEjecutar={onEjecutar} onCerrar={onCerrar} />;
-  if (accion === 'anular') return <FormAnularCaso caso={caso} onEjecutar={onEjecutar} onCerrar={onCerrar} />;
-  return null;
+  const abierto = accion !== null && FORMULARIOS.includes(accion);
+  let contenido = null;
+  if (accion === 'programar') contenido = <FormProgramarVisita caso={caso} onEjecutar={onEjecutar} onCerrar={onCerrar} />;
+  if (accion === 'reprogramar') contenido = <FormReprogramarVisita caso={caso} onEjecutar={onEjecutar} onCerrar={onCerrar} />;
+  if (accion === 'espera') contenido = <FormPonerEnEspera caso={caso} onEjecutar={onEjecutar} onCerrar={onCerrar} />;
+  if (accion === 'posventa') contenido = <FormRegistrarPosventa caso={caso} onEjecutar={onEjecutar} onCerrar={onCerrar} />;
+  if (accion === 'reabrir') contenido = <FormReabrirCaso caso={caso} onEjecutar={onEjecutar} onCerrar={onCerrar} />;
+  if (accion === 'anular') contenido = <FormAnularCaso caso={caso} onEjecutar={onEjecutar} onCerrar={onCerrar} />;
+  return (
+    <Sheet open={abierto} onOpenChange={(abrir) => !abrir && onCerrar()}>
+      <SheetContent side="right" className="w-full gap-0 overflow-y-auto bg-card p-6 sm:max-w-md">
+        <SheetTitle className="sr-only">Caso {caso.numero}</SheetTitle>
+        <p className="mb-1 text-sm text-muted-foreground tabular-nums">Caso {caso.numero}</p>
+        {contenido}
+      </SheetContent>
+    </Sheet>
+  );
 }

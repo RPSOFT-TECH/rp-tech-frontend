@@ -11,9 +11,11 @@ import {
   quitar_adjunto,
   quitar_repuesto,
   registrar_llegada,
+  enlace_pdf,
   reportePdf,
 } from '@/lib/datos/actions';
 import type { Reporte } from '@/lib/datos-simulados/types';
+import { comprimirImagen } from '@/lib/imagen/comprimir';
 import { faltasEnPantalla } from '../reporte/faltantes';
 import { horaLimaStr, type AdjuntoFila, type RepuestoFila } from '../reporte/pasos';
 
@@ -207,8 +209,9 @@ export function useAccionesReporte(estado: EstadoReporte) {
     else setMensaje(respuesta.error || 'Error al quitar repuesto.');
   };
 
-  const agregarAdjuntoItem = async (tipo: AdjuntoFila['tipo'], archivo: File) => {
+  const agregarAdjuntoItem = async (tipo: AdjuntoFila['tipo'], original: File) => {
     if (!reporte) return;
+    const archivo = await comprimirImagen(original);
     const url = URL.createObjectURL(archivo);
     const idAdj = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     setAdjuntos((actual) => [...actual, { id: idAdj, tipo, nombre: archivo.name, url }]);
@@ -304,11 +307,38 @@ export function useAccionesReporte(estado: EstadoReporte) {
     setGuardando(false);
     if (respuesta.ok) {
       setReporte(respuesta.datos);
-      setMensaje('Reporte cerrado correctamente.');
+      setMensaje('Reporte cerrado correctamente. Enviando el PDF al cliente...');
       const envio = await reportePdf({ reporte_id: reporte.id, enviar: true, para: undefined });
-      if (envio.ok) setMensaje(`Reporte enviado a ${envio.datos.envios[0]?.destino || 'cliente'}.`);
+      setMensaje(`Reporte cerrado correctamente. ${textoEnvio(envio)}`);
+      if (envio.ok && envio.datos.pdf) setReporte({ ...respuesta.datos, pdf: envio.datos.pdf });
     } else {
       setMensaje(respuesta.error || 'Error al cerrar reporte.');
+    }
+  };
+
+  // Reenvía el PDF del reporte cerrado (al contacto del caso o al correo indicado).
+  const reenviarPdf = async (para?: string) => {
+    if (!reporte) return;
+    setGuardando(true);
+    const envio = await reportePdf({ reporte_id: reporte.id, enviar: true, para: para?.trim() || undefined });
+    setGuardando(false);
+    setMensaje(textoEnvio(envio));
+  };
+
+  // Abre el PDF oficial (el mismo que recibe el cliente). Solo existe con el reporte cerrado.
+  const abrirPdf = async () => {
+    if (!reporte?.cerrado) return;
+    const ventana = window.open('', '_blank');
+    let url = reporte.pdf ? await enlace_pdf(reporte.pdf) : null;
+    if (!url) {
+      const generado = await reportePdf({ reporte_id: reporte.id, enviar: false });
+      url = generado.ok ? generado.datos.url : null;
+      if (!generado.ok) setMensaje(generado.error);
+    }
+    if (url && ventana) ventana.location.href = url;
+    else {
+      ventana?.close();
+      if (!url) setMensaje('No se pudo abrir el PDF. Intenta de nuevo en unos segundos.');
     }
   };
 
@@ -323,5 +353,20 @@ export function useAccionesReporte(estado: EstadoReporte) {
     guardarFirmas,
     calcularFaltas,
     cerrarReporte,
+    reenviarPdf,
+    abrirPdf,
   };
+}
+
+type RespuestaEnvio = Awaited<ReturnType<typeof reportePdf>>;
+
+// Lo que pasó realmente con el correo, para no decir "enviado" cuando falló.
+function textoEnvio(envio: RespuestaEnvio): string {
+  if (!envio.ok) return `No se pudo enviar el PDF: ${envio.error}`;
+  const correos = envio.datos.envios.filter((e) => e.canal === 'correo');
+  const enviados = correos.filter((e) => e.estado === 'enviado').map((e) => e.destino);
+  if (enviados.length) return `PDF enviado a ${enviados.join(', ')}.`;
+  const fallo = correos[0];
+  if (!fallo) return 'PDF generado. No se envió por correo.';
+  return `No se envió el PDF${fallo.destino ? ` a ${fallo.destino}` : ''}: ${fallo.detalle ?? 'error desconocido'}.`;
 }

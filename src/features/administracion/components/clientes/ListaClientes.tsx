@@ -3,10 +3,13 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { clientes_admin, crear_cliente, type ClienteAdmin } from '@/lib/datos/actions';
-import { Button, DataTable, Modal, SearchInput } from '@/components/ui';
+import { Plus } from 'lucide-react';
+import { Button, Modal, SearchInput } from '@/components/ui';
+import { cn } from '@/lib/utils';
+import { Etiqueta } from '../comun/ListaEditable';
 import { claseCampo } from '../comun/clases';
 
-export function ListaClientes({ onAbrir }: { onAbrir: (id: string) => void }) {
+export function ListaClientes({ onAbrir, seleccionado }: { onAbrir: (id: string) => void; seleccionado: string | null }) {
   const [texto, setTexto] = useState('');
   const [consulta, setConsulta] = useState('');
   const [filas, setFilas] = useState<ClienteAdmin[]>([]);
@@ -28,35 +31,50 @@ export function ListaClientes({ onAbrir }: { onAbrir: (id: string) => void }) {
   }, [consulta, alta]);
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
+    <section className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      <div className="flex gap-2 border-b border-border p-3">
         <SearchInput
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
           onClear={() => setTexto('')}
-          placeholder="Buscar por razón social o RUC"
-          contenedorClassName="sm:max-w-md"
+          placeholder="Razón social o RUC"
+          contenedorClassName="flex-1"
         />
-        <Button type="button" className="min-h-11" onClick={() => setAlta(true)}>
-          + Nuevo cliente
+        <Button type="button" size="icon" className="size-11 shrink-0 md:size-10" aria-label="Nuevo cliente" onClick={() => setAlta(true)}>
+          <Plus className="size-5" />
         </Button>
       </div>
-      <DataTable
-        datos={filas}
-        claveFila={(fila) => fila.id}
-        textoVacio="No hay clientes con esa búsqueda."
-        onFilaClick={(fila) => onAbrir(fila.id)}
-        columnas={[
-          { clave: 'razon_social', encabezado: 'Cliente', render: (fila) => fila.razon_social },
-          { clave: 'ruc', encabezado: 'RUC', render: (fila) => fila.ruc || 'Sin RUC' },
-          { clave: 'soporte', encabezado: 'Soporte', render: (fila) => (fila.soporte_vigente ? 'Vigente' : 'No') },
-          { clave: 'sedes', encabezado: 'Sedes' },
-          { clave: 'equipos', encabezado: 'Equipos' },
-          { clave: 'activo', encabezado: 'Estado', render: (fila) => (fila.activo ? 'Activo' : 'Inactivo') },
-        ]}
-      />
+      {filas.length === 0 ? (
+        <p className="p-6 text-center text-sm text-muted-foreground">No hay clientes con esa búsqueda.</p>
+      ) : (
+        <ul className="no-scrollbar min-h-0 flex-1 overflow-y-auto">
+          {filas.map((fila) => (
+            <li key={fila.id}>
+              <button
+                type="button"
+                onClick={() => onAbrir(fila.id)}
+                aria-current={seleccionado === fila.id}
+                className={cn(
+                  'flex w-full flex-col gap-1 border-b border-border px-4 py-3 text-left transition-colors',
+                  seleccionado === fila.id ? 'bg-accent' : 'hover:bg-muted/60',
+                )}
+              >
+                <span className={cn('font-semibold', !fila.activo && 'text-muted-foreground')}>{fila.razon_social}</span>
+                <span className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  <span className="font-mono">{fila.ruc || 'Sin RUC'}</span>
+                  <span>
+                    {fila.sedes} {fila.sedes === 1 ? 'sede' : 'sedes'} · {fila.equipos} {fila.equipos === 1 ? 'equipo' : 'equipos'}
+                  </span>
+                  {fila.soporte_vigente && <Etiqueta tono="verde">Soporte</Etiqueta>}
+                  {!fila.activo && <Etiqueta>Inactivo</Etiqueta>}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
       <ModalCliente abierto={alta} onCerrar={() => setAlta(false)} onCreado={onAbrir} />
-    </div>
+    </section>
   );
 }
 
@@ -138,7 +156,7 @@ function Campo({
   placeholder?: string;
 }) {
   return (
-    <label className="block space-y-1 text-sm" htmlFor={id}>
+    <label className="block space-y-1.5 text-sm" htmlFor={id}>
       <span className="font-medium text-foreground">{label}</span>
       <input id={id} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} className={claseCampo} />
     </label>

@@ -14,7 +14,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
 
     return (
       <div className={`relative flex items-center w-full ${contenedorClassName}`}>
-        <Search className="pointer-events-none absolute left-3.5 size-[18px] text-muted-foreground" />
+        <Search className="pointer-events-none absolute left-3 size-4 text-muted-foreground" />
         <input
           ref={ref}
           type="text"
@@ -22,7 +22,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           onChange={onChange}
           disabled={disabled}
           placeholder={placeholder}
-          className={`h-12 w-full rounded-xl border border-border bg-card pr-10 pl-11 text-[15px] font-semibold text-foreground shadow-sm transition-colors outline-none focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+          className={`h-11 w-full rounded-lg border border-input bg-card pr-10 pl-10 text-sm font-medium text-foreground transition-colors outline-none placeholder:font-normal placeholder:text-muted-foreground md:h-10 focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
           {...props}
         />
         {tieneValor && onClear && !disabled && (

@@ -59,12 +59,11 @@ function ItemMenu({ item, activo }: { item: MenuItem; activo: boolean }) {
               href={item.href}
               aria-label={item.label}
               className={cn(
-                'relative flex size-9 items-center justify-center rounded-lg transition-colors',
-                activo ? 'bg-primary/12 text-primary' : 'text-foreground hover:bg-muted/70',
+                'relative flex size-10 items-center justify-center rounded-lg transition-colors',
+                activo ? 'bg-sidebar-accent text-sidebar-primary' : 'text-sidebar-foreground hover:bg-sidebar-accent/60',
               )}
             >
-              <Icon className="size-4 shrink-0" strokeWidth={activo ? 2.25 : 2} />
-              {activo ? <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-primary" /> : null}
+              <Icon className="size-[18px] shrink-0" strokeWidth={activo ? 2.25 : 2} />
             </Link>
           </SidebarMenuItem>
         </TooltipTrigger>
@@ -80,15 +79,17 @@ function ItemMenu({ item, activo }: { item: MenuItem; activo: boolean }) {
       <Link
         href={item.href}
         className={cn(
-          'group flex h-9 w-full items-center gap-2 rounded-lg px-2.5 transition-colors select-none',
-          activo ? 'bg-primary/10 font-semibold text-foreground' : 'text-foreground hover:bg-muted/60',
+          'group flex h-10 w-full items-center gap-3 rounded-lg px-3 transition-colors select-none',
+          activo
+            ? 'bg-sidebar-accent font-semibold text-white shadow-[inset_0_0_0_1px_oklch(1_0_0/0.06)]'
+            : 'text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-white',
         )}
       >
         <Icon
-          className={cn('size-4 shrink-0', activo ? 'text-primary' : 'text-foreground/80 group-hover:text-foreground')}
+          className={cn('size-[18px] shrink-0', activo ? 'text-sidebar-primary' : 'opacity-85')}
           strokeWidth={activo ? 2.25 : 2}
         />
-        <span className="truncate text-[13px] leading-none">{item.label}</span>
+        <span className="truncate text-sm leading-none">{item.label}</span>
       </Link>
     </SidebarMenuItem>
   );
@@ -107,40 +108,59 @@ export function AppSidebar({
   const pathname = usePathname();
   const colapsado = state === 'collapsed';
   const activo = hrefActivo(menu, pathname);
-  const inicial = (sesion.usuario.nombre_completo || 'U')[0]?.toUpperCase();
+  const iniciales = (sesion.usuario.nombre_completo || 'U')
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((parte) => parte[0]?.toUpperCase())
+    .join('');
+  const rol = NOMBRE_ROL[sesion.rolesVigentes[0]] ?? sesion.rolesVigentes[0];
+  const principales = menu.filter((item) => item.href !== '/administracion');
+  const gestion = menu.filter((item) => item.href === '/administracion');
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      <SidebarHeader className={cn('min-h-12 border-b border-sidebar-border bg-sidebar', colapsado ? 'items-center justify-center px-1 py-2' : 'px-3 py-2')}>
-        <p className={cn('leading-none font-extrabold tracking-tight', colapsado ? 'text-center text-[10px]' : 'text-base')}>
-          RP-<span className="text-primary">TECH</span>
-        </p>
-      </SidebarHeader>
-      <SidebarContent className={colapsado ? 'items-center px-1 py-2' : 'px-2 py-2'}>
-        <SidebarGroup className="p-0">
-          {colapsado ? (
-            <div className="mx-auto my-1 h-px w-5 bg-border/40" />
-          ) : (
-            <SidebarGroupLabel className="mb-1 h-auto px-2.5 text-[10px] font-bold tracking-[0.16em] text-muted-foreground/70 uppercase">
-              Menú
-            </SidebarGroupLabel>
+    <Sidebar collapsible="icon" className="border-r-0">
+      <SidebarHeader className={cn('bg-sidebar', colapsado ? 'items-center px-1 py-4' : 'px-4 pt-5 pb-4')}>
+        <div className="flex items-center gap-2.5">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-[13px] font-extrabold text-white">RP</span>
+          {colapsado ? null : (
+            <span className="min-w-0 leading-tight">
+              <span className="block text-[15px] font-bold tracking-wide text-white">RP-TECH</span>
+              <span className="block text-xs text-sidebar-foreground/70">Servicio técnico</span>
+            </span>
           )}
-          <SidebarMenu className="gap-0.5">
-            {menu.map((item) => (
+        </div>
+      </SidebarHeader>
+      <SidebarContent className={colapsado ? 'items-center px-1 py-2' : 'px-3 py-2'}>
+        <SidebarGroup className="p-0">
+          <SidebarMenu className="gap-1">
+            {principales.map((item) => (
               <ItemMenu key={item.href} item={item} activo={item.href === activo} />
             ))}
           </SidebarMenu>
         </SidebarGroup>
+        {gestion.length > 0 && (
+          <SidebarGroup className="mt-3 border-t border-sidebar-border p-0 pt-3">
+            {colapsado ? null : (
+              <SidebarGroupLabel className="mb-1 h-auto px-3 text-xs font-semibold text-sidebar-foreground/60">Gestión</SidebarGroupLabel>
+            )}
+            <SidebarMenu className="gap-1">
+              {gestion.map((item) => (
+                <ItemMenu key={item.href} item={item} activo={item.href === activo} />
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
       </SidebarContent>
-      <SidebarFooter className="border-t border-sidebar-border bg-sidebar p-2">
-        <div className={cn('flex items-center', colapsado ? 'flex-col gap-1.5' : 'gap-2 px-1')}>
-          <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
-            {inicial}
+      <SidebarFooter className="bg-sidebar p-3">
+        <div className={cn('flex items-center rounded-lg', colapsado ? 'flex-col gap-1.5' : 'gap-2.5 bg-white/5 p-2.5')}>
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sidebar-primary text-xs font-bold text-sidebar-primary-foreground">
+            {iniciales}
           </span>
           {colapsado ? null : (
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-xs font-bold">{sesion.usuario.nombre_completo}</span>
-              <span className="block truncate text-[10px] text-muted-foreground capitalize">{sesion.rolesVigentes[0]}</span>
+              <span className="block truncate text-[13px] font-semibold text-white">{sesion.usuario.nombre_completo}</span>
+              <span className="block truncate text-xs text-sidebar-foreground/70">{rol}</span>
             </span>
           )}
           <Tooltip>
@@ -149,7 +169,7 @@ export function AppSidebar({
                 type="button"
                 onClick={onLogout}
                 aria-label="Cerrar sesión"
-                className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted/70 hover:text-foreground"
+                className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-sidebar-foreground/80 hover:bg-white/10 hover:text-white"
               >
                 <LogOut className="size-4" strokeWidth={2} />
               </button>
@@ -163,3 +183,12 @@ export function AppSidebar({
     </Sidebar>
   );
 }
+
+const NOMBRE_ROL: Record<string, string> = {
+  superadmin: 'Superadmin',
+  gerente: 'Gerente',
+  coordinador: 'Coordinador',
+  tecnico: 'Técnico',
+  consulta: 'Consulta',
+  ventas: 'Ventas',
+};

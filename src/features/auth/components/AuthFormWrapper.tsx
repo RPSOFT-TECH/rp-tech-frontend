@@ -9,7 +9,7 @@ interface AuthFormWrapperProps {
 
 export function AuthFormWrapper({ children }: AuthFormWrapperProps) {
   return (
-    <div className="min-h-screen flex">
+    <div className="tema-login min-h-screen flex">
       <AuthBrandPanel />
 
       <section className="flex-1 relative flex flex-col items-center justify-center bg-background px-6 py-12 overflow-hidden">

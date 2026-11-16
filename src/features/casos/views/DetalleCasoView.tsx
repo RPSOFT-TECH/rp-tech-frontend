@@ -14,10 +14,10 @@ import { ClipboardList } from 'lucide-react';
 import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
 import { AccionesDetalle, FormulariosAccion } from '../components/detalle/AccionesDetalle';
 import { EncabezadoDetalle, MensajesDetalle } from '../components/detalle/EncabezadoDetalle';
-import { FichaDetalle } from '../components/detalle/FichaDetalle';
+import { FichaDetalle, IncidenciaDetalle } from '../components/detalle/FichaDetalle';
 import { leerPerfilId, puedeCoordinador, puedeGerente } from '../components/detalle/formato';
 import { ModalReporteVisita } from '../components/detalle/ModalReporteVisita';
-import { VisitasDetalle } from '../components/detalle/VisitasDetalle';
+import { HistorialDetalle, VisitasDetalle } from '../components/detalle/VisitasDetalle';
 
 function DetalleCasoContenido() {
   const router = useRouter();
@@ -29,6 +29,7 @@ function DetalleCasoContenido() {
   const [caso, setCaso] = useState<CasoDetalle | null>(null);
   const [loading, setLoading] = useState(true);
   const [accionAbierta, setAccionAbierta] = useState<string | null>(null);
+  const [pestana, setPestana] = useState('resumen');
   const [accionMensaje, setAccionMensaje] = useState<string | null>(null);
   const [plazoPorCaso, setPlazoPorCaso] = useState<{ id: string; vigente: boolean } | null>(null);
   const [esTecnicoDelCasoValor, setEsTecnicoDelCasoValor] = useState<boolean | null>(null);
@@ -124,34 +125,52 @@ function DetalleCasoContenido() {
   const consulta = searchParams.toString();
 
   return (
-    <div className="mx-auto w-full max-w-6xl">
-      <EncabezadoDetalle caso={caso} consulta={consulta} />
-      <MensajesDetalle
+    <div className="w-full">
+      <EncabezadoDetalle
         caso={caso}
-        visitaAbierta={visitaAbierta}
-        ultimaVisita={ultimaVisita}
-        esTecnicoDelCaso={esTecnicoDelCaso}
-        accionMensaje={accionMensaje}
+        consulta={consulta}
+        pestana={pestana}
+        onPestana={setPestana}
+        acciones={
+          <AccionesDetalle
+            caso={caso}
+            roles={roles}
+            puedeProgramar={puedeProgramar}
+            puedePosventa={puedePosventa}
+            puedeReabrir={puedeReabrir}
+            puedeAnular={puedeAnular}
+            esTecnicoDelCaso={esTecnicoDelCaso}
+            visitaAbierta={visitaAbierta}
+            reporteAbierto={reporteAbierto}
+            ultimaVisita={ultimaVisita}
+            plazoVigente={plazoVigente}
+            accionAbierta={accionAbierta}
+            accionMensaje={accionMensaje}
+            onAbrir={setAccionAbierta}
+            onCerrarMensaje={() => setAccionMensaje(null)}
+          />
+        }
       />
-      <AccionesDetalle
-        caso={caso}
-        roles={roles}
-        puedeProgramar={puedeProgramar}
-        puedePosventa={puedePosventa}
-        puedeReabrir={puedeReabrir}
-        puedeAnular={puedeAnular}
-        esTecnicoDelCaso={esTecnicoDelCaso}
-        visitaAbierta={visitaAbierta}
-        reporteAbierto={reporteAbierto}
-        ultimaVisita={ultimaVisita}
-        plazoVigente={plazoVigente}
-        accionAbierta={accionAbierta}
-        accionMensaje={accionMensaje}
-        onAbrir={setAccionAbierta}
-        onCerrarMensaje={() => setAccionMensaje(null)}
-      />
-      <FichaDetalle caso={caso} contacto={contacto} />
-      <VisitasDetalle caso={caso} onAbrir={setAccionAbierta} />
+      <div className="mx-auto w-full max-w-6xl">
+        <MensajesDetalle
+          caso={caso}
+          visitaAbierta={visitaAbierta}
+          ultimaVisita={ultimaVisita}
+          esTecnicoDelCaso={esTecnicoDelCaso}
+          accionMensaje={accionMensaje}
+        />
+        {pestana === 'resumen' && (
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_22rem]">
+            <div className="flex min-w-0 flex-col gap-4">
+              <IncidenciaDetalle caso={caso} />
+              <VisitasDetalle caso={caso} onAbrir={setAccionAbierta} />
+            </div>
+            <FichaDetalle caso={caso} contacto={contacto} />
+          </div>
+        )}
+        {pestana === 'visitas' && <VisitasDetalle caso={caso} onAbrir={setAccionAbierta} />}
+        {pestana === 'historial' && <HistorialDetalle caso={caso} />}
+      </div>
       <ModalReporteVisita caso={caso} accion={accionAbierta} onCerrar={() => setAccionAbierta(null)} />
       <FormulariosAccion
         accion={accionAbierta}

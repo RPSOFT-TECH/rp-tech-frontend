@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { anular_caso, poner_en_espera, reabrir_caso, registrar_posventa } from '@/lib/datos/actions';
-import { Button, Card, CustomSelect } from '@/components/ui';
+import { Button, CustomSelect } from '@/components/ui';
 import type { FormAccionProps } from './tipos';
 
 export function FormPonerEnEspera({ caso, onEjecutar, onCerrar }: FormAccionProps) {
@@ -12,8 +12,8 @@ export function FormPonerEnEspera({ caso, onEjecutar, onCerrar }: FormAccionProp
   const [mensaje, setMensaje] = useState<string | null>(null);
 
   return (
-    <Card className="p-6 mb-6 border border-amber/50 bg-amber/5">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-chart-3 mb-3">Poner en espera</h3>
+    <div className="flex flex-col gap-1">
+      <h3 className="mb-4 text-lg font-semibold text-foreground">Poner en espera</h3>
       {mensaje && (
         <div className="mb-3 text-xs border border-destructive/40 bg-destructive/10 text-destructive rounded p-2">{mensaje}</div>
       )}
@@ -31,8 +31,8 @@ export function FormPonerEnEspera({ caso, onEjecutar, onCerrar }: FormAccionProp
       </div>
       {motivo === 'Otro' && (
         <div className="flex flex-col gap-1 mb-4">
-          <label className="text-xs font-semibold text-muted-foreground">Comentario (obligatorio para Otro)</label>
-          <input value={comentario} onChange={(e) => setComentario(e.target.value)} className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm" />
+          <label className="text-sm font-medium text-foreground">Comentario (obligatorio para Otro)</label>
+          <input value={comentario} onChange={(e) => setComentario(e.target.value)} className="h-11 rounded-lg border border-input bg-card px-3 text-sm md:h-10" />
         </div>
       )}
       <div className="flex gap-3">
@@ -58,7 +58,7 @@ export function FormPonerEnEspera({ caso, onEjecutar, onCerrar }: FormAccionProp
           Cancelar
         </Button>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -69,13 +69,13 @@ export function FormRegistrarPosventa({ caso, onEjecutar, onCerrar }: FormAccion
   const [mensaje, setMensaje] = useState<string | null>(null);
 
   return (
-    <Card className="p-6 mb-6 border border-primary/30 bg-primary/10">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-primary mb-3">Registrar posventa</h3>
+    <div className="flex flex-col gap-1">
+      <h3 className="mb-4 text-lg font-semibold text-foreground">Registrar posventa</h3>
       {mensaje && (
         <div className="mb-3 text-xs border border-destructive/40 bg-destructive/10 text-destructive rounded p-2">{mensaje}</div>
       )}
       <div className="flex flex-col gap-1 mb-4">
-        <label className="text-xs font-semibold text-muted-foreground">Resultado</label>
+        <label className="text-sm font-medium text-foreground">Resultado</label>
         <div className="flex gap-4">
           <label className="flex items-center gap-2 text-sm cursor-pointer">
             <input type="radio" name="resultado" value="conforme" checked={resultado === 'conforme'} onChange={() => setResultado('conforme')} />
@@ -88,8 +88,8 @@ export function FormRegistrarPosventa({ caso, onEjecutar, onCerrar }: FormAccion
         </div>
       </div>
       <div className="flex flex-col gap-1 mb-4">
-        <label className="text-xs font-semibold text-muted-foreground">Comentario</label>
-        <input value={comentario} onChange={(e) => setComentario(e.target.value)} className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm" />
+        <label className="text-sm font-medium text-foreground">Comentario</label>
+        <input value={comentario} onChange={(e) => setComentario(e.target.value)} className="h-11 rounded-lg border border-input bg-card px-3 text-sm md:h-10" />
       </div>
       <div className="flex gap-3">
         <Button
@@ -118,7 +118,7 @@ export function FormRegistrarPosventa({ caso, onEjecutar, onCerrar }: FormAccion
           Cancelar
         </Button>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -128,14 +128,14 @@ export function FormReabrirCaso({ caso, onEjecutar, onCerrar }: FormAccionProps)
   const [mensaje, setMensaje] = useState<string | null>(null);
 
   return (
-    <Card className="p-6 mb-6 border border-amber/50 bg-amber/5">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-chart-3 mb-3">Reabrir caso</h3>
+    <div className="flex flex-col gap-1">
+      <h3 className="mb-4 text-lg font-semibold text-foreground">Reabrir caso</h3>
       {mensaje && (
         <div className="mb-3 text-xs border border-destructive/40 bg-destructive/10 text-destructive rounded p-2">{mensaje}</div>
       )}
       <div className="flex flex-col gap-1 mb-4">
-        <label className="text-xs font-semibold text-muted-foreground">Motivo de reapertura</label>
-        <input value={motivo} onChange={(e) => setMotivo(e.target.value)} className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm" />
+        <label className="text-sm font-medium text-foreground">Motivo de reapertura</label>
+        <input value={motivo} onChange={(e) => setMotivo(e.target.value)} className="h-11 rounded-lg border border-input bg-card px-3 text-sm md:h-10" />
       </div>
       <div className="flex gap-3">
         <Button
@@ -160,7 +160,7 @@ export function FormReabrirCaso({ caso, onEjecutar, onCerrar }: FormAccionProps)
           Cancelar
         </Button>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -170,14 +170,14 @@ export function FormAnularCaso({ caso, onEjecutar, onCerrar }: FormAccionProps) 
   const [mensaje, setMensaje] = useState<string | null>(null);
 
   return (
-    <Card className="p-6 mb-6 border border-destructive/50 bg-destructive/5">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-destructive mb-3">Anular caso</h3>
+    <div className="flex flex-col gap-1">
+      <h3 className="mb-4 text-lg font-semibold text-foreground">Anular caso</h3>
       {mensaje && (
         <div className="mb-3 text-xs border border-destructive/40 bg-destructive/10 text-destructive rounded p-2">{mensaje}</div>
       )}
       <div className="flex flex-col gap-1 mb-4">
-        <label className="text-xs font-semibold text-muted-foreground">Motivo de anulación</label>
-        <input value={motivo} onChange={(e) => setMotivo(e.target.value)} className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm" />
+        <label className="text-sm font-medium text-foreground">Motivo de anulación</label>
+        <input value={motivo} onChange={(e) => setMotivo(e.target.value)} className="h-11 rounded-lg border border-input bg-card px-3 text-sm md:h-10" />
       </div>
       <div className="flex gap-3">
         <Button
@@ -203,6 +203,6 @@ export function FormAnularCaso({ caso, onEjecutar, onCerrar }: FormAccionProps) 
           Cancelar
         </Button>
       </div>
-    </Card>
+    </div>
   );
 }

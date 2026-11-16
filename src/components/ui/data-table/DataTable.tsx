@@ -47,7 +47,7 @@ export function DataTable<TRow>({
   }
 
   return (
-    <div className={cn('flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm', className)}>
+    <div className={cn('flex h-full min-h-0 w-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm', className)}>
       <div
         data-table-scroll
         className="no-scrollbar flex min-h-0 min-w-0 flex-1 flex-col overflow-auto"
@@ -55,13 +55,13 @@ export function DataTable<TRow>({
       >
         <table className={cn('w-full border-collapse text-sm', data.length === 0 && 'h-full')}>
           <thead className="sticky top-0 z-20">
-            <tr className="border-b border-border/40 bg-muted/90 backdrop-blur-sm">
+            <tr className="bg-muted">
               {columns.map((col) => (
                 <th
                   key={col.key}
                   style={{ width: col.width }}
                   className={cn(
-                    'px-5 py-4 text-[12px] font-black uppercase tracking-[0.12em] whitespace-nowrap text-foreground/90',
+                    'border-b border-border px-4 py-2.5 text-xs font-semibold whitespace-nowrap text-muted-foreground',
                     col.align === 'center' && 'text-center',
                     col.align === 'right' && 'text-right',
                     (!col.align || col.align === 'left') && 'text-left',
@@ -72,7 +72,7 @@ export function DataTable<TRow>({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-border/10">
+          <tbody>
             {data.length === 0 ? (
               <tr className="h-full">
                 <td colSpan={columns.length} className="px-5 text-center align-middle">
@@ -93,8 +93,7 @@ export function DataTable<TRow>({
                   style={rowHeight ? { height: rowHeight } : undefined}
                   onClick={onRowClick ? () => onRowClick(row) : undefined}
                   className={cn(
-                    'transition-colors duration-200 hover:bg-primary/[0.04]',
-                    rowIndex % 2 === 0 ? 'bg-card' : 'bg-muted/5',
+                    'bg-card transition-colors duration-150 hover:bg-accent/60 [&:not(:last-child)>td]:border-b [&>td]:border-border',
                     onRowClick && 'cursor-pointer',
                     rowClassName?.(row),
                   )}
@@ -103,7 +102,7 @@ export function DataTable<TRow>({
                     <td
                       key={col.key}
                       className={cn(
-                        'px-5 py-3.5 text-[14.5px] font-medium text-foreground',
+                        'px-4 py-2.5 text-sm text-foreground',
                         col.align === 'center' && 'text-center',
                         col.align === 'right' && 'text-right',
                         (!col.align || col.align === 'left') && 'text-left',

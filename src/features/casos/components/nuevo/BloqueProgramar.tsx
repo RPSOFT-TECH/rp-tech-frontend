@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { agenda_tecnico, tecnicos, type TecnicoLista, type VisitaAgenda } from '@/lib/datos/actions';
 import { CustomSelect } from '@/components/ui/custom-select';
 import { SelectorFecha } from '@/components/ui/selector-fecha';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { avisoDeCruce } from './cruce-horario';
@@ -74,96 +74,78 @@ export function BloqueProgramar({
   };
 
   return (
-    <Card className="md:col-span-2 shadow-sm">
-      <CardHeader className="pb-3 border-b border-border/50 flex flex-row items-center justify-between gap-3">
-        <CardTitle className="text-base font-semibold">Programar visita</CardTitle>
-        {mostrarInterruptor && (
-          <label
-            htmlFor="switch-programar-ahora"
-            className="flex items-center gap-2.5 text-sm font-medium text-foreground cursor-pointer select-none"
-          >
-            <Switch
-              id="switch-programar-ahora"
-              checked={activo}
-              onCheckedChange={onActivoChange}
-            />
-            <span>Programar ahora</span>
-          </label>
-        )}
-      </CardHeader>
+    <>
+      <hr className="border-border md:col-span-12" />
+      <div className="flex items-center justify-between gap-3 md:col-span-12">
+        <label htmlFor="switch-programar-ahora" className="cursor-pointer select-none">
+          <span className="block text-sm font-semibold text-foreground">Programar visita</span>
+          <span className="block text-xs text-muted-foreground">Opcional. Puedes programarla después desde el caso.</span>
+        </label>
+        {mostrarInterruptor && <Switch id="switch-programar-ahora" checked={activo} onCheckedChange={onActivoChange} />}
+      </div>
+
       {visible && (
-        <CardContent className="space-y-4 pt-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="tecnico_visita">Técnico</Label>
-              <CustomSelect
-                id="tecnico_visita"
-                value={valor.tecnicoId}
-                onChange={cambiarTecnico}
-                placeholder="Selecciona un técnico..."
-                options={lista.map((tecnico) => ({ value: tecnico.id, label: tecnico.nombre_completo }))}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="adjunto_visita">Técnico adjunto</Label>
-              <CustomSelect
-                id="adjunto_visita"
-                value={valor.adjuntoId}
-                onChange={(adjuntoId) => onChange({ ...valor, adjuntoId })}
-                placeholder="Sin adjunto"
-                options={[
-                  { value: '', label: 'Sin adjunto' },
-                  ...adjuntos.map((tecnico) => ({ value: tecnico.id, label: tecnico.nombre_completo })),
-                ]}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <SelectorFecha
-                id="fecha_visita"
-                label="Fecha"
-                value={valor.fecha}
-                onChange={(fecha) => onChange({ ...valor, fecha })}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="hora_visita">Hora</Label>
-              <input
-                id="hora_visita"
-                type="time"
-                value={valor.hora}
-                onChange={(e) => onChange({ ...valor, hora: e.target.value })}
-                className="h-12 w-full rounded-xl border border-border bg-card px-3 text-sm font-semibold text-foreground"
-              />
-            </div>
+        <>
+          <div className="space-y-1.5 md:col-span-6 lg:col-span-4">
+            <Label htmlFor="tecnico_visita">
+              Técnico<span aria-hidden className="-ml-1.5 text-destructive">*</span>
+            </Label>
+            <CustomSelect
+              id="tecnico_visita"
+              value={valor.tecnicoId}
+              onChange={cambiarTecnico}
+              placeholder="Selecciona un técnico..."
+              options={lista.map((tecnico) => ({ value: tecnico.id, label: tecnico.nombre_completo }))}
+            />
+          </div>
+          <div className="space-y-1.5 md:col-span-6 lg:col-span-3">
+            <Label htmlFor="fecha_visita">
+              Fecha<span aria-hidden className="-ml-1.5 text-destructive">*</span>
+            </Label>
+            <SelectorFecha id="fecha_visita" value={valor.fecha} onChange={(fecha) => onChange({ ...valor, fecha })} />
+          </div>
+          <div className="space-y-1.5 md:col-span-6 lg:col-span-2">
+            <Label htmlFor="hora_visita">
+              Hora<span aria-hidden className="-ml-1.5 text-destructive">*</span>
+            </Label>
+            <Input id="hora_visita" type="time" value={valor.hora} onChange={(e) => onChange({ ...valor, hora: e.target.value })} />
+          </div>
+          <div className="space-y-1.5 md:col-span-6 lg:col-span-3">
+            <Label htmlFor="adjunto_visita">
+              Adjunto <span className="font-normal text-muted-foreground">(opcional)</span>
+            </Label>
+            <CustomSelect
+              id="adjunto_visita"
+              value={valor.adjuntoId}
+              onChange={(adjuntoId) => onChange({ ...valor, adjuntoId })}
+              placeholder="Sin adjunto"
+              options={[
+                { value: '', label: 'Sin adjunto' },
+                ...adjuntos.map((tecnico) => ({ value: tecnico.id, label: tecnico.nombre_completo })),
+              ]}
+            />
           </div>
 
           {valor.tecnicoId && valor.fecha && (
-            <div className="rounded-lg border border-border bg-muted/40 p-3 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Agenda del día</p>
-              {visitas.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No tiene visitas ese día.</p>
-              ) : (
-                <ul className="space-y-1">
-                  {visitas.map((visita) => (
-                    <li key={visita.id} className="text-sm text-foreground">
-                      <span className="font-mono">{visita.hora_programada?.slice(0, 5) || '—'}</span>
-                      {' · '}
-                      {visita.cliente_razon_social}
-                      {' · '}
-                      {visita.como === 'adjunto' ? 'Adjunto' : 'Técnico'}
-                      {' · '}
-                      {visita.numero_caso}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {aviso && (
-                <p className="text-sm text-foreground bg-accent border border-border rounded-md px-3 py-2">{aviso}</p>
-              )}
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs md:col-span-12">
+              {aviso ? (
+                <span className="rounded-md bg-amber-50 px-2 py-1 font-medium text-amber-800 dark:bg-amber-950/50 dark:text-amber-300">{aviso}</span>
+              ) : valor.hora ? (
+                <span className="rounded-md bg-emerald-50 px-2 py-1 font-medium text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
+                  Sin cruces a esa hora
+                </span>
+              ) : null}
+              <span className="text-muted-foreground">
+                {visitas.length === 0
+                  ? 'No tiene otras visitas ese día.'
+                  : `Ese día: ${visitas
+                      .map((v) => `${v.hora_programada?.slice(0, 5) || '—'} ${v.numero_caso}${v.como === 'adjunto' ? ' (adjunto)' : ''}`)
+                      .join(' · ')}`}
+              </span>
             </div>
           )}
-        </CardContent>
+        </>
       )}
-    </Card>
+    </>
   );
 }

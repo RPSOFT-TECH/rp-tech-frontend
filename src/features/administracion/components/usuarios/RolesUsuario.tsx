@@ -10,7 +10,7 @@ import {
   type RolCodigo,
   type UsuarioAdmin,
 } from '@/lib/datos/actions';
-import { Button, CustomSelect, SelectorFecha } from '@/components/ui';
+import { AvatarIniciales, Button, CustomSelect, SelectorFecha } from '@/components/ui';
 import { NOMBRE_ESTADO, NOMBRE_ROL } from '../comun/etiquetas';
 
 export function RolesUsuario({ usuario, onCambio }: { usuario: UsuarioAdmin; onCambio: () => void }) {
@@ -49,9 +49,12 @@ export function RolesUsuario({ usuario, onCambio }: { usuario: UsuarioAdmin; onC
 
   return (
     <div className="space-y-4">
-      <div>
-        <p className="font-medium text-foreground">{usuario.nombre_completo}</p>
-        <p className="text-xs text-muted-foreground">{usuario.email}</p>
+      <div className="flex items-center gap-3 border-b border-border pb-4">
+        <AvatarIniciales nombre={usuario.nombre_completo} className="size-10" />
+        <div className="min-w-0">
+          <p className="font-semibold text-foreground">{usuario.nombre_completo}</p>
+          <p className="truncate text-xs text-muted-foreground">{usuario.email}</p>
+        </div>
       </div>
       <ul className="space-y-2">
         {roles.length === 0 && <li className="text-sm text-muted-foreground">Sin roles visibles.</li>}

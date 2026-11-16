@@ -27,6 +27,38 @@ export interface PdfEmpresa {
   telefonos: string[];
   correos: string[];
   redes: string[];
+  // Logos de marcas para el encabezado del PDF: [izquierda, derecha].
+  marcas?: (string | null)[];
+  // Color de acento del PDF en hexadecimal (#8a3d8f).
+  color?: string | null;
+}
+
+// Servidor de correo de la empresa. La contraseña nunca vuelve a la app.
+export interface ConfigCorreo {
+  host: string;
+  puerto: number;
+  usuario: string | null;
+  remitente: string;
+  copia: string | null;
+  tiene_clave: boolean;
+  actualizado_en: string | null;
+}
+
+export interface GuardarCorreo {
+  host: string;
+  puerto: number;
+  usuario: string;
+  remitente: string;
+  copia: string;
+  // null: conservar la guardada; '': borrarla.
+  clave: string | null;
+}
+
+export interface PruebaCorreo {
+  estado: 'enviado' | 'error' | 'no_configurado';
+  destino: string | null;
+  detalle: string | null;
+  origen: 'empresa' | 'supabase' | null;
 }
 
 export interface ParametrosEmpresa {

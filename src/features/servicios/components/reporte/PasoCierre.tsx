@@ -1,13 +1,17 @@
 'use client';
 
-import { Button, Card } from '@/components/ui';
-import { fechaHoraLima } from '../../reporte/pasos';
+import { CircleAlert, CircleCheck } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Segmentado } from '@/components/ui/segmentado';
+import { fechaHoraLima, pasoDeFalta } from '../../reporte/pasos';
+import { BloqueAdjuntos } from './PasoFotos';
+import { CampoReporte, SeccionReporte } from './SeccionReporte';
 import type { FormularioReporte } from './tipo';
 
 export function PasoCierre({ form }: { form: FormularioReporte }) {
   const {
     esPasoEditable,
-    guardando,
+    remota,
     resultado,
     setResultado,
     requerimiento,
@@ -15,84 +19,80 @@ export function PasoCierre({ form }: { form: FormularioReporte }) {
     horaSalida,
     setHoraSalida,
     calcularFaltas,
-    cerrarReporte,
+    irAlPaso,
+    reporteCerrado,
   } = form;
-  const faltasCierre = calcularFaltas();
+  const bloqueado = !esPasoEditable;
+  const faltas = calcularFaltas();
 
   return (
-    <Card className="p-6">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-primary mb-4">7. Cierre</h3>
-      {!esPasoEditable && <p className="text-xs text-muted-foreground mb-4">Modo lectura.</p>}
-      <div className="mb-4">
-        <h4 className="text-xs font-semibold text-muted-foreground">¿Qué falta?</h4>
-        {faltasCierre.length === 0 ? (
-          <p className="text-xs border border-chart-2/40 bg-chart-2/15 text-chart-2 rounded p-2">Todo listo para cerrar.</p>
-        ) : (
-          <ul className="text-xs border border-chart-3/40 bg-chart-3/15 text-foreground rounded p-2 space-y-1">
-            {faltasCierre.map((falta) => (
-              <li key={falta}>• {falta}</li>
-            ))}
-          </ul>
-        )}
-      </div>
-      <div className="flex flex-col gap-2 mb-4">
-        <label className="text-xs font-semibold text-muted-foreground">Resultado</label>
-        <div className="flex gap-4">
-          <label className={`flex items-center gap-2 cursor-pointer ${!esPasoEditable ? 'opacity-50' : ''}`}>
-            <input
-              type="radio"
-              name="resultado"
-              value="resuelto"
-              checked={resultado === 'resuelto'}
-              onChange={() => setResultado('resuelto')}
-              disabled={!esPasoEditable}
-              className="w-4 h-4 text-primary"
-            />
-            Resuelto
-          </label>
-          <label className={`flex items-center gap-2 cursor-pointer ${!esPasoEditable ? 'opacity-50' : ''}`}>
-            <input
-              type="radio"
-              name="resultado"
-              value="pendiente"
-              checked={resultado === 'pendiente'}
-              onChange={() => setResultado('pendiente')}
-              disabled={!esPasoEditable}
-              className="w-4 h-4 text-primary"
-            />
-            Pendiente
-          </label>
-        </div>
-      </div>
-      {resultado === 'pendiente' && (
-        <div className="flex flex-col gap-1 mb-4">
-          <label className="text-xs font-semibold text-muted-foreground">¿Qué se requiere?</label>
-          <input
-            value={requerimiento}
-            onChange={(evento) => setRequerimiento(evento.target.value)}
-            disabled={!esPasoEditable}
-            className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm"
+    <>
+      <BloqueAdjuntos
+        form={form}
+        tipo="foto_salida"
+        titulo="Foto de salida"
+        ayuda="Cómo queda la máquina al irte."
+        obligatorio={!remota}
+      />
+
+      <SeccionReporte titulo="Cierre de la visita">
+        <CampoReporte etiqueta="Hora de salida" htmlFor="hora_salida">
+          <Input id="hora_salida" type="time" value={horaSalida} onChange={(e) => setHoraSalida(e.target.value)} disabled={bloqueado} />
+        </CampoReporte>
+        <CampoReporte etiqueta={<>Resultado<span aria-hidden className="text-destructive">*</span></>}>
+          <Segmentado
+            tamano="grande"
+            disabled={bloqueado}
+            value={resultado}
+            onChange={setResultado}
+            opciones={[
+              { value: 'resuelto', label: 'Resuelto', tono: 'ok' },
+              { value: 'pendiente', label: 'Queda pendiente', tono: 'alerta' },
+            ]}
           />
-        </div>
+        </CampoReporte>
+        {resultado === 'pendiente' && (
+          <CampoReporte etiqueta={<>¿Qué se requiere?<span aria-hidden className="text-destructive">*</span></>} htmlFor="requerimiento">
+            <Input
+              id="requerimiento"
+              value={requerimiento}
+              onChange={(e) => setRequerimiento(e.target.value)}
+              disabled={bloqueado}
+              placeholder="Ej.: cambio de cabezal, volver con repuesto"
+            />
+          </CampoReporte>
+        )}
+      </SeccionReporte>
+
+      {!reporteCerrado && (
+        <SeccionReporte titulo={faltas.length ? 'Para cerrar falta' : 'Todo listo para cerrar'}>
+          {faltas.length === 0 ? (
+            <p className="flex items-center gap-2 text-sm text-emerald-700 dark:text-emerald-400">
+              <CircleCheck className="size-5" /> Al cerrar se envía el PDF al cliente.
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {faltas.map((falta) => {
+                const destino = pasoDeFalta(falta);
+                return (
+                  <li key={falta} className="flex items-start gap-2 text-sm">
+                    <CircleAlert className="mt-0.5 size-4 shrink-0 text-destructive" />
+                    <span className="flex-1">
+                      {falta}
+                      {destino !== 6 && (
+                        <button type="button" onClick={() => irAlPaso(destino)} className="ml-1.5 font-semibold text-primary hover:underline">
+                          Ir al paso {destino}
+                        </button>
+                      )}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </SeccionReporte>
       )}
-      <div className="flex flex-col gap-1 mb-4">
-        <label className="text-xs font-semibold text-muted-foreground">Hora de salida</label>
-        <input
-          type="time"
-          value={horaSalida}
-          onChange={(evento) => setHoraSalida(evento.target.value)}
-          disabled={!esPasoEditable}
-          className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm"
-        />
-      </div>
-      <Button
-        onClick={cerrarReporte}
-        disabled={!esPasoEditable || guardando || faltasCierre.length > 0}
-        className="w-full min-h-11"
-      >
-        {guardando ? 'Cerrando...' : 'Cerrar reporte'}
-      </Button>
-    </Card>
+    </>
   );
 }
 
@@ -100,12 +100,11 @@ export function AvisoCierre({ form }: { form: FormularioReporte }) {
   const { reporte, reporteCerrado } = form;
   if (!reporte || !reporteCerrado) return null;
   return (
-    <div className="border border-chart-2/40 bg-chart-2/15 rounded-lg p-4 mb-6">
-      <h3 className="text-xs font-semibold text-chart-2 mb-2">Reporte cerrado</h3>
-      <p className="text-xs text-foreground">El reporte está bloqueado y solo se pueden agregar notas.</p>
-      {reporte.cerrado_en && (
-        <p className="text-xs text-chart-2 mt-1">Cerrado el {fechaHoraLima(reporte.cerrado_en)}</p>
-      )}
+    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/40">
+      <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">Reporte cerrado</p>
+      <p className="text-sm text-emerald-900/80 dark:text-emerald-200/80">
+        Ya no se puede modificar{reporte.cerrado_en ? ` · cerrado el ${fechaHoraLima(reporte.cerrado_en)}` : ''}
+      </p>
     </div>
   );
 }

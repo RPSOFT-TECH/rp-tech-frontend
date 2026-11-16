@@ -2,10 +2,10 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { agenda_tecnico, hoyLima, tecnicos } from '@/lib/datos/actions';
+import { agenda_tecnico, hoyLima, tecnicos, type TecnicoLista } from '@/lib/datos/actions';
 import { Calendar } from 'lucide-react';
 import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
-import { CuadriculaAgenda } from '../components/CuadriculaAgenda';
+import { CuadriculaAgenda, type EventoDia } from '../components/CuadriculaAgenda';
 import { PanelDia, type ColumnaAgenda } from '../components/PanelDia';
 import { diasDelMes, tituloDia } from '../utils/calendario';
 
@@ -28,9 +28,10 @@ function Contenido() {
   const fecha = fechaPedida(params.get('fecha'));
   const hoy = hoyLima();
   const mes = fecha.slice(0, 7);
-  const [cargaMes, setCargaMes] = useState<{ mes: string; conteos: Record<string, number> } | null>(null);
+  const [cargaMes, setCargaMes] = useState<{ mes: string; porDia: Record<string, EventoDia[]>; tecnicos: TecnicoLista[] } | null>(null);
   const [cargaDia, setCargaDia] = useState<{ fecha: string; columnas: ColumnaAgenda[] } | null>(null);
-  const conteos = cargaMes?.mes === mes ? cargaMes.conteos : {};
+  const porDia = cargaMes?.mes === mes ? cargaMes.porDia : {};
+  const listaTecnicos = cargaMes?.mes === mes ? cargaMes.tecnicos : [];
   const columnas = cargaDia?.fecha === fecha ? cargaDia.columnas : null;
 
   useEffect(() => {
@@ -41,20 +42,28 @@ function Contenido() {
         dias.flatMap((iso) =>
           lista.map(async (tecnico) => ({
             iso,
+            tecnico,
             visitas: await agenda_tecnico(tecnico.id, iso),
           })),
         ),
       );
       if (!vigente) return;
-      const vistos = new Map<string, Set<string>>();
+      // Una visita por fila: se usa la del técnico principal (el adjunto la repite).
+      const siguientes: Record<string, EventoDia[]> = {};
       for (const par of pares) {
-        const ids = vistos.get(par.iso) ?? new Set<string>();
-        for (const visita of par.visitas) ids.add(visita.id);
-        vistos.set(par.iso, ids);
+        for (const visita of par.visitas) {
+          if (visita.como === 'adjunto') continue;
+          (siguientes[par.iso] ??= []).push({
+            id: visita.id,
+            hora: visita.hora_programada?.slice(0, 5) ?? '',
+            cliente: visita.cliente_razon_social,
+            tecnicoId: par.tecnico.id,
+            tecnicoNombre: par.tecnico.nombre_completo,
+          });
+        }
       }
-      const siguientes: Record<string, number> = {};
-      for (const dia of dias) siguientes[dia] = vistos.get(dia)?.size ?? 0;
-      setCargaMes({ mes, conteos: siguientes });
+      for (const lista of Object.values(siguientes)) lista.sort((a, b) => a.hora.localeCompare(b.hora));
+      setCargaMes({ mes, porDia: siguientes, tecnicos: lista });
     });
     return () => {
       vigente = false;
@@ -86,9 +95,9 @@ function Contenido() {
   };
 
   return (
-    <div className="grid h-full min-h-0 w-full grid-cols-1 gap-4 overflow-y-auto no-scrollbar lg:grid-cols-[minmax(0,1fr)_22rem] lg:overflow-hidden">
-      <CuadriculaAgenda fecha={fecha} hoy={hoy} conteos={conteos} onIr={ir} />
-      <PanelDia titulo={tituloDia(fecha)} columnas={columnas} />
+    <div className="grid h-full min-h-0 w-full grid-cols-1 gap-4 overflow-y-auto no-scrollbar lg:grid-cols-[minmax(0,1fr)_21rem] lg:overflow-hidden">
+      <CuadriculaAgenda fecha={fecha} hoy={hoy} porDia={porDia} tecnicos={listaTecnicos} onIr={ir} />
+      <PanelDia fecha={fecha} columnas={columnas} />
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { programar_visita, reprogramar_visita, tecnicos, type TecnicoLista } from '@/lib/datos/actions';
-import { Button, Card, CustomSelect, SelectorFecha } from '@/components/ui';
+import { Button, CustomSelect, SelectorFecha } from '@/components/ui';
 import type { FormAccionProps } from './tipos';
 
 export function FormProgramarVisita({ caso, onEjecutar, onCerrar }: FormAccionProps) {
@@ -44,8 +44,8 @@ export function FormProgramarVisita({ caso, onEjecutar, onCerrar }: FormAccionPr
   };
 
   return (
-    <Card className="p-6 mb-6 border border-primary/50 bg-primary/5">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-primary mb-3">Programar visita</h3>
+    <div className="flex flex-col gap-1">
+      <h3 className="mb-4 text-lg font-semibold text-foreground">Programar visita</h3>
       {mensaje && (
         <div className="mb-3 text-xs border border-destructive/40 bg-destructive/10 text-destructive rounded p-2">{mensaje}</div>
       )}
@@ -54,8 +54,8 @@ export function FormProgramarVisita({ caso, onEjecutar, onCerrar }: FormAccionPr
           <SelectorFecha label="Fecha" value={fecha} onChange={setFecha} />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-muted-foreground">Hora</label>
-          <input type="time" value={hora} onChange={(e) => setHora(e.target.value)} className="min-h-12 border border-border rounded-xl px-3 py-2 text-sm bg-card" />
+          <label className="text-sm font-medium text-foreground">Hora</label>
+          <input type="time" value={hora} onChange={(e) => setHora(e.target.value)} className="h-11 rounded-lg border border-input bg-card px-3 text-sm md:h-10" />
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
@@ -98,7 +98,7 @@ export function FormProgramarVisita({ caso, onEjecutar, onCerrar }: FormAccionPr
           Cancelar
         </Button>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -142,8 +142,8 @@ export function FormReprogramarVisita({ caso, onEjecutar, onCerrar }: FormAccion
   };
 
   return (
-    <Card className="p-6 mb-6 border border-primary/50 bg-primary/5">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-primary mb-3">Reprogramar visita</h3>
+    <div className="flex flex-col gap-1">
+      <h3 className="mb-4 text-lg font-semibold text-foreground">Reprogramar visita</h3>
       {mensaje && (
         <div className="mb-3 text-xs border border-destructive/40 bg-destructive/10 text-destructive rounded p-2">{mensaje}</div>
       )}
@@ -152,8 +152,8 @@ export function FormReprogramarVisita({ caso, onEjecutar, onCerrar }: FormAccion
           <SelectorFecha label="Fecha" value={fecha} onChange={setFecha} />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-muted-foreground">Hora</label>
-          <input type="time" value={hora} onChange={(e) => setHora(e.target.value)} className="min-h-12 border border-border rounded-xl px-3 py-2 text-sm bg-card" />
+          <label className="text-sm font-medium text-foreground">Hora</label>
+          <input type="time" value={hora} onChange={(e) => setHora(e.target.value)} className="h-11 rounded-lg border border-input bg-card px-3 text-sm md:h-10" />
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
@@ -196,6 +196,6 @@ export function FormReprogramarVisita({ caso, onEjecutar, onCerrar }: FormAccion
           Cancelar
         </Button>
       </div>
-    </Card>
+    </div>
   );
 }

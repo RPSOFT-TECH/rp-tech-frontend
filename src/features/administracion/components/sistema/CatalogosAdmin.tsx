@@ -12,7 +12,10 @@ import {
   type CodigoCatalogo,
   type ItemCatalogo,
 } from '@/lib/datos/actions';
+import { ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { Button, CustomSelect } from '@/components/ui';
+import { Switch } from '@/components/ui/switch';
+import { cn } from '@/lib/utils';
 import { claseCampo } from '../comun/clases';
 
 const NOMBRES: Record<CodigoCatalogo, string> = {
@@ -55,73 +58,100 @@ export function CatalogosAdmin() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="max-w-sm">
-        <CustomSelect
-          id="catalogo"
-          label="Catálogo"
-          value={codigo}
-          onChange={(valor) => setCodigo(valor as CodigoCatalogo)}
-          options={CODIGOS_CATALOGO.map((item) => ({ value: item, label: NOMBRES[item] }))}
-        />
-      </div>
-      <ul className="space-y-2">
-        {items.map((item, indice) => (
-          <li key={item.id} className="bg-card border border-border rounded-xl p-3 space-y-2">
-            <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
-              <input
-                aria-label="Nombre"
-                value={nombres[item.id] ?? item.nombre}
-                onChange={(e) => setNombres((actual) => ({ ...actual, [item.id]: e.target.value }))}
-                className={claseCampo}
-              />
-              <Button
+    <div className="grid grid-cols-1 gap-5 lg:grid-cols-[16rem_1fr] lg:items-start">
+      <nav aria-label="Catálogos" className="rounded-xl border border-border bg-card p-1.5 shadow-sm">
+        <div className="lg:hidden">
+          <CustomSelect
+            id="catalogo"
+            value={codigo}
+            onChange={(valor) => setCodigo(valor as CodigoCatalogo)}
+            options={CODIGOS_CATALOGO.map((item) => ({ value: item, label: NOMBRES[item] }))}
+          />
+        </div>
+        <ul className="hidden flex-col gap-0.5 lg:flex">
+          {CODIGOS_CATALOGO.map((item) => (
+            <li key={item}>
+              <button
                 type="button"
-                variant="outline"
-                className="min-h-11"
-                onClick={() => void aplicar(renombrar_catalogo(codigo, item.id, nombres[item.id] ?? item.nombre))}
+                onClick={() => setCodigo(item)}
+                aria-current={codigo === item}
+                className={cn(
+                  'flex h-9 w-full items-center justify-between rounded-md px-3 text-left text-sm',
+                  codigo === item ? 'bg-accent font-semibold text-accent-foreground' : 'font-medium text-muted-foreground hover:bg-muted hover:text-foreground',
+                )}
               >
-                Renombrar
-              </Button>
-            </div>
-            {esRepuesto && (
-              <p className="text-xs text-muted-foreground">
-                {item.codigo} · {item.consumible ? 'Consumible' : 'No consumible'}
-              </p>
-            )}
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                className="min-h-11"
-                disabled={indice === 0}
-                onClick={() => void aplicar(mover_catalogo(codigo, item.id, 'subir'))}
-              >
-                Subir
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="min-h-11"
-                disabled={indice === items.length - 1}
-                onClick={() => void aplicar(mover_catalogo(codigo, item.id, 'bajar'))}
-              >
-                Bajar
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="min-h-11"
-                onClick={() => void aplicar(cambiar_activo_catalogo(codigo, item.id, !item.activo))}
-              >
-                {item.activo ? 'Desactivar' : 'Activar'}
-              </Button>
-              {!item.activo && <span className="text-xs text-muted-foreground self-center">Inactivo</span>}
-            </div>
-          </li>
-        ))}
-      </ul>
-      <AltaCatalogo codigo={codigo} onCreado={() => setMarca((valor) => valor + 1)} />
+                {NOMBRES[item]}
+                {codigo === item && <span className="text-xs tabular-nums">{items.length}</span>}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <header className="space-y-3 border-b border-border p-4">
+          <div>
+            <h3 className="text-base font-semibold">{NOMBRES[codigo]}</h3>
+            <p className="text-sm text-muted-foreground">Se ofrecen en este orden en los formularios. Los inactivos no se ofrecen, pero se conservan en los casos antiguos.</p>
+          </div>
+          <AltaCatalogo codigo={codigo} onCreado={() => setMarca((valor) => valor + 1)} />
+        </header>
+        {items.length === 0 ? (
+          <p className="p-6 text-center text-sm text-muted-foreground">Este catálogo aún no tiene valores.</p>
+        ) : (
+          <ul>
+            {items.map((item, indice) => {
+              const nombre = nombres[item.id] ?? item.nombre;
+              const cambiado = nombre.trim() !== item.nombre;
+              return (
+                <li key={item.id} className={cn('flex flex-wrap items-center gap-3 border-b border-border px-4 py-2.5 last:border-b-0', !item.activo && 'bg-muted/40')}>
+                  <div className="flex flex-col">
+                    <button
+                      type="button"
+                      aria-label="Subir"
+                      disabled={indice === 0}
+                      onClick={() => void aplicar(mover_catalogo(codigo, item.id, 'subir'))}
+                      className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30"
+                    >
+                      <ChevronUp className="size-4" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Bajar"
+                      disabled={indice === items.length - 1}
+                      onClick={() => void aplicar(mover_catalogo(codigo, item.id, 'bajar'))}
+                      className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30"
+                    >
+                      <ChevronDown className="size-4" />
+                    </button>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <input
+                      aria-label="Nombre"
+                      value={nombre}
+                      onChange={(e) => setNombres((actual) => ({ ...actual, [item.id]: e.target.value }))}
+                      className="h-9 w-full rounded-md border border-transparent bg-transparent px-2 font-semibold outline-none hover:border-input focus-visible:border-primary focus-visible:bg-card"
+                    />
+                    {esRepuesto && (
+                      <p className="px-2 text-xs text-muted-foreground">
+                        <span className="font-mono">{item.codigo}</span> · {item.consumible ? 'Consumible' : 'No consumible'}
+                      </p>
+                    )}
+                  </div>
+                  {cambiado && (
+                    <Button type="button" className="h-8 px-3" onClick={() => void aplicar(renombrar_catalogo(codigo, item.id, nombre))}>
+                      Guardar nombre
+                    </Button>
+                  )}
+                  <label className="flex cursor-pointer items-center gap-2 text-sm">
+                    <Switch checked={item.activo} onCheckedChange={(v) => void aplicar(cambiar_activo_catalogo(codigo, item.id, v))} aria-label="Activo" />
+                    <span className="w-14">{item.activo ? 'Activo' : 'Inactivo'}</span>
+                  </label>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }
@@ -151,30 +181,30 @@ function AltaCatalogo({ codigo, onCreado }: { codigo: CodigoCatalogo; onCreado: 
 
   return (
     <form
-      className="bg-card border border-border rounded-xl p-3 space-y-2"
+      className="flex flex-col gap-2 sm:flex-row sm:items-center"
       onSubmit={(e) => {
         e.preventDefault();
         void guardar();
       }}
     >
-      <p className="text-sm font-medium text-foreground">Agregar valor</p>
-      <input aria-label="Nombre del valor" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre" className={claseCampo} />
       {esRepuesto && (
-        <>
-          <input
-            aria-label="Código del repuesto"
-            value={codigoRepuesto}
-            onChange={(e) => setCodigoRepuesto(e.target.value)}
-            placeholder="Código"
-            className={claseCampo}
-          />
-          <label className="flex items-center gap-2 min-h-11 text-sm">
-            <input type="checkbox" checked={consumible} onChange={(e) => setConsumible(e.target.checked)} className="size-4" />
-            Consumible
-          </label>
-        </>
+        <input
+          aria-label="Código del repuesto"
+          value={codigoRepuesto}
+          onChange={(e) => setCodigoRepuesto(e.target.value)}
+          placeholder="Código"
+          className={cn(claseCampo, 'sm:w-36')}
+        />
       )}
-      <Button type="submit" className="min-h-11">
+      <input aria-label="Nombre del valor" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nuevo valor" className={cn(claseCampo, 'sm:flex-1')} />
+      {esRepuesto && (
+        <label className="flex min-h-10 items-center gap-2 text-sm whitespace-nowrap">
+          <input type="checkbox" checked={consumible} onChange={(e) => setConsumible(e.target.checked)} className="size-4 accent-primary" />
+          Consumible
+        </label>
+      )}
+      <Button type="submit" className="h-11 gap-1.5 px-4 md:h-10" disabled={!nombre.trim()}>
+        <Plus className="size-4" />
         Agregar
       </Button>
     </form>

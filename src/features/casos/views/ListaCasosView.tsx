@@ -69,14 +69,8 @@ function ListaCasosContenido() {
         q: busquedaDebounce || undefined,
       });
       if (!activo) return;
+      // La bandeja se aplica en pantalla, así las pestañas muestran sus contadores.
       let filtrados = datos;
-      if (bandeja === 'entrega_turno') {
-        filtrados = filtrados.filter((caso) => caso.estado !== 'cerrado' && caso.estado !== 'anulado');
-      } else if (bandeja === 'pendientes_posventa') {
-        filtrados = filtrados.filter((caso) => caso.estado === 'atendido');
-      } else if (bandeja !== 'todos' && bandeja !== estadoFiltro) {
-        filtrados = filtrados.filter((caso) => caso.estado === bandeja);
-      }
       if (modalidadFiltro !== 'todos') {
         filtrados = filtrados.filter((caso) => caso.modalidad_id === modalidadFiltro);
       }
@@ -87,7 +81,7 @@ function ListaCasosContenido() {
     return () => {
       activo = false;
     };
-  }, [bandeja, estadoFiltro, tecnicoFiltro, clienteFiltro, tipoFiltro, modalidadFiltro, fechaDesde, fechaHasta, busquedaDebounce]);
+  }, [estadoFiltro, tecnicoFiltro, clienteFiltro, tipoFiltro, modalidadFiltro, fechaDesde, fechaHasta, busquedaDebounce]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -129,6 +123,9 @@ function ListaCasosContenido() {
   return (
     <div className="flex h-full min-h-0 flex-col md:overflow-hidden">
       <FiltrosCasos
+        casos={casos}
+        bandeja={bandeja}
+        onBandeja={(clave) => actualizarFiltro('bandeja', clave)}
         busqueda={busqueda}
         onBusqueda={setBusqueda}
         hayFiltros={hayFiltros}
@@ -144,7 +141,7 @@ function ListaCasosContenido() {
         puedeCrearCaso={puedeCrearCaso}
       />
       <ResultadoCasos
-        casos={casos}
+        casos={casosBandeja}
         loading={loading}
         urlDetalle={(id) => `/casos/${id}?${consulta}`}
         onAbrir={(id) => router.push(`/casos/${id}?${consulta}`)}

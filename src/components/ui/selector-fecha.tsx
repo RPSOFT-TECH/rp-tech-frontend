@@ -114,15 +114,15 @@ export function SelectorFecha({
   return (
     <div className={cn('flex w-full flex-col gap-1', className)}>
       {label ? (
-        <label htmlFor={campoId} className="text-xs font-semibold text-muted-foreground">
+        <label htmlFor={campoId} className="text-sm font-medium text-foreground">
           {label}
         </label>
       ) : null}
       <div
         ref={campoRef}
         className={cn(
-          'flex h-12 items-center gap-2 rounded-xl border bg-card px-3 shadow-xs',
-          abierto ? 'border-primary ring-2 ring-primary/20' : 'border-border',
+          'flex h-11 items-center gap-2 rounded-lg border bg-card px-3 md:h-10',
+          abierto ? 'border-primary ring-3 ring-primary/20' : 'border-input',
           disabled && 'cursor-not-allowed opacity-50',
         )}
       >
@@ -132,7 +132,7 @@ export function SelectorFecha({
           type="button"
           disabled={disabled}
           onClick={abrir}
-          className={cn('min-w-0 flex-1 truncate text-left text-sm font-semibold', value ? 'text-foreground' : 'text-muted-foreground')}
+          className={cn('min-w-0 flex-1 truncate text-left text-sm font-medium', value ? 'text-foreground' : 'text-muted-foreground')}
         >
           {value ? texto(value) : placeholder}
         </button>

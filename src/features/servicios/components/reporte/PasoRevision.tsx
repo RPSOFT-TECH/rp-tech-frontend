@@ -1,45 +1,15 @@
 'use client';
 
-import { Button, Card, CustomSelect } from '@/components/ui';
+import { Input } from '@/components/ui/input';
+import { SelectorFecha } from '@/components/ui/selector-fecha';
+import { Segmentado } from '@/components/ui/segmentado';
+import { CampoReporte, SeccionReporte } from './SeccionReporte';
 import type { FormularioReporte } from './tipo';
-
-function Opcion({
-  nombre,
-  valor,
-  marcado,
-  etiqueta,
-  editable,
-  onElegir,
-}: {
-  nombre: string;
-  valor: string;
-  marcado: boolean;
-  etiqueta: string;
-  editable: boolean;
-  onElegir: () => void;
-}) {
-  return (
-    <label className={`flex items-center gap-1 cursor-pointer ${!editable ? 'opacity-50' : ''}`}>
-      <input
-        type="radio"
-        name={nombre}
-        value={valor}
-        checked={marcado}
-        onChange={onElegir}
-        disabled={!editable}
-        className="w-4 h-4 text-primary"
-      />
-      {etiqueta}
-    </label>
-  );
-}
 
 export function PasoRevision({ form }: { form: FormularioReporte }) {
   const {
     esPasoEditable,
-    guardando,
-    avanzarPaso,
-    retrocederPaso,
+    remota,
     estadoEquipo,
     setEstadoEquipo,
     limpieza,
@@ -64,129 +34,135 @@ export function PasoRevision({ form }: { form: FormularioReporte }) {
     setUltimoMantenimiento,
     numeroFisico,
     setNumeroFisico,
-    guardarRevision,
   } = form;
+  const bloqueado = !esPasoEditable;
 
   return (
-    <Card className="p-6">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-primary mb-4">2. Revisión inicial</h3>
-      {!esPasoEditable && <p className="text-xs text-muted-foreground mb-4">Modo lectura.</p>}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-muted-foreground">Estado del equipo</label>
-          <div className="flex gap-2">
-            <Opcion nombre="estado_equipo" valor="operativo" marcado={estadoEquipo === 'operativo'} etiqueta="Operativo" editable={esPasoEditable} onElegir={() => setEstadoEquipo('operativo')} />
-            <Opcion nombre="estado_equipo" valor="inoperativo" marcado={estadoEquipo === 'inoperativo'} etiqueta="Inoperativo" editable={esPasoEditable} onElegir={() => setEstadoEquipo('inoperativo')} />
-          </div>
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-muted-foreground">Limpieza</label>
-          <div className="flex gap-2">
-            <Opcion nombre="limpieza" valor="limpio" marcado={limpieza === 'limpio'} etiqueta="Limpio" editable={esPasoEditable} onElegir={() => setLimpieza('limpio')} />
-            <Opcion nombre="limpieza" valor="sucio" marcado={limpieza === 'sucio'} etiqueta="Sucio" editable={esPasoEditable} onElegir={() => setLimpieza('sucio')} />
-          </div>
-        </div>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-        <div className="flex flex-col gap-1">
-          <CustomSelect
-            label="Cabezales"
-            value={estadoCabezales ?? ''}
-            disabled={!esPasoEditable}
-            placeholder="Selecciona"
-            onChange={(valor) => setEstadoCabezales((valor || null) as 'bueno' | 'regular' | 'malo' | null)}
-            options={[
-              { value: 'bueno', label: 'Bueno' },
+    <>
+      <SeccionReporte titulo="Estado al llegar">
+        <CampoReporte etiqueta="Estado del equipo">
+          <Segmentado
+            tamano="grande"
+            disabled={bloqueado}
+            value={estadoEquipo}
+            onChange={setEstadoEquipo}
+            opciones={[
+              { value: 'operativo', label: 'Operativo', tono: 'ok' },
+              { value: 'inoperativo', label: 'Inoperativo', tono: 'alerta' },
+            ]}
+          />
+        </CampoReporte>
+        {!remota && (
+          <CampoReporte etiqueta="Limpieza">
+            <Segmentado
+              tamano="grande"
+              disabled={bloqueado}
+              value={limpieza}
+              onChange={setLimpieza}
+              opciones={[
+                { value: 'limpio', label: 'Limpio' },
+                { value: 'sucio', label: 'Sucio' },
+              ]}
+            />
+          </CampoReporte>
+        )}
+        <CampoReporte etiqueta="Cabezales">
+          <Segmentado
+            tamano="grande"
+            disabled={bloqueado}
+            value={estadoCabezales}
+            onChange={setEstadoCabezales}
+            opciones={[
+              { value: 'bueno', label: 'Bueno', tono: 'ok' },
               { value: 'regular', label: 'Regular' },
-              { value: 'malo', label: 'Malo' },
+              { value: 'malo', label: 'Malo', tono: 'alerta' },
             ]}
           />
-        </div>
-        <div className="flex flex-col gap-1">
-          <CustomSelect
-            label="Protección"
-            value={sistemaProteccion ?? ''}
-            disabled={!esPasoEditable}
-            placeholder="Selecciona"
-            onChange={(valor) => setSistemaProteccion((valor || null) as 'estabilizador' | 'ups' | 'otro' | null)}
-            options={[
-              { value: 'estabilizador', label: 'Estabilizador' },
-              { value: 'ups', label: 'UPS' },
-              { value: 'otro', label: 'Otro' },
-            ]}
-          />
-        </div>
-      </div>
-      {sistemaProteccion === 'otro' && (
-        <div className="flex flex-col gap-1 mb-4">
-          <label className="text-xs font-semibold text-muted-foreground">¿Cuál?</label>
-          <input
-            value={sistemaProteccionOtro}
-            onChange={(evento) => setSistemaProteccionOtro(evento.target.value)}
-            disabled={!esPasoEditable}
-            className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm"
-          />
-        </div>
+        </CampoReporte>
+        <CampoReporte etiqueta="Tinta" htmlFor="tinta">
+          <Input id="tinta" value={tinta} onChange={(e) => setTinta(e.target.value)} disabled={bloqueado} placeholder="Marca o tipo de tinta" />
+        </CampoReporte>
+      </SeccionReporte>
+
+      {!remota && (
+        <SeccionReporte titulo="Instalación eléctrica">
+          <CampoReporte etiqueta="Sistema de protección">
+            <Segmentado
+              tamano="grande"
+              disabled={bloqueado}
+              value={sistemaProteccion}
+              onChange={setSistemaProteccion}
+              opciones={[
+                { value: 'estabilizador', label: 'Estabilizador' },
+                { value: 'ups', label: 'UPS' },
+                { value: 'otro', label: 'Otro' },
+              ]}
+            />
+          </CampoReporte>
+          {sistemaProteccion === 'otro' && (
+            <CampoReporte etiqueta="¿Cuál?" htmlFor="proteccion_otro">
+              <Input id="proteccion_otro" value={sistemaProteccionOtro} onChange={(e) => setSistemaProteccionOtro(e.target.value)} disabled={bloqueado} />
+            </CampoReporte>
+          )}
+          <div className="space-y-1.5">
+            <p className="text-sm font-medium text-foreground">Voltajes</p>
+            <div className="grid grid-cols-3 gap-2">
+              <Voltaje id="voltaje_ln" etiqueta="L+N" value={voltajeLn} onChange={setVoltajeLn} bloqueado={bloqueado} />
+              <Voltaje id="voltaje_lt" etiqueta="L+T" value={voltajeLt} onChange={setVoltajeLt} bloqueado={bloqueado} />
+              <Voltaje id="voltaje_nt" etiqueta="N+T" value={voltajeNt} onChange={setVoltajeNt} bloqueado={bloqueado} />
+            </div>
+          </div>
+        </SeccionReporte>
       )}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-        <Campo etiqueta="Tinta" value={tinta} onChange={setTinta} editable={esPasoEditable} />
-        <Campo etiqueta="Voltaje L+N" value={voltajeLn} onChange={setVoltajeLn} editable={esPasoEditable} tipo="number" />
-        <Campo etiqueta="Voltaje L+T" value={voltajeLt} onChange={setVoltajeLt} editable={esPasoEditable} tipo="number" />
-        <Campo etiqueta="Voltaje N+T" value={voltajeNt} onChange={setVoltajeNt} editable={esPasoEditable} tipo="number" />
-        <Campo etiqueta="Operador" value={operador} onChange={setOperador} editable={esPasoEditable} />
-        <Campo etiqueta="Último mantenimiento" value={ultimoMantenimiento} onChange={setUltimoMantenimiento} editable={esPasoEditable} tipo="date" />
-      </div>
-      <div className="flex flex-col gap-1 mb-4">
-        <label className="text-xs font-semibold text-muted-foreground">N° de reporte físico</label>
-        <input
-          value={numeroFisico}
-          onChange={(evento) => setNumeroFisico(evento.target.value)}
-          disabled={!esPasoEditable}
-          className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm"
-        />
-      </div>
-      <div className="flex gap-3">
-        <Button variant="outline" onClick={retrocederPaso} disabled={guardando} className="min-h-11">
-          Atrás
-        </Button>
-        <Button
-          onClick={() => {
-            if (esPasoEditable) void guardarRevision();
-            avanzarPaso();
-          }}
-          disabled={guardando}
-          className="min-h-11 flex-1"
-        >
-          {guardando ? 'Guardando...' : 'Siguiente'}
-        </Button>
-      </div>
-    </Card>
+
+      <SeccionReporte titulo="Otros datos">
+        <CampoReporte etiqueta="Operador del equipo" htmlFor="operador">
+          <Input id="operador" value={operador} onChange={(e) => setOperador(e.target.value)} disabled={bloqueado} placeholder="Nombre de quien opera la máquina" />
+        </CampoReporte>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <CampoReporte etiqueta="Último mantenimiento">
+            <SelectorFecha value={ultimoMantenimiento} onChange={setUltimoMantenimiento} disabled={bloqueado} />
+          </CampoReporte>
+          <CampoReporte etiqueta={<>N° de reporte físico <span className="font-normal text-muted-foreground">(si hay)</span></>} htmlFor="numero_fisico">
+            <Input id="numero_fisico" value={numeroFisico} onChange={(e) => setNumeroFisico(e.target.value)} disabled={bloqueado} inputMode="numeric" />
+          </CampoReporte>
+        </div>
+      </SeccionReporte>
+    </>
   );
 }
 
-function Campo({
+function Voltaje({
+  id,
   etiqueta,
   value,
   onChange,
-  editable,
-  tipo = 'text',
+  bloqueado,
 }: {
+  id: string;
   etiqueta: string;
   value: string;
   onChange: (valor: string) => void;
-  editable: boolean;
-  tipo?: string;
+  bloqueado: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-semibold text-muted-foreground">{etiqueta}</label>
-      <input
-        type={tipo}
-        value={value}
-        onChange={(evento) => onChange(evento.target.value)}
-        disabled={!editable}
-        className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm"
-      />
+    <div className="space-y-1">
+      <label htmlFor={id} className="text-xs text-muted-foreground">
+        {etiqueta}
+      </label>
+      <div className="relative">
+        <Input
+          id={id}
+          type="number"
+          inputMode="decimal"
+          step="0.1"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={bloqueado}
+          className="pr-7 tabular-nums"
+        />
+        <span className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-sm text-muted-foreground">V</span>
+      </div>
     </div>
   );
 }

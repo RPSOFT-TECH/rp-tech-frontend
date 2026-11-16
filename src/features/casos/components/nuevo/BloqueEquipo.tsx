@@ -4,11 +4,9 @@ import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { EquipoVista, Sede } from '@/lib/datos/actions';
 import { NuevoCasoFormValues } from '@/lib/validaciones/caso';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { CustomSelect } from '@/components/ui/custom-select';
 import { ModalEquipo } from './altas/ModalEquipo';
+import { EtiquetaConAlta } from './BloqueCliente';
 
 interface Opcion {
   id: string;
@@ -51,39 +49,36 @@ export function BloqueEquipo({
     formState: { errors },
   } = form;
 
-  return (
-    <Card className="h-fit shadow-sm">
-      <CardHeader className="pb-3 border-b border-border/50 flex flex-row items-center justify-between">
-        <CardTitle className="text-base font-semibold">Equipo</CardTitle>
-        <Button type="button" variant="ghost" className="min-h-11 text-primary" disabled={!clienteId} onClick={() => setAlta(true)}>
-          + Crear
-        </Button>
-      </CardHeader>
-      <CardContent className="space-y-4 pt-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="equipo">Equipo</Label>
-          <CustomSelect
-            id="equipo"
-            disabled={!clienteId}
-            value={watch('equipo_id') || ''}
-            onChange={onEquipoChange}
-            placeholder="Selecciona un equipo..."
-            options={equipos.map((eq) => ({
-              value: eq.id,
-              label: `${eq.numero_serie} — ${eq.linea_nombre} (${eq.modelo})`,
-            }))}
-          />
-          {errors.equipo_id && <p className="text-xs text-destructive">{errors.equipo_id.message}</p>}
-        </div>
+  const e = equipoSeleccionado;
+  const ficha = e
+    ? [
+        e.cabezal_nombre ? `Cabezal ${e.cabezal_nombre} × ${e.cabezal_cantidad}` : null,
+        e.fecha_instalacion ? `Instalado ${fechaCorta(e.fecha_instalacion)}` : null,
+      ].filter(Boolean)
+    : [];
 
-        <div className="grid grid-cols-2 gap-3">
-          <Dato label="Línea" valor={equipoSeleccionado?.linea_nombre} />
-          <Dato label="Modelo" valor={equipoSeleccionado?.modelo} />
-          <Dato label="Cabezal" valor={equipoSeleccionado?.cabezal_nombre} />
-          <Dato label="N° de cabezales" valor={equipoSeleccionado ? String(equipoSeleccionado.cabezal_cantidad) : undefined} />
-          <Dato label="Instalación" valor={equipoSeleccionado ? fechaCorta(equipoSeleccionado.fecha_instalacion) : undefined} />
-        </div>
-      </CardContent>
+  return (
+    <div className="space-y-1.5 md:col-span-12">
+      <EtiquetaConAlta
+        htmlFor="equipo"
+        texto="Equipo"
+        accion="+ Nuevo equipo"
+        disabled={!clienteId}
+        onClick={() => setAlta(true)}
+      />
+      <CustomSelect
+        id="equipo"
+        disabled={!clienteId}
+        value={watch('equipo_id') || ''}
+        onChange={onEquipoChange}
+        placeholder={clienteId ? 'Selecciona un equipo...' : 'Primero elige el cliente'}
+        options={equipos.map((eq) => ({
+          value: eq.id,
+          label: `${eq.numero_serie} · ${eq.linea_nombre} · ${eq.modelo}`,
+        }))}
+      />
+      {ficha.length > 0 && <p className="text-xs text-muted-foreground">{ficha.join(' · ')}</p>}
+      {errors.equipo_id && <p className="text-xs text-destructive">{errors.equipo_id.message}</p>}
       {clienteId && (
         <ModalEquipo
           abierto={alta}
@@ -95,17 +90,6 @@ export function BloqueEquipo({
           onCreado={onEquipoCreado}
         />
       )}
-    </Card>
-  );
-}
-
-function Dato({ label, valor }: { label: string; valor: string | undefined }) {
-  return (
-    <div className="space-y-1.5">
-      <Label className="text-xs">{label}</Label>
-      <div className="min-h-11 px-2.5 py-2 rounded-md bg-muted text-xs text-foreground flex items-center border border-border">
-        {valor || '—'}
-      </div>
     </div>
   );
 }

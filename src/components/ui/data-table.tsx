@@ -82,7 +82,7 @@ export function DataTable<T>({
     <div
       ref={contenedorRef}
       className={cn(
-        'flex w-full flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm',
+        'flex w-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm',
         llena && 'h-full min-h-0',
         className,
       )}
@@ -109,7 +109,7 @@ export function DataTable<T>({
           onRowClick={onFilaClick}
         />
       )}
-      <div data-pagination-footer className="shrink-0 border-t border-border/40 px-4 py-2">
+      <div data-pagination-footer className="shrink-0 border-t border-border px-4 py-2">
         <DataTablePagination
           currentPage={paginaActual}
           totalPages={totalPaginas}

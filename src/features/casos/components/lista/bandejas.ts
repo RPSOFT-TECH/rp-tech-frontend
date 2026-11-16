@@ -3,17 +3,54 @@ import type { CasoLista } from '@/lib/datos/actions';
 import { etiquetaEstado } from '../EstadoCaso';
 import { hoyLima } from '@/lib/datos-simulados/fecha';
 
-export const BANDEJAS: { clave: string; etiqueta: string }[] = [
+export const BANDEJAS: { clave: string; etiqueta: string; tono?: string }[] = [
   { clave: 'todos', etiqueta: 'Todos' },
   { clave: 'entrega_turno', etiqueta: 'Entrega de turno' },
-  { clave: 'por_programar', etiqueta: 'Por programar' },
-  { clave: 'programado', etiqueta: 'Programado' },
-  { clave: 'en_atencion', etiqueta: 'En atención' },
-  { clave: 'en_espera', etiqueta: 'En espera' },
-  { clave: 'pendientes_posventa', etiqueta: 'Pendientes de posventa' },
-  { clave: 'cerrado', etiqueta: 'Cerrado' },
-  { clave: 'anulado', etiqueta: 'Anulado' },
+  { clave: 'por_programar', etiqueta: 'Por programar', tono: 'bg-estado-por text-estado-por-fg' },
+  { clave: 'programado', etiqueta: 'Programados', tono: 'bg-estado-prog text-estado-prog-fg' },
+  { clave: 'en_atencion', etiqueta: 'En atención', tono: 'bg-estado-aten text-estado-aten-fg' },
+  { clave: 'en_espera', etiqueta: 'En espera', tono: 'bg-estado-esp text-estado-esp-fg' },
+  { clave: 'pendientes_posventa', etiqueta: 'Posventa', tono: 'bg-estado-ok text-estado-ok-fg' },
+  { clave: 'cerrado', etiqueta: 'Cerrados' },
+  { clave: 'anulado', etiqueta: 'Anulados' },
 ];
+
+const DIAS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'set', 'oct', 'nov', 'dic'];
+
+// "Hoy", "Mañana", "Ayer" o "Vie 13 nov" (fecha en formato AAAA-MM-DD).
+export function diaLegible(fecha: string | null | undefined, hoy: string = hoyLima()): string {
+  if (!fecha) return '—';
+  const [a, m, d] = fecha.slice(0, 10).split('-').map(Number);
+  const [ah, mh, dh] = hoy.split('-').map(Number);
+  const dias = Math.round((Date.UTC(a, m - 1, d) - Date.UTC(ah, mh - 1, dh)) / 86400000);
+  if (dias === 0) return 'Hoy';
+  if (dias === 1) return 'Mañana';
+  if (dias === -1) return 'Ayer';
+  const dia = DIAS[new Date(Date.UTC(a, m - 1, d)).getUTCDay()];
+  return `${dia} ${d} ${MESES[m - 1]}${a !== ah ? ` ${a}` : ''}`;
+}
+
+export function registroCorto(iso: string | null | undefined): string {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString('es-PE', {
+    timeZone: 'America/Lima',
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}
+
+// Casos que piden atención: sin técnico, o con la visita en un día ya pasado sin cerrar.
+export function pendientesDeAtencion(casos: CasoLista[], hoy: string = hoyLima()) {
+  const sinTecnico = casos.filter((c) => c.estado === 'por_programar').length;
+  const atrasados = casos.filter(
+    (c) => (c.estado === 'programado' || c.estado === 'en_atencion') && !!c.fecha_programada && c.fecha_programada < hoy,
+  ).length;
+  return { sinTecnico, atrasados };
+}
 
 export function fechaLima(iso: string | null | undefined): string {
   if (!iso) return '—';

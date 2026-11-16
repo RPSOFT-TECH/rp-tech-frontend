@@ -55,7 +55,7 @@ export function LoginForm({ isLoading, error, onSubmit }: LoginFormProps) {
             disabled={isLoading}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-11 min-h-11 text-xs rounded-xl bg-muted/40 border-border/60 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/10 placeholder:text-muted-foreground/40 transition-all"
+            className="h-11 min-h-11 md:h-11 px-2.5 text-xs rounded-xl bg-muted/40 border-border/60 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/10 placeholder:text-muted-foreground/40 transition-all"
           />
         </div>
 
@@ -74,7 +74,7 @@ export function LoginForm({ isLoading, error, onSubmit }: LoginFormProps) {
               disabled={isLoading}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="h-11 min-h-11 pr-11 text-xs rounded-xl bg-muted/40 border-border/60 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/10 placeholder:text-muted-foreground/40 transition-all"
+              className="h-11 min-h-11 md:h-11 pl-2.5 pr-11 text-xs rounded-xl bg-muted/40 border-border/60 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/10 placeholder:text-muted-foreground/40 transition-all"
             />
             <button
               type="button"

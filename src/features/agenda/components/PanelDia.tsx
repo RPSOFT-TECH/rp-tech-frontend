@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { GraficoBarras } from '@/components/ui/charts/GraficoBarras';
 import type { TecnicoLista, VisitaAgenda } from '@/lib/datos/actions';
+import { AvatarIniciales } from '@/components/ui';
+import { tituloDia } from '../utils/calendario';
 
 export interface ColumnaAgenda {
   tecnico: TecnicoLista;
@@ -8,52 +9,70 @@ export interface ColumnaAgenda {
 }
 
 interface PanelDiaProps {
-  titulo: string;
+  fecha: string;
   columnas: ColumnaAgenda[] | null;
 }
 
-export function PanelDia({ titulo, columnas }: PanelDiaProps) {
+// Lista del día elegido: todas las visitas por hora y la carga de cada técnico.
+export function PanelDia({ fecha, columnas }: PanelDiaProps) {
+  const [diaSemana, ...resto] = tituloDia(fecha).split(', ');
+  const visitas = (columnas ?? [])
+    .flatMap((c) => c.visitas.filter((v) => v.como !== 'adjunto').map((v) => ({ visita: v, tecnico: c.tecnico })))
+    .sort((a, b) => (a.visita.hora_programada ?? '').localeCompare(b.visita.hora_programada ?? ''));
+  const adjuntos = new Map<string, string[]>();
+  for (const c of columnas ?? []) {
+    for (const v of c.visitas) if (v.como === 'adjunto') adjuntos.set(v.id, [...(adjuntos.get(v.id) ?? []), c.tecnico.nombre_completo]);
+  }
+
   return (
-    <aside className="no-scrollbar flex min-h-0 min-w-0 flex-col gap-3 lg:overflow-y-auto">
-      <section className="rounded-2xl border border-border bg-card p-4">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Día seleccionado</p>
-        <h2 className="mt-1 text-base font-bold text-foreground">{titulo}</h2>
-      </section>
-      {columnas === null && <p className="text-sm text-muted-foreground">Cargando visitas...</p>}
-      {columnas && columnas.length === 0 && (
-        <p className="text-sm text-muted-foreground">No hay técnicos vigentes.</p>
-      )}
-      {columnas && columnas.length > 0 && (
-        <GraficoBarras
-          etiqueta="Visitas por técnico"
-          datos={columnas.map((columna) => ({
-            nombre: columna.tecnico.nombre_completo.split(' ')[0] || columna.tecnico.nombre_completo,
-            valor: columna.visitas.length,
-          }))}
-        />
-      )}
-      {columnas && columnas.length > 0 && (
-        <div className="flex flex-col gap-3">
-          {columnas.map((columna) => (
-            <section key={columna.tecnico.id} className="space-y-2 rounded-xl border border-border bg-card p-3">
-              <h3 className="text-sm font-semibold text-foreground">{columna.tecnico.nombre_completo}</h3>
-              {columna.visitas.length === 0 && <p className="text-xs text-muted-foreground">Sin visitas</p>}
-              {columna.visitas.map((visita) => (
-                <Link
-                  key={visita.id}
-                  href={`/casos/${visita.caso_id}`}
-                  className="block min-h-11 rounded-lg border border-border bg-background p-3 hover:border-primary"
-                >
-                  <p className="font-mono font-bold text-primary">{visita.hora_programada || '—'}</p>
-                  <p className="text-sm font-medium text-foreground">{visita.numero_caso}</p>
-                  <p className="text-xs text-muted-foreground">{visita.cliente_razon_social}</p>
-                  {visita.como === 'adjunto' && <p className="text-xs text-muted-foreground">Adjunto</p>}
-                </Link>
-              ))}
-            </section>
+    <aside className="no-scrollbar flex min-h-0 min-w-0 flex-col lg:overflow-y-auto">
+      <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <header className="border-b border-border px-4 py-3">
+          <p className="text-xs text-muted-foreground">{diaSemana}</p>
+          <h2 className="text-lg font-bold text-foreground">{resto.join(', ').replace(/ de \d{4}$/, '')}</h2>
+          {columnas && (
+            <p className="text-xs text-muted-foreground">
+              {visitas.length} {visitas.length === 1 ? 'visita' : 'visitas'}
+            </p>
+          )}
+        </header>
+        {columnas === null && <p className="px-4 py-3 text-sm text-muted-foreground">Cargando visitas...</p>}
+        {columnas && visitas.length === 0 && <p className="px-4 py-6 text-center text-sm text-muted-foreground">No hay visitas este día.</p>}
+        <ul>
+          {visitas.map(({ visita, tecnico }) => (
+            <li key={visita.id} className="border-b border-border last:border-b-0">
+              <Link href={`/casos/${visita.caso_id}`} className="grid grid-cols-[3.25rem_1fr] gap-3 px-4 py-3 hover:bg-accent/50">
+                <span className="text-[15px] font-bold tabular-nums">{visita.hora_programada?.slice(0, 5) || '—'}</span>
+                <span className="flex min-w-0 flex-col gap-1">
+                  <span className="truncate font-semibold">{visita.cliente_razon_social}</span>
+                  <span className="text-xs text-muted-foreground tabular-nums">{visita.numero_caso}</span>
+                  <span className="flex items-center gap-1.5 text-sm">
+                    <AvatarIniciales nombre={tecnico.nombre_completo} className="size-6 text-[10px]" />
+                    {tecnico.nombre_completo}
+                    {adjuntos.get(visita.id)?.length ? <span className="text-muted-foreground">+ {adjuntos.get(visita.id)!.join(', ')}</span> : null}
+                  </span>
+                </span>
+              </Link>
+            </li>
           ))}
-        </div>
-      )}
+        </ul>
+        {columnas && columnas.length > 0 && (
+          <footer className="border-t border-border bg-muted/50 px-4 py-3">
+            <p className="mb-2 text-xs font-semibold text-muted-foreground">Carga del día</p>
+            <ul className="flex flex-col gap-1.5">
+              {columnas.map((c) => (
+                <li key={c.tecnico.id} className="flex items-center gap-2 text-sm">
+                  <AvatarIniciales nombre={c.tecnico.nombre_completo} className="size-6 text-[10px]" />
+                  <span className="flex-1 truncate">{c.tecnico.nombre_completo}</span>
+                  <span className={c.visitas.length ? 'font-semibold tabular-nums' : 'text-muted-foreground'}>
+                    {c.visitas.length ? `${c.visitas.length} ${c.visitas.length === 1 ? 'visita' : 'visitas'}` : 'Libre'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </footer>
+        )}
+      </section>
     </aside>
   );
 }

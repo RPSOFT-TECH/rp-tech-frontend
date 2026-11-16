@@ -1,7 +1,17 @@
 'use client';
 
-import { Button, Card, CustomSelect, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
+import { Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Segmentado } from '@/components/ui/segmentado';
+import { CampoReporte, SeccionReporte } from './SeccionReporte';
 import type { FormularioReporte } from './tipo';
+
+const TIPOS = {
+  garantia: { label: 'Garantía', clase: 'bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300' },
+  venta: { label: 'Venta', clase: 'bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300' },
+  descarte: { label: 'Descarte', clase: 'bg-muted text-muted-foreground' },
+} as const;
 
 export function PasoRepuestos({ form }: { form: FormularioReporte }) {
   const {
@@ -18,82 +28,80 @@ export function PasoRepuestos({ form }: { form: FormularioReporte }) {
     repuestos,
     agregarRepuestoItem,
     quitarRepuestoItem,
-    retrocederPaso,
-    avanzarPaso,
   } = form;
 
   return (
-    <Card className="p-6">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-primary mb-4">4. Repuestos</h3>
-      {!esPasoEditable && <p className="text-xs text-muted-foreground mb-4">Modo lectura.</p>}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-muted-foreground">Código</label>
-          <input value={repuestoCodigo} onChange={(evento) => setRepuestoCodigo(evento.target.value)} disabled={!esPasoEditable} className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm" />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-muted-foreground">Descripción</label>
-          <input value={repuestoDescripcion} onChange={(evento) => setRepuestoDescripcion(evento.target.value)} disabled={!esPasoEditable} className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm" />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-muted-foreground">Cantidad</label>
-          <input type="number" value={repuestoCantidad} onChange={(evento) => setRepuestoCantidad(Number(evento.target.value) || 1)} disabled={!esPasoEditable} className="min-h-10 border border-border rounded-lg px-2 py-2 text-sm" />
-        </div>
-        <div className="flex flex-col gap-1">
-          <CustomSelect
-            label="Tipo"
-            value={repuestoTipo}
-            disabled={!esPasoEditable}
-            onChange={(valor) => setRepuestoTipo(valor as 'venta' | 'descarte' | 'garantia')}
-            options={[
-              { value: 'venta', label: 'Venta' },
-              { value: 'descarte', label: 'Descarte' },
-              { value: 'garantia', label: 'Garantía' },
-            ]}
-          />
-        </div>
-      </div>
-      <Button onClick={agregarRepuestoItem} disabled={!esPasoEditable || guardando || !repuestoDescripcion} className="w-full min-h-11 mb-4">
-        {guardando ? 'Agregando...' : 'Agregar repuesto'}
-      </Button>
-      {repuestos.length > 0 && (
-        <Table className="text-left border-collapse w-full">
-          <TableHeader>
-            <TableRow className="bg-muted border-b border-border text-xs font-semibold text-muted-foreground">
-              <TableHead className="p-2">Código</TableHead>
-              <TableHead className="p-2">Descripción</TableHead>
-              <TableHead className="p-2">Cant.</TableHead>
-              <TableHead className="p-2">Tipo</TableHead>
-              <TableHead className="p-2 text-right">Acción</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody className="divide-y divide-border text-sm">
+    <>
+      <SeccionReporte titulo="Repuestos usados" ayuda="Si no usaste repuestos, pulsa Siguiente." opcional>
+        {repuestos.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No hay repuestos en este reporte.</p>
+        ) : (
+          <ul className="space-y-2">
             {repuestos.map((repuesto) => (
-              <TableRow key={repuesto.id}>
-                <TableCell className="p-2 font-mono">{repuesto.codigo}</TableCell>
-                <TableCell className="p-2">{repuesto.descripcion}</TableCell>
-                <TableCell className="p-2">{repuesto.cantidad}</TableCell>
-                <TableCell className="p-2">{repuesto.tipo}</TableCell>
-                <TableCell className="p-2 text-right">
-                  <Button
-                    variant="outline"
-                    size="sm"
+              <li key={repuesto.id} className="flex items-center gap-3 rounded-lg border border-border p-2.5">
+                <span className="grid size-9 shrink-0 place-items-center rounded-md bg-muted font-semibold tabular-nums">{repuesto.cantidad}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold">{repuesto.descripcion}</p>
+                  <p className="font-mono text-xs text-muted-foreground">{repuesto.codigo}</p>
+                </div>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${TIPOS[repuesto.tipo].clase}`}>{TIPOS[repuesto.tipo].label}</span>
+                {esPasoEditable && (
+                  <button
+                    type="button"
                     onClick={() => quitarRepuestoItem(repuesto.id)}
-                    disabled={!esPasoEditable || guardando}
-                    className="px-2 py-1 text-xs text-destructive hover:bg-destructive/10"
+                    disabled={guardando}
+                    aria-label={`Quitar ${repuesto.descripcion}`}
+                    className="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                   >
-                    Quitar
-                  </Button>
-                </TableCell>
-              </TableRow>
+                    <Trash2 className="size-4" />
+                  </button>
+                )}
+              </li>
             ))}
-          </TableBody>
-        </Table>
+          </ul>
+        )}
+      </SeccionReporte>
+
+      {esPasoEditable && (
+        <SeccionReporte titulo="Agregar repuesto">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-[10rem_1fr]">
+            <CampoReporte etiqueta="Código" htmlFor="repuesto_codigo">
+              <Input id="repuesto_codigo" value={repuestoCodigo} onChange={(e) => setRepuestoCodigo(e.target.value)} placeholder="Ej.: DMP-3200" />
+            </CampoReporte>
+            <CampoReporte etiqueta="Descripción" htmlFor="repuesto_descripcion">
+              <Input id="repuesto_descripcion" value={repuestoDescripcion} onChange={(e) => setRepuestoDescripcion(e.target.value)} placeholder="Nombre del repuesto" />
+            </CampoReporte>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-[6rem_1fr] sm:gap-3">
+            <CampoReporte etiqueta="Cantidad" htmlFor="repuesto_cantidad">
+              <Input
+                id="repuesto_cantidad"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                value={repuestoCantidad}
+                onChange={(e) => setRepuestoCantidad(Number(e.target.value) || 1)}
+                className="w-28 tabular-nums sm:w-full"
+              />
+            </CampoReporte>
+            <CampoReporte etiqueta="Tipo">
+              <Segmentado
+                tamano="grande"
+                value={repuestoTipo}
+                onChange={setRepuestoTipo}
+                opciones={[
+                  { value: 'garantia', label: 'Garantía' },
+                  { value: 'venta', label: 'Venta' },
+                  { value: 'descarte', label: 'Descarte' },
+                ]}
+              />
+            </CampoReporte>
+          </div>
+          <Button variant="outline" onClick={agregarRepuestoItem} disabled={guardando || !repuestoDescripcion.trim()} className="h-11 w-full">
+            {guardando ? 'Agregando...' : 'Agregar repuesto'}
+          </Button>
+        </SeccionReporte>
       )}
-      <div className="flex gap-3 mt-4">
-        <Button variant="outline" onClick={retrocederPaso} disabled={guardando} className="min-h-11">Atrás</Button>
-        <Button onClick={avanzarPaso} disabled={guardando} className="min-h-11">Siguiente</Button>
-      </div>
-    </Card>
+    </>
   );
 }

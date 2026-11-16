@@ -12,13 +12,13 @@ const ETIQUETA: Record<EstadoCaso, string> = {
 };
 
 const TONO: Record<EstadoCaso, string> = {
-  por_programar: 'border-chart-3/50 bg-chart-3/20 text-foreground',
-  programado: 'border-primary/40 bg-primary/15 text-primary',
-  en_atencion: 'border-chart-2/40 bg-chart-2/15 text-chart-2',
-  en_espera: 'border-chart-5/40 bg-chart-5/15 text-chart-5',
-  atendido: 'border-chart-4/40 bg-chart-4/15 text-chart-4',
-  cerrado: 'border-chart-2/40 bg-chart-2/15 text-chart-2',
-  anulado: 'border-destructive/40 bg-destructive/15 text-destructive',
+  por_programar: 'bg-estado-por text-estado-por-fg',
+  programado: 'bg-estado-prog text-estado-prog-fg',
+  en_atencion: 'bg-estado-aten text-estado-aten-fg',
+  en_espera: 'bg-estado-esp text-estado-esp-fg',
+  atendido: 'bg-estado-ok text-estado-ok-fg',
+  cerrado: 'bg-estado-ok text-estado-ok-fg',
+  anulado: 'bg-estado-anu text-estado-anu-fg',
 };
 
 export function etiquetaEstado(estado: string): string {
@@ -28,7 +28,8 @@ export function etiquetaEstado(estado: string): string {
 export function EstadoBadge({ estado }: { estado: string }) {
   const clave = estado as EstadoCaso;
   return (
-    <Badge variant="outline" className={`whitespace-nowrap ${TONO[clave] || TONO.programado}`}>
+    <Badge className={`h-6 gap-1.5 border-0 px-2.5 text-xs font-semibold whitespace-nowrap ${TONO[clave] || TONO.programado}`}>
+      <span aria-hidden className="size-1.5 rounded-full bg-current" />
       {etiquetaEstado(estado)}
     </Badge>
   );

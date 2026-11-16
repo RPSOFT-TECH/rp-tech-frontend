@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { crear_contacto, guardar_contacto, type Contacto } from '@/lib/datos/actions';
 import { Button, Modal } from '@/components/ui';
 import { claseCampo } from '../comun/clases';
+import { Etiqueta, FilaEditable, ListaEditable } from '../comun/ListaEditable';
 
 export function EditorContactos({
   clienteId,
@@ -28,30 +29,20 @@ export function EditorContactos({
   };
 
   return (
-    <div className="space-y-3">
-      <Button type="button" className="min-h-11" onClick={() => { setEditando(null); setAbierto(true); }}>
-        + Crear
-      </Button>
-      {contactos.map((contacto) => (
-        <div key={contacto.id} className="bg-card border border-border rounded-xl p-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:justify-between">
-          <div>
-            <p className="font-medium text-foreground">
-              {contacto.nombre} {!contacto.activo && '· Inactivo'}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {contacto.cargo || 'Sin cargo'} · {contacto.telefono || 'Sin teléfono'} · {contacto.email || 'Sin correo'}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" className="min-h-11" onClick={() => { setEditando(contacto); setAbierto(true); }}>
-              Editar
-            </Button>
-            <Button type="button" variant="ghost" className="min-h-11" onClick={() => void desactivar(contacto)}>
-              {contacto.activo ? 'Desactivar' : 'Activar'}
-            </Button>
-          </div>
-        </div>
-      ))}
+    <>
+      <ListaEditable titulo={`Contactos (${contactos.length})`} accion="Nuevo contacto" vacio="Este cliente aún no tiene contactos." onNuevo={() => { setEditando(null); setAbierto(true); }}>
+        {contactos.map((contacto) => (
+          <FilaEditable
+            key={contacto.id}
+            titulo={contacto.nombre}
+            etiquetas={contacto.cargo ? <Etiqueta>{contacto.cargo}</Etiqueta> : null}
+            detalle={[contacto.telefono || 'Sin teléfono', contacto.email || 'Sin correo'].join(' · ')}
+            activo={contacto.activo}
+            onActivo={() => void desactivar(contacto)}
+            onEditar={() => { setEditando(contacto); setAbierto(true); }}
+          />
+        ))}
+      </ListaEditable>
       <Modal abierto={abierto} onCerrar={() => setAbierto(false)} titulo={editando ? 'Editar contacto' : 'Crear contacto'}>
         {abierto ? (
           <Formulario
@@ -64,7 +55,7 @@ export function EditorContactos({
           />
         ) : null}
       </Modal>
-    </div>
+    </>
   );
 }
 

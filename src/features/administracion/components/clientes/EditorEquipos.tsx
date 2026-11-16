@@ -11,6 +11,7 @@ import {
 } from '@/lib/datos/actions';
 import { Button, CustomSelect, Modal, SelectorFecha } from '@/components/ui';
 import { claseCampo } from '../comun/clases';
+import { Etiqueta, FilaEditable, ListaEditable } from '../comun/ListaEditable';
 import { HistorialEquipo } from './HistorialCliente';
 
 const CANTIDADES = [1, 2, 3, 4, 6, 8];
@@ -49,33 +50,25 @@ export function EditorEquipos({
   };
 
   return (
-    <div className="space-y-3">
-      <Button type="button" className="min-h-11" onClick={() => { setEditando(null); setAbierto(true); }}>
-        + Crear
-      </Button>
-      {equipos.map((equipo) => (
-        <div key={equipo.id} className="bg-card border border-border rounded-xl p-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:justify-between">
-          <div>
-            <p className="font-medium text-foreground">
-              {equipo.numero_serie} {!equipo.activo && '· Inactivo'}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {equipo.linea_nombre} · {equipo.modelo} · {equipo.cabezal_nombre} · {equipo.cabezal_cantidad}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="outline" className="min-h-11" onClick={() => setHistorialId(equipo.id)}>
-              Historial
-            </Button>
-            <Button type="button" variant="outline" className="min-h-11" onClick={() => { setEditando(equipo); setAbierto(true); }}>
-              Editar
-            </Button>
-            <Button type="button" variant="ghost" className="min-h-11" onClick={() => void desactivar(equipo)}>
-              {equipo.activo ? 'Desactivar' : 'Activar'}
-            </Button>
-          </div>
-        </div>
-      ))}
+    <>
+      <ListaEditable titulo={`Equipos (${equipos.length})`} accion="Nuevo equipo" vacio="Este cliente aún no tiene equipos." onNuevo={() => { setEditando(null); setAbierto(true); }}>
+        {equipos.map((equipo) => (
+          <FilaEditable
+            key={equipo.id}
+            titulo={<span className="font-mono text-[13px]">{equipo.numero_serie}</span>}
+            etiquetas={<Etiqueta>{equipo.linea_nombre}</Etiqueta>}
+            detalle={`${equipo.modelo} · ${equipo.cabezal_nombre} × ${equipo.cabezal_cantidad}`}
+            activo={equipo.activo}
+            onActivo={() => void desactivar(equipo)}
+            onEditar={() => { setEditando(equipo); setAbierto(true); }}
+            extra={
+              <Button type="button" variant="ghost" className="h-9 px-3" onClick={() => setHistorialId(equipo.id)}>
+                Historial
+              </Button>
+            }
+          />
+        ))}
+      </ListaEditable>
       <Modal abierto={abierto} onCerrar={() => setAbierto(false)} titulo={editando ? 'Editar equipo' : 'Crear equipo'} tamano="lg">
         {abierto ? (
           <Formulario
@@ -94,7 +87,7 @@ export function EditorEquipos({
       <Modal abierto={!!historialId} onCerrar={() => setHistorialId(null)} titulo="Historial del equipo">
         {historialId ? <HistorialEquipo equipoId={historialId} abierto /> : null}
       </Modal>
-    </div>
+    </>
   );
 }
 

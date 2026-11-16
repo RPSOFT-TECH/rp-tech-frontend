@@ -1,8 +1,8 @@
 'use client';
 
-import { Button, Card, Badge } from '@/components/ui';
-import { Camera, Images, Paperclip, Trash2, ExternalLink, Loader2 } from 'lucide-react';
+import { Camera, ExternalLink, Images, Loader2, Paperclip, X } from 'lucide-react';
 import type { AdjuntoFila } from '../../reporte/pasos';
+import { SeccionReporte } from './SeccionReporte';
 import type { FormularioReporte } from './tipo';
 
 function SelectorArchivo({
@@ -13,6 +13,7 @@ function SelectorArchivo({
   capture,
   accept,
   deshabilitado,
+  principal,
   onArchivos,
 }: {
   id: string;
@@ -22,6 +23,7 @@ function SelectorArchivo({
   capture?: boolean;
   accept: string;
   deshabilitado?: boolean;
+  principal?: boolean;
   onArchivos: (archivos: File[]) => void;
 }) {
   return (
@@ -42,212 +44,142 @@ function SelectorArchivo({
       />
       <label
         htmlFor={id}
-        className={`flex-1 rounded-xl border border-border/80 bg-muted/60 hover:bg-muted font-medium py-3 px-3 text-sm transition-all min-h-11 flex items-center justify-center gap-2 cursor-pointer select-none text-foreground active:scale-[0.98] ${
-          deshabilitado ? 'pointer-events-none opacity-50' : ''
-        }`}
+        className={`flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold transition-colors select-none active:scale-[0.98] ${
+          principal
+            ? 'bg-primary text-primary-foreground hover:bg-primary/85'
+            : 'border border-input bg-card text-foreground hover:bg-muted'
+        } ${deshabilitado ? 'pointer-events-none opacity-50' : ''}`}
       >
-        {Icono && <Icono className="size-4 shrink-0 text-muted-foreground" />}
+        {Icono && <Icono className="size-4 shrink-0" />}
         <span>{etiqueta}</span>
       </label>
     </>
   );
 }
 
-export function PasoFotos({ form }: { form: FormularioReporte }) {
-  const { esPasoEditable, guardando, adjuntos, agregarAdjuntoItem, quitarAdjuntoItem, retrocederPaso, avanzarPaso } = form;
+const esImagen = (adjunto: AdjuntoFila) =>
+  adjunto.tipo === 'foto_ingreso' || adjunto.tipo === 'foto_salida' || /\.(jpe?g|png|webp|gif|avif|heic)$/i.test(adjunto.nombre);
 
-  const subir = (tipo: AdjuntoFila['tipo']) => (archivos: File[]) => {
-    archivos.forEach((archivo) => void agregarAdjuntoItem(tipo, archivo));
-  };
+// Fotos de ingreso (Llegada), de salida (Cierre) u otros archivos (Desarrollo).
+export function BloqueAdjuntos({
+  form,
+  tipo,
+  titulo,
+  ayuda,
+  obligatorio,
+}: {
+  form: FormularioReporte;
+  tipo: AdjuntoFila['tipo'];
+  titulo: string;
+  ayuda: string;
+  obligatorio: boolean;
+}) {
+  const { esPasoEditable, guardando, adjuntos, agregarAdjuntoItem, quitarAdjuntoItem } = form;
+  const lista = adjuntos.filter((a) => a.tipo === tipo);
+  const esFoto = tipo !== 'otro';
+  const subir = (archivos: File[]) => archivos.forEach((archivo) => void agregarAdjuntoItem(tipo, archivo));
 
-  const esImagen = (adjunto: AdjuntoFila) =>
-    adjunto.tipo === 'foto_ingreso' ||
-    adjunto.tipo === 'foto_salida' ||
-    /\.(jpe?g|png|webp|gif|avif)$/i.test(adjunto.nombre);
+  const estado = obligatorio ? (
+    lista.length > 0 ? (
+      <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+        {lista.length} {lista.length === 1 ? 'foto' : 'fotos'}
+      </span>
+    ) : (
+      <span className="shrink-0 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+        Falta
+      </span>
+    )
+  ) : undefined;
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-primary">5. Fotos y adjuntos</h3>
-        {!esPasoEditable && <Badge variant="outline" className="text-xs">Modo lectura</Badge>}
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-        <div className="flex flex-col gap-2 rounded-xl border border-border/50 bg-card/60 p-3.5">
-          <label className="text-xs font-semibold text-muted-foreground flex items-center justify-between">
-            <span>Foto de ingreso</span>
-            <span className="text-[11px] font-normal text-muted-foreground">
-              {adjuntos.filter((a) => a.tipo === 'foto_ingreso').length} subida(s)
-            </span>
-          </label>
-          <div className="flex gap-2">
-            <SelectorArchivo
-              id="foto-ingreso"
-              etiqueta="Tomar foto"
-              icono={Camera}
-              accept="image/*"
-              capture
-              deshabilitado={!esPasoEditable}
-              onArchivos={subir('foto_ingreso')}
-            />
-            <SelectorArchivo
-              id="foto-ingreso-galeria"
-              etiqueta="Elegir varias"
-              icono={Images}
-              accept="image/*"
-              multiple
-              deshabilitado={!esPasoEditable}
-              onArchivos={subir('foto_ingreso')}
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2 rounded-xl border border-border/50 bg-card/60 p-3.5">
-          <label className="text-xs font-semibold text-muted-foreground flex items-center justify-between">
-            <span>Foto de salida</span>
-            <span className="text-[11px] font-normal text-muted-foreground">
-              {adjuntos.filter((a) => a.tipo === 'foto_salida').length} subida(s)
-            </span>
-          </label>
-          <div className="flex gap-2">
-            <SelectorArchivo
-              id="foto-salida"
-              etiqueta="Tomar foto"
-              icono={Camera}
-              accept="image/*"
-              capture
-              deshabilitado={!esPasoEditable}
-              onArchivos={subir('foto_salida')}
-            />
-            <SelectorArchivo
-              id="foto-salida-galeria"
-              etiqueta="Elegir varias"
-              icono={Images}
-              accept="image/*"
-              multiple
-              deshabilitado={!esPasoEditable}
-              onArchivos={subir('foto_salida')}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-2 mb-6 rounded-xl border border-border/50 bg-card/60 p-3.5">
-        <label className="text-xs font-semibold text-muted-foreground">Otros archivos (videos, documentos)</label>
-        <SelectorArchivo
-          id="otros-archivos"
-          etiqueta="Subir archivo"
-          icono={Paperclip}
-          accept="*/*"
-          multiple
-          deshabilitado={!esPasoEditable}
-          onArchivos={subir('otro')}
-        />
-      </div>
-
-      <div className="space-y-3 mb-6">
-        <div className="flex items-center justify-between">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Adjuntos ({adjuntos.length})
-          </h4>
-        </div>
-
-        {adjuntos.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border/70 p-6 text-center text-xs text-muted-foreground">
-            No se han subido fotos ni archivos para este servicio.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {adjuntos.map((adjunto) => {
-              const estaSubiendo = adjunto.id.startsWith('temp-');
-              const esImg = esImagen(adjunto);
-
+    <SeccionReporte titulo={titulo} ayuda={ayuda} opcional={!obligatorio} extra={estado}>
+      {lista.length > 0 && (
+        <div className={esFoto ? 'grid grid-cols-3 gap-2' : 'space-y-2'}>
+          {lista.map((adjunto) => {
+            const subiendo = adjunto.id.startsWith('temp-');
+            const quitar = (
+              <button
+                type="button"
+                onClick={() => quitarAdjuntoItem(adjunto.id)}
+                disabled={!esPasoEditable || guardando || subiendo}
+                aria-label={`Quitar ${adjunto.nombre}`}
+                className="inline-flex size-8 items-center justify-center rounded-md bg-card/90 text-muted-foreground shadow-sm hover:text-destructive disabled:hidden"
+              >
+                <X className="size-4" />
+              </button>
+            );
+            if (esFoto && esImagen(adjunto) && adjunto.url) {
               return (
-                <div
-                  key={adjunto.id}
-                  className="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/40 p-2.5 transition-all hover:border-border"
-                >
-                  {esImg && adjunto.url ? (
-                    <div className="relative size-12 shrink-0 overflow-hidden rounded-lg border border-border bg-background">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={adjunto.url}
-                        alt={adjunto.nombre}
-                        className="size-full object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground">
-                      <Paperclip className="size-5" />
+                <div key={adjunto.id} className="relative aspect-square overflow-hidden rounded-lg border border-border bg-muted">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={adjunto.url} alt={adjunto.nombre} className="size-full object-cover" />
+                  <div className="absolute top-1 right-1">{quitar}</div>
+                  {subiendo && (
+                    <div className="absolute inset-0 grid place-items-center bg-background/60">
+                      <Loader2 className="size-5 animate-spin text-primary" />
                     </div>
                   )}
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 mb-1">
-                      {adjunto.tipo === 'foto_ingreso' && (
-                        <span className="text-[10px] font-bold tracking-wider text-primary bg-primary/10 px-1.5 py-0.5 rounded">
-                          INGRESO
-                        </span>
-                      )}
-                      {adjunto.tipo === 'foto_salida' && (
-                        <span className="text-[10px] font-bold tracking-wider text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                          SALIDA
-                        </span>
-                      )}
-                      {adjunto.tipo === 'otro' && (
-                        <span className="text-[10px] font-bold tracking-wider text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                          OTRO
-                        </span>
-                      )}
-                      {estaSubiendo && (
-                        <span className="flex items-center gap-1 text-[10px] font-medium text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded">
-                          <Loader2 className="size-2.5 animate-spin" />
-                          Subiendo...
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs font-medium text-foreground truncate" title={adjunto.nombre}>
-                      {adjunto.nombre}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-1 shrink-0">
-                    {adjunto.url && !estaSubiendo && (
-                      <a
-                        href={adjunto.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        title="Ver archivo"
-                        className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted transition-colors"
-                      >
-                        <ExternalLink className="size-4" />
-                      </a>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => quitarAdjuntoItem(adjunto.id)}
-                      disabled={!esPasoEditable || guardando}
-                      title="Eliminar"
-                      className="p-1.5 text-destructive/80 hover:text-destructive rounded-lg hover:bg-destructive/10 transition-colors disabled:opacity-40"
-                    >
-                      <Trash2 className="size-4" />
-                    </button>
-                  </div>
                 </div>
               );
-            })}
-          </div>
-        )}
-      </div>
+            }
+            return (
+              <div key={adjunto.id} className="flex items-center gap-3 rounded-lg border border-border p-2">
+                <span className="grid size-9 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground">
+                  {subiendo ? <Loader2 className="size-4 animate-spin" /> : <Paperclip className="size-4" />}
+                </span>
+                <span className="min-w-0 flex-1 truncate text-sm" title={adjunto.nombre}>
+                  {adjunto.nombre}
+                </span>
+                {adjunto.url && !subiendo && (
+                  <a href={adjunto.url} target="_blank" rel="noreferrer" aria-label="Ver archivo" className="p-1.5 text-muted-foreground hover:text-foreground">
+                    <ExternalLink className="size-4" />
+                  </a>
+                )}
+                {quitar}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
-      <div className="flex gap-3">
-        <Button variant="outline" onClick={retrocederPaso} disabled={guardando} className="min-h-11">
-          Atrás
-        </Button>
-        <Button onClick={avanzarPaso} disabled={guardando} className="min-h-11">
-          Siguiente
-        </Button>
-      </div>
-    </Card>
+      {esPasoEditable && (
+        <div className="flex gap-2">
+          {esFoto ? (
+            <>
+              <SelectorArchivo
+                id={`${tipo}-camara`}
+                etiqueta={lista.length ? 'Tomar otra' : 'Tomar foto'}
+                icono={Camera}
+                accept="image/*"
+                capture
+                principal={lista.length === 0}
+                deshabilitado={guardando}
+                onArchivos={subir}
+              />
+              <SelectorArchivo
+                id={`${tipo}-galeria`}
+                etiqueta="Galería"
+                icono={Images}
+                accept="image/*"
+                multiple
+                deshabilitado={guardando}
+                onArchivos={subir}
+              />
+            </>
+          ) : (
+            <SelectorArchivo
+              id={`${tipo}-archivo`}
+              etiqueta="Subir archivo"
+              icono={Paperclip}
+              accept="*/*"
+              multiple
+              deshabilitado={guardando}
+              onArchivos={subir}
+            />
+          )}
+        </div>
+      )}
+      {!esPasoEditable && lista.length === 0 && <p className="text-sm text-muted-foreground">Sin archivos.</p>}
+    </SeccionReporte>
   );
 }
