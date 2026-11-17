@@ -52,7 +52,6 @@ export function ModalReporteVisita({
               <Dato etiqueta="Voltaje N+T">{valor(visita.voltaje_nt)}</Dato>
               <Dato etiqueta="Último mantenimiento">{valor(visita.ultimo_mantenimiento)}</Dato>
               <Dato etiqueta="Operador">{valor(visita.operador)}</Dato>
-              <Dato etiqueta="N° reporte físico">{valor(visita.numero_fisico)}</Dato>
             </div>
           </Bloque>
           <Bloque titulo="Procedimiento">

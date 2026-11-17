@@ -38,7 +38,6 @@ interface EstadoReporte {
   voltajeNt: string;
   operador: string;
   ultimoMantenimiento: string;
-  numeroFisico: string;
   procedimiento: string;
   conclusion: string;
   recomendaciones: string;
@@ -85,7 +84,6 @@ export function useAccionesReporte(estado: EstadoReporte) {
     voltajeNt,
     operador,
     ultimoMantenimiento,
-    numeroFisico,
     procedimiento,
     conclusion,
     recomendaciones,
@@ -141,7 +139,6 @@ export function useAccionesReporte(estado: EstadoReporte) {
       voltaje_nt: voltajeNt ? Number(voltajeNt) : null,
       operador: operador || null,
       ultimo_mantenimiento: ultimoMantenimiento || null,
-      numero_fisico: numeroFisico || null,
     });
     setGuardando(false);
     if (respuesta.ok) {

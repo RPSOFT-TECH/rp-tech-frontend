@@ -32,8 +32,6 @@ export function PasoRevision({ form }: { form: FormularioReporte }) {
     setOperador,
     ultimoMantenimiento,
     setUltimoMantenimiento,
-    numeroFisico,
-    setNumeroFisico,
   } = form;
   const bloqueado = !esPasoEditable;
 
@@ -122,9 +120,6 @@ export function PasoRevision({ form }: { form: FormularioReporte }) {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <CampoReporte etiqueta="Último mantenimiento">
             <SelectorFecha value={ultimoMantenimiento} onChange={setUltimoMantenimiento} disabled={bloqueado} />
-          </CampoReporte>
-          <CampoReporte etiqueta={<>N° de reporte físico <span className="font-normal text-muted-foreground">(si hay)</span></>} htmlFor="numero_fisico">
-            <Input id="numero_fisico" value={numeroFisico} onChange={(e) => setNumeroFisico(e.target.value)} disabled={bloqueado} inputMode="numeric" />
           </CampoReporte>
         </div>
       </SeccionReporte>

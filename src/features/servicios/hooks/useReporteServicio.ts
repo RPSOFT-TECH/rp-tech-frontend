@@ -49,7 +49,6 @@ export function useReporteServicio() {
   const [voltajeNt, setVoltajeNt] = useState('');
   const [operador, setOperador] = useState('');
   const [ultimoMantenimiento, setUltimoMantenimiento] = useState('');
-  const [numeroFisico, setNumeroFisico] = useState('');
   const [procedimiento, setProcedimiento] = useState('');
   const [conclusion, setConclusion] = useState('');
   const [recomendaciones, setRecomendaciones] = useState('');
@@ -113,7 +112,6 @@ export function useReporteServicio() {
       setVoltajeNt(String(reporteData.voltaje_nt ?? ''));
       setOperador(reporteData.operador || '');
       setUltimoMantenimiento(reporteData.ultimo_mantenimiento || '');
-      setNumeroFisico(reporteData.numero_fisico || '');
       setProcedimiento(reporteData.procedimiento || '');
       setConclusion(reporteData.conclusion || '');
       setRecomendaciones(reporteData.recomendaciones || '');
@@ -183,7 +181,6 @@ export function useReporteServicio() {
     voltajeNt,
     operador,
     ultimoMantenimiento,
-    numeroFisico,
     procedimiento,
     conclusion,
     recomendaciones,
@@ -242,8 +239,6 @@ export function useReporteServicio() {
     setOperador,
     ultimoMantenimiento,
     setUltimoMantenimiento,
-    numeroFisico,
-    setNumeroFisico,
     procedimiento,
     setProcedimiento,
     conclusion,
