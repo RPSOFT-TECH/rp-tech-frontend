@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Wrench } from 'lucide-react';
+import Image from 'next/image';
 import { AuthBrandPanel } from './AuthBrandPanel';
 import { FloatingBubbles } from './FloatingBubbles';
 
@@ -16,12 +16,21 @@ export function AuthFormWrapper({ children }: AuthFormWrapperProps) {
         <FloatingBubbles />
 
         <div className="flex lg:hidden items-center gap-3 mb-8 relative z-10">
-          <div className="size-11 rounded-2xl bg-primary/10 ring-1 ring-primary/25 flex items-center justify-center">
-            <Wrench className="size-6 text-primary" strokeWidth={2} />
+          <Image
+            src="/logo.png"
+            alt="GO SERVICE LATAM"
+            width={52}
+            height={52}
+            className="size-13 rounded-full object-contain shadow-md"
+          />
+          <div className="leading-tight">
+            <span className="block text-xl font-extrabold text-foreground">
+              GO SERVICE <span className="text-primary">LATAM</span>
+            </span>
+            <span className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Servicio Técnico
+            </span>
           </div>
-          <span className="text-xl font-extrabold text-foreground">
-            RP-<span className="text-primary">TECH</span>
-          </span>
         </div>
 
         <div className="relative z-10 w-full max-w-[420px]">

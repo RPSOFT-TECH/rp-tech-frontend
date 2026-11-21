@@ -49,6 +49,7 @@ export function useNuevoCasoForm(setValue: UseFormSetValue<NuevoCasoFormValues>,
       if (!activo) return;
       setCatalogos(data);
       if (data.canales[0]) setValue('canal_id', data.canales[0].id);
+      if (data.modalidades[0]) setValue('modalidad_id', data.modalidades[0].id);
     });
     return () => {
       activo = false;

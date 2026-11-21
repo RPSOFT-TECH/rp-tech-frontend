@@ -18,13 +18,13 @@ const fontSans = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'RP-TECH',
+  title: 'GO SERVICE LATAM',
   description: 'Sistema de órdenes de servicio técnico',
-  applicationName: 'RP-TECH',
+  applicationName: 'GO SERVICE LATAM',
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
-    title: 'RP-TECH',
+    title: 'GO SERVICE LATAM',
     statusBarStyle: 'default',
   },
   other: {
@@ -32,6 +32,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: '/logo.png', sizes: '512x512', type: 'image/png' },
       { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
       { url: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
     ],

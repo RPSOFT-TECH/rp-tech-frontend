@@ -58,9 +58,10 @@ export function BloqueCliente({
 
   return (
     <>
-      <div className="relative space-y-1.5 md:col-span-7 lg:col-span-9">
+      {/* ── Fila 1: Empresa + Contacto ── */}
+      <div className="relative space-y-1.5 md:col-span-7 lg:col-span-8">
         <Label htmlFor="empresa">
-          Cliente<span aria-hidden className="-ml-1.5 text-destructive">*</span>
+          Empresa<span aria-hidden className="-ml-1.5 text-destructive">*</span>
         </Label>
         {clienteSeleccionado ? (
           <div className="flex min-h-11 items-center gap-2 rounded-lg border border-input bg-card px-3 py-1.5 md:min-h-10">
@@ -125,29 +126,7 @@ export function BloqueCliente({
         )}
       </div>
 
-      <div className="space-y-1.5 md:col-span-6 lg:col-span-5">
-        <EtiquetaConAlta
-          htmlFor="sede"
-          texto="Sede"
-          accion="+ Nueva"
-          disabled={!clienteSeleccionado}
-          onClick={() => setAltaSede(true)}
-        />
-        <CustomSelect
-          id="sede"
-          disabled={!clienteSeleccionado}
-          value={watch('sede_id') || ''}
-          onChange={(valor) => setValue('sede_id', valor, { shouldValidate: true, shouldDirty: true })}
-          placeholder={clienteSeleccionado ? 'Selecciona una sede...' : 'Primero elige el cliente'}
-          options={sedes.map((s) => ({
-            value: s.id,
-            label: `${s.nombre} · ${s.direccion}${s.principal ? ' (principal)' : ''}`,
-          }))}
-        />
-        {errors.sede_id && <p className="text-xs text-destructive">{errors.sede_id.message}</p>}
-      </div>
-
-      <div className="space-y-1.5 md:col-span-6 lg:col-span-4">
+      <div className="space-y-1.5 md:col-span-5 lg:col-span-4">
         <EtiquetaConAlta
           htmlFor="contacto"
           texto="Contacto"
@@ -166,7 +145,30 @@ export function BloqueCliente({
         {errors.contacto_id && <p className="text-xs text-destructive">{errors.contacto_id.message}</p>}
       </div>
 
-      <div className="space-y-1.5 md:col-span-6 lg:col-span-3">
+      {/* ── Fila 2: Dirección (Sede) + Teléfono ── */}
+      <div className="space-y-1.5 md:col-span-8">
+        <EtiquetaConAlta
+          htmlFor="sede"
+          texto="Dirección"
+          accion="+ Nueva sede"
+          disabled={!clienteSeleccionado}
+          onClick={() => setAltaSede(true)}
+        />
+        <CustomSelect
+          id="sede"
+          disabled={!clienteSeleccionado}
+          value={watch('sede_id') || ''}
+          onChange={(valor) => setValue('sede_id', valor, { shouldValidate: true, shouldDirty: true })}
+          placeholder={clienteSeleccionado ? 'Selecciona una sede...' : 'Primero elige la empresa'}
+          options={sedes.map((s) => ({
+            value: s.id,
+            label: `${s.nombre} · ${s.direccion}${s.principal ? ' (principal)' : ''}`,
+          }))}
+        />
+        {errors.sede_id && <p className="text-xs text-destructive">{errors.sede_id.message}</p>}
+      </div>
+
+      <div className="space-y-1.5 md:col-span-4">
         <Label htmlFor="telefono">
           Teléfono<span aria-hidden className="-ml-1.5 text-destructive">*</span>
         </Label>
