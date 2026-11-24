@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Wrench, BarChart2, ShieldCheck } from 'lucide-react';
 
 const CARACTERISTICAS = [
@@ -25,17 +26,29 @@ export function AuthBrandPanel() {
         <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,rgba(255,255,255,1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,1)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center text-center gap-10">
-        <div className="flex flex-col items-center gap-5">
-          <div className="size-24 rounded-3xl bg-primary/10 ring-1 ring-primary/25 flex items-center justify-center backdrop-blur-sm shadow-2xl">
-            <Wrench className="size-12 text-primary" strokeWidth={2} />
+      <div className="relative z-10 flex flex-col items-center text-center gap-8">
+        <div className="flex flex-col items-center gap-6">
+          <div className="relative group flex items-center justify-center">
+            {/* Halo ambiental con los colores del logo */}
+            <div className="absolute -inset-4 rounded-full bg-gradient-to-tr from-pink-500/25 via-primary/30 to-amber-500/25 blur-2xl opacity-75" />
+            
+            <div className="relative size-48 md:size-56 lg:size-64 rounded-full bg-black/60 ring-2 ring-white/15 p-3 flex items-center justify-center backdrop-blur-md shadow-2xl shadow-black/80">
+              <Image
+                src="/logo.png"
+                alt="GO SERVICE LATAM"
+                width={260}
+                height={260}
+                className="size-full object-contain drop-shadow-2xl"
+                priority
+              />
+            </div>
           </div>
 
           <div>
-            <h1 className="text-4xl font-extrabold tracking-tight leading-none">
-              RP-<span className="text-primary">TECH</span>
+            <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight leading-none text-white">
+              GO SERVICE <span className="text-primary">LATAM</span>
             </h1>
-            <p className="text-secondary-foreground/45 text-[11px] font-semibold mt-2.5 tracking-[0.25em] uppercase">
+            <p className="text-secondary-foreground/70 text-xs font-bold mt-3 tracking-[0.25em] uppercase">
               Sistema de Servicio Técnico
             </p>
           </div>

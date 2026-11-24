@@ -73,7 +73,7 @@ function resolverRuta(pathname: string): RutaMeta {
     };
   }
   return RUTAS_META[pathname] ?? {
-    titulo: 'RP-TECH',
+    titulo: 'GO SERVICE LATAM',
     descripcion: 'Gestión de servicio técnico',
     icon: ClipboardList,
   };

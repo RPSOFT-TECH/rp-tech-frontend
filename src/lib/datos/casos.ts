@@ -82,6 +82,15 @@ export async function programar_visita(
   p_fecha: string,
   p_hora: string,
   p_tecnico_adjunto?: string | null,
+  p_extra?: {
+    numero_fisico?: string | null;
+    procedimiento?: string | null;
+    hora_llegada?: string | null;
+    hora_salida?: string | null;
+    horas?: number | null;
+    estado?: string | null;
+    nombre_adjunto?: string | null;
+  },
 ): Promise<Resultado<Reporte>> {
   const { data, error } = await supabase().rpc('programar_visita', {
     p_caso,

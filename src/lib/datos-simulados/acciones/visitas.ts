@@ -10,6 +10,15 @@ export async function programar_visita(
   p_fecha: string,
   p_hora: string,
   p_tecnico_adjunto?: string | null,
+  p_extra?: {
+    numero_fisico?: string | null;
+    procedimiento?: string | null;
+    hora_llegada?: string | null;
+    hora_salida?: string | null;
+    horas?: number | null;
+    estado?: string | null;
+    nombre_adjunto?: string | null;
+  },
 ): Promise<Resultado<Reporte>> {
   const permiso = exigirRol(['superadmin', 'coordinador']);
   if (permiso) return fallo(permiso);
@@ -28,11 +37,28 @@ export async function programar_visita(
   }
   const numeroVisita = db.reportes.filter((reporte) => reporte.caso_id === caso.id).length + 1;
   const reporte: Reporte = reporteVacio(caso.id, numeroVisita, p_tecnico, p_fecha, p_hora, p_tecnico_adjunto ?? null);
+  if (p_extra?.numero_fisico) reporte.numero_fisico = p_extra.numero_fisico;
+  if (p_extra?.procedimiento) reporte.procedimiento = p_extra.procedimiento;
+  if (p_extra?.hora_llegada) reporte.hora_llegada = p_extra.hora_llegada;
+  if (p_extra?.hora_salida) reporte.hora_salida = p_extra.hora_salida;
+  if (p_extra?.horas !== undefined && p_extra?.horas !== null) reporte.horas = p_extra.horas;
+  if (p_extra?.nombre_adjunto) {
+    db.adjuntos.push({
+      id: nuevoId(11),
+      reporte_id: reporte.id,
+      tipo: 'otro',
+      ruta: p_extra.nombre_adjunto,
+      nombre_archivo: p_extra.nombre_adjunto,
+      tipo_mime: 'image/jpeg',
+      subido_por: caso.creado_por,
+    });
+  }
   db.reportes.push(reporte);
   const anterior = caso.estado;
-  caso.estado = 'programado';
+  const nuevoEstado = (p_extra?.estado as any) || 'programado';
+  caso.estado = nuevoEstado;
   caso.motivo_espera_id = null;
-  registrarHistorial(caso.id, anterior, 'programado', null);
+  registrarHistorial(caso.id, anterior, nuevoEstado, null);
   return ok(reporte);
 }
 

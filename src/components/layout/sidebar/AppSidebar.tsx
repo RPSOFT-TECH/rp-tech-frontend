@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   Archive,
@@ -124,11 +125,17 @@ export function AppSidebar({
     <Sidebar collapsible="icon" className="border-r-0">
       <SidebarHeader className={cn('bg-sidebar', colapsado ? 'items-center px-1 py-4' : 'px-4 pt-5 pb-4')}>
         <div className="flex items-center gap-2.5">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-[13px] font-extrabold text-white">RP</span>
+          <Image
+            src="/logo.png"
+            alt="GO SERVICE LATAM"
+            width={36}
+            height={36}
+            className="size-9 shrink-0 rounded-full object-contain shadow-sm"
+          />
           {colapsado ? null : (
             <span className="min-w-0 leading-tight">
-              <span className="block text-[15px] font-bold tracking-wide text-white">RP-TECH</span>
-              <span className="block text-xs text-sidebar-foreground/70">Servicio técnico</span>
+              <span className="block text-[14px] font-bold tracking-wide text-white">GO SERVICE</span>
+              <span className="block text-xs font-semibold text-sidebar-foreground/70 tracking-wider">LATAM</span>
             </span>
           )}
         </div>

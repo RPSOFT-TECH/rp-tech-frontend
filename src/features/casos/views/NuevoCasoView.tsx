@@ -1,28 +1,41 @@
 'use client';
 
-import { Suspense, useLayoutEffect, useState, useTransition } from 'react';
+import { Suspense, useEffect, useLayoutEffect, useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { crear_caso, programar_visita, tecnicos } from '@/lib/datos/actions';
+import { actualizar_desarrollo, crear_caso, programar_visita, tecnicos } from '@/lib/datos/actions';
 import { nuevoCasoSchema, NuevoCasoFormValues } from '@/lib/validaciones/caso';
 import { useNuevoCasoForm } from '../hooks/useNuevoCasoForm';
 import {
-  BloqueSolicitud,
   BloqueCliente,
   BloqueEquipo,
   BloqueServicio,
 } from '../components';
 import { BloqueProgramar, type ProgramacionVisita } from '../components/nuevo/BloqueProgramar';
-import { EncabezadoNuevoCaso } from '../components/nuevo/EncabezadoNuevoCaso';
+import { EncabezadoNuevoCaso, marcaLima } from '../components/nuevo/EncabezadoNuevoCaso';
 import { ConfirmacionCaso, type ConfirmacionCasoDatos } from '../components/nuevo/ConfirmacionCaso';
 import { PlusCircle } from 'lucide-react';
 import { useRegistrarTitulo } from '@/components/layout/header/PageTitleContext';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-const programacionVacia: ProgramacionVisita = { tecnicoId: '', adjuntoId: '', fecha: '', hora: '' };
+const programacionVacia: ProgramacionVisita = {
+  tecnicoId: '',
+  adjuntoId: '',
+  fecha: '',
+  hora: '',
+  numeroReporte: '',
+  desarrolloServicio: '',
+  adjuntoNombre: '',
+  horaIngreso: '',
+  horaSalida: '',
+  numeroHoras: '',
+  estado: 'por_programar',
+};
 
 export function NuevoCasoView() {
   return (
@@ -41,9 +54,6 @@ function NuevoCasoContenido() {
   const [confirmacion, setConfirmacion] = useState<ConfirmacionCasoDatos | null>(null);
   useRegistrarTitulo('Nuevo caso', 'Apertura de orden técnica de atención', PlusCircle);
 
-  // Next.js deja la pantalla oculta (no la desmonta) al navegar a otra ruta.
-  // Si se sale después de registrar, al volver se muestra el formulario vacío
-  // y no la confirmación anterior. Un borrador a medio llenar sí se conserva.
   useLayoutEffect(() => {
     if (!confirmacion) return;
     return () => {
@@ -80,8 +90,13 @@ function FormularioNuevoCaso({
   const router = useRouter();
   const [guardando, setGuardando] = useState(false);
   const [errorGlobal, setErrorGlobal] = useState<string | null>(null);
-  const [programar, setProgramar] = useState(false);
   const [programacion, setProgramacion] = useState<ProgramacionVisita>(programacionVacia);
+  const [fechaHoraActual, setFechaHoraActual] = useState('');
+
+  useEffect(() => {
+    const id = setTimeout(() => setFechaHoraActual(marcaLima()), 0);
+    return () => clearTimeout(id);
+  }, []);
 
   const form = useForm<NuevoCasoFormValues>({
     resolver: zodResolver(nuevoCasoSchema),
@@ -106,19 +121,24 @@ function FormularioNuevoCaso({
   const onSubmit = async (values: NuevoCasoFormValues) => {
     setGuardando(true);
     setErrorGlobal(null);
-    if (programar && (!programacion.tecnicoId || !programacion.fecha || !programacion.hora)) {
-      setErrorGlobal('Para programar la visita elige técnico, fecha y hora.');
+
+    const tieneTecnico = !!programacion.tecnicoId;
+    if (tieneTecnico && (!programacion.fecha || !programacion.hora)) {
+      setErrorGlobal('Para programar la visita técnica asigna la fecha y la hora.');
       setGuardando(false);
       return;
     }
-    if (programar && programacion.adjuntoId && programacion.adjuntoId === programacion.tecnicoId) {
+    if (tieneTecnico && programacion.adjuntoId && programacion.adjuntoId === programacion.tecnicoId) {
       setErrorGlobal('El técnico adjunto debe ser distinto del técnico asignado.');
       setGuardando(false);
       return;
     }
 
+    const canalFinal = values.canal_id || datos.catalogos.canales[0]?.id || '';
+    const modalidadFinal = values.modalidad_id || datos.catalogos.modalidades[0]?.id || '';
+
     const resultado = await crear_caso({
-      canal_id: values.canal_id,
+      canal_id: canalFinal,
       cliente_id: values.cliente_id,
       sede_id: values.sede_id,
       contacto_id: values.contacto_id,
@@ -126,7 +146,7 @@ function FormularioNuevoCaso({
       equipo_id: values.equipo_id,
       incidencia: values.incidencia.trim(),
       tipo_servicio_id: values.tipo_servicio_id,
-      modalidad_id: values.modalidad_id,
+      modalidad_id: modalidadFinal,
       modo_sugerido_id: values.modo_sugerido_id || null,
       modo_servicio_id: values.modo_servicio_id,
       motivo_cambio_modo: values.motivo_cambio_modo || null,
@@ -140,15 +160,31 @@ function FormularioNuevoCaso({
     }
 
     let errorProgramacion: string | null = null;
-    if (programar) {
+    if (tieneTecnico && programacion.fecha && programacion.hora) {
+      const horasNum =
+        programacion.numeroHoras && !isNaN(Number(programacion.numeroHoras))
+          ? Number(programacion.numeroHoras)
+          : null;
+
       const visita = await programar_visita(
         resultado.datos.id,
         programacion.tecnicoId,
         programacion.fecha,
         programacion.hora,
         programacion.adjuntoId || null,
+        {
+          numero_fisico: programacion.numeroReporte?.trim() || null,
+          procedimiento: programacion.desarrolloServicio?.trim() || null,
+          hora_llegada: programacion.horaIngreso?.trim() || null,
+          hora_salida: programacion.horaSalida?.trim() || null,
+          horas: horasNum,
+          nombre_adjunto: programacion.adjuntoNombre?.trim() || null,
+          estado: programacion.estado || 'programado',
+        },
       );
-      if (!visita.ok) errorProgramacion = visita.error;
+      if (!visita.ok) {
+        errorProgramacion = visita.error;
+      }
     }
 
     const lista = await tecnicos();
@@ -159,11 +195,11 @@ function FormularioNuevoCaso({
       numero: resultado.datos.numero,
       creadoEn: resultado.datos.creado_en,
       cliente: datos.clienteSeleccionado?.razon_social ?? '',
-      programado: programar && !errorProgramacion,
-      tecnico: programar && !errorProgramacion ? nombre(programacion.tecnicoId) : null,
-      adjunto: programar && !errorProgramacion && programacion.adjuntoId ? nombre(programacion.adjuntoId) : null,
-      fecha: programar && !errorProgramacion ? programacion.fecha : null,
-      hora: programar && !errorProgramacion ? programacion.hora : null,
+      programado: tieneTecnico && !errorProgramacion,
+      tecnico: tieneTecnico && !errorProgramacion ? nombre(programacion.tecnicoId) : null,
+      adjunto: tieneTecnico && !errorProgramacion && programacion.adjuntoId ? nombre(programacion.adjuntoId) : null,
+      fecha: tieneTecnico && !errorProgramacion ? programacion.fecha : null,
+      hora: tieneTecnico && !errorProgramacion ? programacion.hora : null,
       errorProgramacion,
     });
   };
@@ -174,10 +210,17 @@ function FormularioNuevoCaso({
     contacto_id: 'contacto',
     equipo_id: 'equipo',
   };
+
   const irAlPrimerError = (errores: Partial<Record<keyof NuevoCasoFormValues, unknown>>) => {
     const orden: (keyof NuevoCasoFormValues)[] = [
-      'canal_id', 'cliente_id', 'sede_id', 'contacto_id', 'telefono', 'equipo_id',
-      'tipo_servicio_id', 'modalidad_id', 'modo_servicio_id', 'motivo_cambio_modo', 'incidencia',
+      'cliente_id',
+      'contacto_id',
+      'sede_id',
+      'telefono',
+      'equipo_id',
+      'tipo_servicio_id',
+      'incidencia',
+      'modo_servicio_id',
     ];
     const primero = orden.find((campo) => errores[campo]);
     if (!primero) return;
@@ -186,8 +229,15 @@ function FormularioNuevoCaso({
     nodo?.focus({ preventScroll: true });
   };
 
+  const handleNuevo = () => {
+    form.reset();
+    datos.handleCambiarCliente();
+    setProgramacion(programacionVacia);
+    setErrorGlobal(null);
+  };
+
   return (
-    <div className="mx-auto w-full max-w-5xl pb-28 md:pb-0">
+    <div className="mx-auto w-full max-w-5xl pb-28 md:pb-6">
       <EncabezadoNuevoCaso numeroOrigen={datos.numeroOrigen} />
 
       {errorGlobal && (
@@ -197,9 +247,30 @@ function FormularioNuevoCaso({
       )}
 
       <form onSubmit={form.handleSubmit(onSubmit, irAlPrimerError)} noValidate>
-        <div className="rounded-xl border border-border bg-card">
+        <div className="rounded-xl border border-border bg-card shadow-sm">
           <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-12 md:gap-x-4 md:gap-y-4 md:p-6">
-            <BloqueSolicitud form={form} canales={datos.catalogos.canales} />
+            {/* ── Fila 0: N° de Caso + Fecha y Hora ── */}
+            <div className="space-y-1.5 md:col-span-6">
+              <Label htmlFor="num_caso">N°de Caso</Label>
+              <Input
+                id="num_caso"
+                value="Por asignar"
+                disabled
+                className="bg-muted font-mono text-muted-foreground"
+              />
+            </div>
+
+            <div className="space-y-1.5 md:col-span-6">
+              <Label htmlFor="fecha_hora">Fecha y Hora</Label>
+              <Input
+                id="fecha_hora"
+                value={fechaHoraActual || 'Hora de Lima'}
+                disabled
+                className="bg-muted text-muted-foreground"
+              />
+            </div>
+
+            {/* Fila 1: Empresa + Contacto / Fila 2: Dirección + Teléfono */}
             <BloqueCliente
               form={form}
               queryCliente={datos.queryCliente}
@@ -215,6 +286,8 @@ function FormularioNuevoCaso({
               onSedeCreada={datos.registrarSede}
               onContactoCreado={datos.registrarContacto}
             />
+
+            {/* Fila 3: Equipo + Cabezales + Tipo de Servicio */}
             <BloqueEquipo
               form={form}
               clienteId={datos.clienteSeleccionado?.id ?? null}
@@ -225,17 +298,41 @@ function FormularioNuevoCaso({
               cabezales={datos.catalogos.modelos_cabezal}
               onEquipoChange={datos.handleEquipoChange}
               onEquipoCreado={datos.registrarEquipo}
+              catalogos={{ tipos_servicio: datos.catalogos.tipos_servicio }}
             />
+
+            {/* Fila 4: Incidencia + Modo de servicio */}
             <BloqueServicio form={form} catalogos={datos.catalogos} sugerencia={datos.sugerencia} />
-            <BloqueProgramar valor={programacion} onChange={setProgramacion} activo={programar} onActivoChange={setProgramar} />
+
+            {/* Sección 2: Tecnico, Fecha, hora, # Reporte, Desarrollo, Adjunto, Horas, Estado */}
+            <BloqueProgramar valor={programacion} onChange={setProgramacion} />
           </div>
 
-          <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-end gap-3 border-t border-border bg-card/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur md:static md:rounded-b-xl md:bg-muted/40 md:px-6 md:py-3 md:backdrop-blur-none">
-            <Button type="button" variant="outline" className="h-11 px-4 md:h-10" onClick={() => router.back()} disabled={guardando}>
-              Cancelar
+          {/* ── Botones de acción inferiores: Guardar, Buscar, Nuevo ── */}
+          <div className="flex flex-wrap items-center justify-center gap-4 border-t border-border bg-muted/30 px-6 py-4 rounded-b-xl">
+            <Button
+              type="submit"
+              className="min-w-32 h-10 shadow-sm"
+              disabled={guardando}
+            >
+              {guardando ? 'Guardando...' : 'Guardar'}
             </Button>
-            <Button type="submit" className="h-11 flex-1 px-5 md:h-10 md:flex-none" disabled={guardando}>
-              {guardando ? 'Guardando...' : 'Registrar caso'}
+            <Button
+              type="button"
+              variant="outline"
+              className="min-w-32 h-10 shadow-sm"
+              onClick={() => router.push('/casos')}
+            >
+              Buscar
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="min-w-32 h-10 shadow-sm"
+              onClick={handleNuevo}
+              disabled={guardando}
+            >
+              Nuevo
             </Button>
           </div>
         </div>

@@ -22,7 +22,7 @@ export function BloqueSolicitud({ form, canales }: BloqueSolicitudProps) {
   const canalActual = watch('canal_id');
 
   return (
-    <div className="space-y-1.5 md:col-span-5 lg:col-span-3">
+    <div className="space-y-1.5 md:col-span-5">
       <Label>
         Canal<span aria-hidden className="-ml-1.5 text-destructive">*</span>
       </Label>
