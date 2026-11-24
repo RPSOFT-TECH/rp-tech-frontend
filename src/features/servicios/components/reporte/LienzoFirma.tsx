@@ -170,7 +170,7 @@ export function LienzoFirma({ titulo, nombre, onNombre, firma, editable, onFirma
         <span aria-hidden className="text-destructive">*</span>
       </h3>
       {muestraImagen && firma ? (
-        <div className="relative h-36 w-full rounded-lg border border-border bg-card flex items-center justify-center p-2 overflow-hidden">
+        <div className="relative h-[210px] min-h-[200px] w-full rounded-lg border border-border bg-card flex items-center justify-center p-2 overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={firma}
@@ -179,7 +179,7 @@ export function LienzoFirma({ titulo, nombre, onNombre, firma, editable, onFirma
           />
         </div>
       ) : (
-        <div ref={marco} className="relative h-36 w-full rounded-lg border border-border bg-card overflow-hidden">
+        <div ref={marco} className="relative h-[210px] min-h-[200px] w-full rounded-lg border border-border bg-card overflow-hidden">
           <canvas
             ref={lienzo}
             className="h-full w-full touch-none cursor-crosshair text-foreground"

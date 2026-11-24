@@ -17,7 +17,7 @@ export function SeccionReporte({
   className?: string;
 }) {
   return (
-    <section className={cn('space-y-4 rounded-xl border border-border bg-card p-4', className)}>
+    <section className={cn('space-y-3 rounded-xl border border-border bg-card p-3.5', className)}>
       {titulo && (
         <header className="flex items-start justify-between gap-3">
           <div className="space-y-0.5">

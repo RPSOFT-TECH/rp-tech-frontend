@@ -1,22 +1,17 @@
 import type { Reporte } from '@/lib/datos-simulados/types';
 
 export const PASOS = [
-  { clave: 'llegada', nombre: 'Llegada' },
-  { clave: 'revision', nombre: 'Revisión inicial' },
-  { clave: 'desarrollo', nombre: 'Desarrollo' },
-  { clave: 'repuestos', nombre: 'Repuestos' },
-  { clave: 'conformidad', nombre: 'Conformidad' },
-  { clave: 'cierre', nombre: 'Cierre' },
+  { clave: 'llegada_revision', nombre: 'Llegada y revisión' },
+  { clave: 'trabajo', nombre: 'Trabajo realizado' },
+  { clave: 'cierre', nombre: 'Cierre y firmas' },
 ];
 
 // A qué paso lleva cada cosa que falta para cerrar (textos de faltantes_cierre).
 export function pasoDeFalta(falta: string): number {
   const texto = falta.toLowerCase();
-  if (texto.startsWith('llegada') || texto.includes('ingreso')) return 1;
-  if (texto.startsWith('revisión')) return 2;
-  if (texto.startsWith('procedimiento') || texto.startsWith('conclusión')) return 3;
-  if (texto.includes('firma')) return 5;
-  return 6;
+  if (texto.includes('llegada') || texto.includes('ingreso') || texto.includes('revisión')) return 1;
+  if (texto.includes('procedimiento') || texto.includes('conclusión')) return 2;
+  return 3;
 }
 
 export function horaLimaStr(): string {
